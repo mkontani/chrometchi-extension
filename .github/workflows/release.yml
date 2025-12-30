@@ -13,7 +13,7 @@ jobs:
 
     - name: Zip extension
       run: |
-        zip -r chrometchi-extension.zip . -x "*.git*" -x ".github/*" -x "src/test/*" -x ".DS_Store"
+        zip -r chrometchi-extension.zip . -x "*.git*" -x ".github/*" -x "src/test/*" -x ".DS_Store" -x "screenshots/*" -x "node_modules/*" -x "package.json" -x "package-lock.json" -x ".eslintrc.json" -x ".gitignore"
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
