@@ -3,8 +3,7 @@ import { EVOLUTIONS } from '../logic/evolution.js';
 
 let gameInstance = null;
 
-// Collect all possible monster IDs
-const ALL_MONSTERS = ['EGG', ...Object.keys(EVOLUTIONS).flatMap(k => EVOLUTIONS[k].next).filter(id => id !== undefined)];
+
 // Flatten and unique
 const MONSTER_LIST = [...new Set(['EGG', ...Object.keys(EVOLUTIONS), ...Object.values(EVOLUTIONS).flatMap(e => e.next)])];
 
