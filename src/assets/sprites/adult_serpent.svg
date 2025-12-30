@@ -1,0 +1,18 @@
+<svg width="128" height="128" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Coiled Body -->
+  <rect x="3" y="12" width="10" height="3" fill="#2ecc71"/>
+  <rect x="5" y="9" width="6" height="3" fill="#27ae60"/>
+  
+  <!-- Neck -->
+  <rect x="6" y="5" width="4" height="4" fill="#2ecc71"/>
+  
+  <!-- Head -->
+  <path d="M4 2 L12 2 L8 6 Z" fill="#2ecc71" transform="rotate(180 8 4)"/>
+  
+  <!-- Tongue -->
+  <path d="M8 5 L7 2 M8 5 L9 2" stroke="#e74c3c" stroke-width="1"/>
+  
+  <!-- Eyes -->
+  <rect x="6" y="6" width="1" height="1" fill="#f1c40f"/>
+  <rect x="9" y="6" width="1" height="1" fill="#f1c40f"/>
+</svg>

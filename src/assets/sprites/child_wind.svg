@@ -1,0 +1,14 @@
+<svg width="128" height="128" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cloud Body -->
+  <path d="M4 10 Q4 6 8 6 Q12 6 12 10 Q12 14 8 14 Q4 14 4 10" fill="#ecf0f1"/>
+  <circle cx="6" cy="7" r="2" fill="#ecf0f1"/>
+  <circle cx="10" cy="7" r="2" fill="#ecf0f1"/>
+  
+  <!-- Eyes -->
+  <rect x="6" y="9" width="1" height="1" fill="#2c3e50"/>
+  <rect x="9" y="9" width="1" height="1" fill="#2c3e50"/>
+  
+  <!-- Wings -->
+  <path d="M2 8 L4 6" stroke="#bdc3c7" stroke-width="1"/>
+  <path d="M14 8 L12 6" stroke="#bdc3c7" stroke-width="1"/>
+</svg>

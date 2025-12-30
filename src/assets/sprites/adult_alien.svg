@@ -1,0 +1,11 @@
+<svg width="128" height="128" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Head -->
+  <rect x="4" y="2" width="8" height="6" fill="#2ecc71"/>
+  
+  <!-- Body -->
+  <rect x="6" y="8" width="4" height="6" fill="#27ae60"/>
+  
+  <!-- Eye -->
+  <rect x="6" y="4" width="4" height="2" fill="#222"/>
+  <rect x="7" y="4" width="2" height="2" fill="#fff"/>
+</svg>

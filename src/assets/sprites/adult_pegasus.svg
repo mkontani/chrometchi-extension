@@ -1,0 +1,18 @@
+<svg width="128" height="128" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Horse Body -->
+  <rect x="4" y="6" width="8" height="6" fill="#ecf0f1"/>
+  
+  <!-- Head -->
+  <rect x="10" y="4" width="3" height="4" fill="#ecf0f1"/>
+  <rect x="11" y="2" width="1" height="2" fill="#ecf0f1"/> <!-- Ear -->
+  
+  <!-- Wings -->
+  <path d="M6 6 L4 2 L8 6" fill="#bdc3c7"/>
+  
+  <!-- Legs -->
+  <rect x="4" y="12" width="1" height="3" fill="#ecf0f1"/>
+  <rect x="11" y="12" width="1" height="3" fill="#ecf0f1"/>
+  
+  <!-- Eye -->
+  <rect x="11" y="5" width="1" height="1" fill="#3498db"/>
+</svg>

@@ -1,0 +1,19 @@
+<svg width="128" height="128" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Wings -->
+  <path d="M2 4 L6 8 L2 8 Z" fill="#eb4d4b"/>
+  <path d="M14 4 L10 8 L14 8 Z" fill="#eb4d4b"/>
+  
+  <!-- Body -->
+  <rect x="6" y="4" width="4" height="10" fill="#c0392b"/>
+  
+  <!-- Head -->
+  <rect x="5" y="2" width="6" height="4" fill="#e74c3c"/>
+  
+  <!-- Horns -->
+  <rect x="5" y="1" width="1" height="2" fill="#f1c40f"/>
+  <rect x="10" y="1" width="1" height="2" fill="#f1c40f"/>
+
+  <!-- Eyes -->
+  <rect x="6" y="3" width="1" height="1" fill="#fff"/>
+  <rect x="9" y="3" width="1" height="1" fill="#fff"/>
+</svg>

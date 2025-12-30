@@ -1,0 +1,14 @@
+<svg width="128" height="128" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Body -->
+  <path d="M6 6 Q8 12 10 6" fill="#e67e22"/>
+  
+  <!-- Wings -->
+  <path d="M2 2 Q6 8 6 6" fill="#f1c40f" stroke="#e67e22"/>
+  <path d="M14 2 Q10 8 10 6" fill="#f1c40f" stroke="#e67e22"/>
+  
+  <!-- Head -->
+  <rect x="7" y="4" width="2" height="2" fill="#f1c40f"/>
+  
+  <!-- Tail -->
+  <path d="M8 10 L6 14 M8 10 L8 15 M8 10 L10 14" stroke="#e74c3c" stroke-width="1"/>
+</svg>

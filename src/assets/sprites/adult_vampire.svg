@@ -1,0 +1,18 @@
+<svg width="128" height="128" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cape -->
+  <path d="M4 6 L2 14 L14 14 L12 6 Z" fill="#222"/>
+  
+  <!-- Head -->
+  <rect x="6" y="4" width="4" height="4" fill="#ecf0f1"/>
+  
+  <!-- Hair -->
+  <path d="M6 4 L8 2 L10 4 Z" fill="#222"/>
+  
+  <!-- Eyes -->
+  <rect x="6" y="5" width="1" height="1" fill="#e74c3c"/>
+  <rect x="9" y="5" width="1" height="1" fill="#e74c3c"/>
+  
+  <!-- Fangs -->
+  <rect x="6" y="7" width="1" height="1" fill="#fff"/>
+  <rect x="9" y="7" width="1" height="1" fill="#fff"/>
+</svg>

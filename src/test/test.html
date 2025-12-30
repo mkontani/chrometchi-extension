@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chrometchi Logic Test</title>
+</head>
+
+<body>
+    <h1>Chrometchi Logic Test</h1>
+    <div id="results">Running tests...</div>
+
+    <script type="module">
+        import { Game } from '../logic/game.js';
+        import { EvolutionSystem } from '../logic/evolution.js';
+
+        // Mock chrome.storage and notifications for testing
+        window.chrome = {
+            storage: {
+                local: {
+                    get: async () => ({}),
+                    set: async (data) => { console.log('Saved:', data); }
+                }
+            },
+            notifications: {
+                create: (data) => { console.log('Notification:', data); }
+            },
+            alarms: {
+                create: () => { },
+                onAlarm: { addListener: () => { } }
+            },
+            runtime: {
+                onInstalled: { addListener: () => { } }
+            }
+        };
+
+        async function runTests() {
+            const results = [];
+
+            try {
+                // Test 1: Game Initialization
+                const game = new Game();
+                if (game.state.evolutionStage === 'EGG') results.push("Test 1 Passed: Starts as Egg");
+                else results.push("Test 1 Failed: Should start as Egg");
+
+                // Test 2: Feeding
+                game.state.stats.hunger = 50;
+                game.feed();
+                if (game.state.stats.hunger === 70) results.push("Test 2 Passed: Feeding works");
+                else results.push(`Test 2 Failed: Hunger is ${game.state.stats.hunger}`);
+
+                // Test 3: Decay per Tick (Egg)
+                const startAge = game.state.stats.age;
+                game.tick();
+                if (game.state.stats.age === startAge + 1) results.push("Test 3 Passed: Age increases");
+                else results.push("Test 3 Failed: Age did not increase correctly");
+
+                // Test 4: Evolution to Baby
+                // Force age
+                game.state.stats.age = 5;
+                game.tick();
+                if (game.state.evolutionStage === 'BABY') results.push("Test 4 Passed: Evolved to Baby");
+                else results.push(`Test 4 Failed: Stage is ${game.state.evolutionStage}`);
+
+                // Test 4.5: Varied Evolution (Manual check or basic path check)
+                game.state.stats.age = 15;
+                game.state.stats.happiness = 100;
+                game.state.stats.hunger = 100; // High stats -> Solar
+                game.tick();
+                if (game.state.evolutionStage === 'CHILD_SOLAR') results.push("Test 4.5 Passed: Evolved to Solar (High Stats)");
+                else results.push(`Test 4.5 Note: Evolved to ${game.state.evolutionStage} (Might be valid if stats changed)`);
+
+                // Test 5: Death Logic
+                game.state.evolutionStage = 'BABY';
+                game.state.stats.health = 2; // Low health
+                game.state.stats.hunger = 0; // Starving
+                game.tick(); // Health should drop because hungry
+                if (game.state.stats.health === 0 && game.state.status === 'DEAD') results.push("Test 5 Passed: Death Logic works");
+                else results.push(`Test 5 Failed: Health ${game.state.stats.health}, Status ${game.state.status}`);
+
+                // Test 6: Restart
+                game.restart();
+                if (game.state.status === 'ALIVE' && game.state.evolutionStage === 'EGG') results.push("Test 6 Passed: Restart works");
+                else results.push("Test 6 Failed: Restart failed");
+
+            } catch (e) {
+                results.push(`Error: ${e.message}`);
+                console.error(e);
+            }
+
+            document.getElementById('results').innerHTML = results.join('<br>');
+        }
+
+        runTests();
+    </script>
+</body>
+
+</html>

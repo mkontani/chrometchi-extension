@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrometchi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Chrometchi</h1>
+            <div id="stats-bar">
+                <div class="stat" id="hunger-stat" title="Hunger">🍖 <span id="hunger-val">100</span>%</div>
+                <div class="stat" id="happiness-stat" title="Happiness">💖 <span id="happiness-val">100</span>%</div>
+                <div class="stat" id="health-stat" title="Health">❤️ <span id="health-val">100</span>%</div>
+            </div>
+        </header>
+
+        <main id="game-area">
+            <div id="creature-display">
+                <!-- Creature/Egg SVG or Image rendered here -->
+                <!-- Creature/Egg SVG or Image rendered here -->
+                <img id="creature" src="../assets/sprites/egg.svg" alt="Creature" width="128" height="128"
+                    style="image-rendering: pixelated;">
+            </div>
+            <div id="message-area"></div>
+        </main>
+
+        <nav id="actions">
+            <button id="btn-feed">Feed</button>
+            <button id="btn-play">Play</button>
+            <button id="btn-clean">Clean</button>
+            <button id="btn-heal">Heal</button>
+            <button id="btn-encyclopedia">📖 Zukan</button>
+            <button id="btn-restart" style="display: none;">Restart</button>
+        </nav>
+
+        <div id="encyclopedia-modal" class="modal hidden">
+            <div class="modal-content">
+                <span id="close-encyclopedia" class="close">&times;</span>
+                <h2>Encyclopedia</h2>
+                <div id="encyclopedia-grid"></div>
+            </div>
+        </div>
+
+    </div>
+    <script type="module" src="popup.js"></script>
+</body>
+
+</html>
