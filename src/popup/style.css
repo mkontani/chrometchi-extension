@@ -6,8 +6,8 @@
 }
 
 body {
-    width: 300px;
-    height: 400px;
+    width: 320px;
+    height: 520px;
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
@@ -43,6 +43,60 @@ h1 {
     justify-content: space-between;
     width: 100%;
     font-size: 0.9rem;
+    align-items: center;
+}
+
+.stat-icon {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 17px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 17px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 13px;
+    width: 13px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--secondary-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(13px);
 }
 
 #game-area {
@@ -239,6 +293,66 @@ button:active {
     background: #222;
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#btn-feed {
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    border-color: #d35400;
+}
+
+#btn-feed:hover {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    border-color: #f39c12;
+}
+
+#btn-play {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #2980b9;
+}
+
+#btn-play:hover {
+    background: linear-gradient(135deg, #5dade2, #3498db);
+    border-color: #5dade2;
+}
+
+#btn-clean {
+    background: linear-gradient(135deg, #f1c40f, #f39c12);
+    border-color: #f39c12;
+}
+
+#btn-clean:hover {
+    background: linear-gradient(135deg, #f7dc6f, #f1c40f);
+    border-color: #f7dc6f;
+}
+
+#btn-heal {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    border-color: #27ae60;
+}
+
+#btn-heal:hover {
+    background: linear-gradient(135deg, #58d68d, #2ecc71);
+    border-color: #58d68d;
+}
+
+#btn-encyclopedia {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    border-color: #8e44ad;
+}
+
+#btn-encyclopedia:hover {
+    background: linear-gradient(135deg, #af7ac5, #9b59b6);
+    border-color: #af7ac5;
+}
+
+#btn-restart {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    border-color: #7f8c8d;
+}
+
+#btn-restart:hover {
+    background: linear-gradient(135deg, #bdc3c7, #95a5a6);
+    border-color: #bdc3c7;
 }
 
 /* Modal Styles */

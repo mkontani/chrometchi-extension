@@ -14,6 +14,17 @@ async function init() {
         await gameInstance.save();
     }
     render();
+
+    // Notification Toggle
+    const toggle = document.getElementById('notification-toggle');
+    if (gameInstance.settings && gameInstance.settings.notifications !== undefined) {
+        toggle.checked = gameInstance.settings.notifications;
+    }
+    toggle.addEventListener('change', async (e) => {
+        gameInstance.settings.notifications = e.target.checked;
+        await gameInstance.save();
+    });
+
     setupListeners();
 }
 
@@ -49,9 +60,12 @@ function setupListeners() {
     });
 
     document.getElementById('btn-restart').addEventListener('click', async () => {
-        gameInstance.restart();
-        await gameInstance.save();
-        render();
+        if (confirm('Are you sure you want to reset your Chrometchi? All progress (except Zukan) will be lost!')) {
+            gameInstance.restart();
+            await gameInstance.save();
+            showEffect('🔄');
+            render();
+        }
     });
 
     // Encyclopedia
@@ -176,9 +190,7 @@ function render() {
         creatureEl.src = getSpritePath('DEAD');
         creatureEl.className = ''; // No animation for dead
         msgArea.textContent = 'Your Chrometchi has passed away...';
-        restartBtn.style.display = 'inline-block';
     } else {
-        restartBtn.style.display = 'none';
         msgArea.textContent = '';
         creatureEl.src = getSpritePath(gameInstance.state.evolutionStage);
 
