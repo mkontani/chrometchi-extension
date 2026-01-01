@@ -15,6 +15,10 @@ export const EVOLUTIONS = {
         next: ['ADULT_GHOST', 'ADULT_ALIEN', 'ADULT_VAMPIRE'],
         duration: 20
     },
+    CHILD_ETHER: {
+        next: ['ADULT_ASTRA', 'ADULT_NEXUS'],
+        duration: 20
+    },
     CHILD_EARTH: {
         next: ['ADULT_GOLEM', 'ADULT_TREE'],
         duration: 20
@@ -65,8 +69,11 @@ export class EvolutionSystem {
                     // Play more than feed
                     nextStage = 'CHILD_WIND';
                 } else {
-                    // Balanced stats -> Random between Water and Metal
-                    nextStage = Math.random() > 0.5 ? 'CHILD_WATER' : 'CHILD_METAL';
+                    // Balanced stats -> Water, Metal, or NEW ETHER (Mysterious)
+                    const rand = Math.random();
+                    if (rand < 0.33) nextStage = 'CHILD_WATER';
+                    else if (rand < 0.66) nextStage = 'CHILD_METAL';
+                    else nextStage = 'CHILD_ETHER'; // New mysterious path
                 }
             }
         }
@@ -103,6 +110,11 @@ export class EvolutionSystem {
                 // Tech focus
                 if (avgState > 70) nextStage = 'ADULT_CYBORG';
                 else nextStage = 'ADULT_ROBOT';
+            }
+            else if (childType === 'CHILD_ETHER') {
+                // New Branch
+                if (avgState > 80) nextStage = 'ADULT_ASTRA'; // High states = Star Being
+                else nextStage = 'ADULT_NEXUS'; // Low/Mid = Energy Core
             }
         }
 

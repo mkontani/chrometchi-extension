@@ -117,6 +117,7 @@ function getSpritePath(id) {
         'CHILD_WATER': '../assets/sprites/child_water.svg',
         'CHILD_WIND': '../assets/sprites/child_wind.svg',
         'CHILD_METAL': '../assets/sprites/child_metal.svg',
+        'CHILD_ETHER': '../assets/sprites/child_ether.svg',
         'ADULT_DRAGON': '../assets/sprites/adult_dragon.svg',
         'ADULT_BEAST': '../assets/sprites/adult_beast.svg',
         'ADULT_PHOENIX': '../assets/sprites/adult_phoenix.svg',
@@ -131,6 +132,8 @@ function getSpritePath(id) {
         'ADULT_PEGASUS': '../assets/sprites/adult_pegasus.svg',
         'ADULT_ROBOT': '../assets/sprites/adult_robot.svg',
         'ADULT_CYBORG': '../assets/sprites/adult_cyborg.svg',
+        'ADULT_ASTRA': '../assets/sprites/adult_astra.svg',
+        'ADULT_NEXUS': '../assets/sprites/adult_nexus.svg',
         'DEAD': '../assets/sprites/dead.svg'
     };
     return map[id] || '../assets/sprites/egg.svg';
