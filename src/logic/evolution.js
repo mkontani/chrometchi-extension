@@ -15,6 +15,10 @@ export const EVOLUTIONS = {
         next: ['ADULT_GHOST', 'ADULT_ALIEN', 'ADULT_VAMPIRE'],
         duration: 20
     },
+    CHILD_ETHER: {
+        next: ['ADULT_ASTRA', 'ADULT_NEXUS'],
+        duration: 20
+    },
     CHILD_EARTH: {
         next: ['ADULT_GOLEM', 'ADULT_TREE'],
         duration: 20
@@ -42,20 +46,35 @@ export class EvolutionSystem {
 
         let nextStage = null;
         const avgState = (stats.hunger + stats.happiness) / 2;
+        const hunger = stats.hunger;
+        const happy = stats.happiness;
 
         if (evolutionStage === 'EGG' && stats.age >= 5) {
             nextStage = 'BABY';
         }
         else if (evolutionStage === 'BABY' && stats.age >= 15) {
-            // Expanded Randomness
-            if (avgState > 80) nextStage = 'CHILD_SOLAR';
-            else if (avgState < 20) nextStage = 'CHILD_LUNAR';
-            else {
-                const rand = Math.random();
-                if (rand < 0.25) nextStage = 'CHILD_EARTH';
-                else if (rand < 0.5) nextStage = 'CHILD_WATER';
-                else if (rand < 0.75) nextStage = 'CHILD_WIND';
-                else nextStage = 'CHILD_METAL';
+            // More agency: Balance determines path
+            if (avgState >= 90) {
+                // Elite path
+                nextStage = 'CHILD_SOLAR';
+            } else if (avgState < 40) {
+                // Neglect path (With decay=5, 15 ticks drops 75 pts => 25. So <40 is safe)
+                nextStage = 'CHILD_LUNAR';
+            } else {
+                // Balanced/Skewed paths (40-89)
+                if (hunger > happy + 10) {
+                    // Feed more than play
+                    nextStage = 'CHILD_EARTH';
+                } else if (happy > hunger + 10) {
+                    // Play more than feed
+                    nextStage = 'CHILD_WIND';
+                } else {
+                    // Balanced stats -> Water, Metal, or NEW ETHER (Mysterious)
+                    const rand = Math.random();
+                    if (rand < 0.33) nextStage = 'CHILD_WATER';
+                    else if (rand < 0.66) nextStage = 'CHILD_METAL';
+                    else nextStage = 'CHILD_ETHER'; // New mysterious path
+                }
             }
         }
         else if (evolutionStage.startsWith('CHILD') && stats.age >= 35) {
@@ -63,30 +82,39 @@ export class EvolutionSystem {
             const childType = evolutionStage;
 
             if (childType === 'CHILD_SOLAR') {
-                if (avgState > 90 && rand < 0.2) nextStage = 'ADULT_PHOENIX';
-                else if (avgState > 60) nextStage = 'ADULT_DRAGON';
+                if (avgState > 95 && rand < 0.3) nextStage = 'ADULT_PHOENIX'; // Very Rare
+                else if (avgState > 70) nextStage = 'ADULT_DRAGON';
                 else nextStage = 'ADULT_BEAST';
             }
             else if (childType === 'CHILD_LUNAR') {
-                if (avgState < 20 && rand < 0.2) nextStage = 'ADULT_VAMPIRE';
-                else if (avgState > 40) nextStage = 'ADULT_ALIEN';
-                else nextStage = 'ADULT_GHOST';
+                if (avgState < 15 && rand < 0.3) nextStage = 'ADULT_VAMPIRE'; // Very Rare
+                else if (avgState < 40) nextStage = 'ADULT_GHOST';
+                else nextStage = 'ADULT_ALIEN';
             }
             else if (childType === 'CHILD_EARTH') {
-                if (avgState > 50) nextStage = 'ADULT_TREE';
-                else nextStage = 'ADULT_GOLEM';
+                // Hunger focus
+                if (hunger > 80) nextStage = 'ADULT_GOLEM';
+                else nextStage = 'ADULT_TREE';
             }
             else if (childType === 'CHILD_WATER') {
-                if (avgState > 50) nextStage = 'ADULT_SERPENT';
+                // Balanced
+                if (avgState > 60) nextStage = 'ADULT_SERPENT';
                 else nextStage = 'ADULT_KRAKEN';
             }
             else if (childType === 'CHILD_WIND') {
-                if (avgState > 50) nextStage = 'ADULT_PEGASUS';
+                // Happiness focus
+                if (happy > 80) nextStage = 'ADULT_PEGASUS';
                 else nextStage = 'ADULT_GRIFFIN';
             }
             else if (childType === 'CHILD_METAL') {
-                if (avgState > 50) nextStage = 'ADULT_CYBORG';
+                // Tech focus
+                if (avgState > 70) nextStage = 'ADULT_CYBORG';
                 else nextStage = 'ADULT_ROBOT';
+            }
+            else if (childType === 'CHILD_ETHER') {
+                // New Branch
+                if (avgState > 80) nextStage = 'ADULT_ASTRA'; // High states = Star Being
+                else nextStage = 'ADULT_NEXUS'; // Low/Mid = Energy Core
             }
         }
 

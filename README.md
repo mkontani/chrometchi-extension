@@ -6,6 +6,7 @@ Chrometchi is a retro-style virtual pet game that lives in your Chrome browser! 
 ![Chrometchi1 Icon](src/assets/sprites/egg.svg)
 ![Chrometchi1 Icon](src/assets/sprites/baby.svg)
 ![Chrometchi2 Icon](src/assets/sprites/child_solar.svg)
+![Chrometchi2 Icon](src/assets/sprites/adult_dragon.svg)
 
 ## Features
 

@@ -14,6 +14,7 @@ export class Game {
             evolutionStage: 'EGG', // EGG, BABY, ...
             lastTick: Date.now()
         };
+        this.settings = data.settings || { notifications: true };
         // Catalog is shared/global usually, but for now we can store it in the same object or separate.
         // Let's store it separately in storage but load it here for convenience, or add it to state.
         // Actually, catalog should persist across restarts, so it shouldn't be reset when game is reset.
@@ -22,12 +23,13 @@ export class Game {
     }
 
     static async load() {
-        const result = await chrome.storage.local.get(['chrometchiState', 'chrometchiCatalog']);
+        const result = await chrome.storage.local.get(['chrometchiState', 'chrometchiCatalog', 'chrometchiSettings']);
         const state = result.chrometchiState;
         const catalogData = result.chrometchiCatalog;
+        const settings = result.chrometchiSettings;
 
         if (state) {
-            return new Game({ state, catalog: catalogData });
+            return new Game({ state, catalog: catalogData, settings });
         }
         return null; // Or return new Game() if we want defaults always
     }
@@ -35,7 +37,8 @@ export class Game {
     async save() {
         await chrome.storage.local.set({
             chrometchiState: this.state,
-            chrometchiCatalog: this.catalog
+            chrometchiCatalog: this.catalog,
+            chrometchiSettings: this.settings
         });
     }
 
@@ -44,8 +47,12 @@ export class Game {
 
         // Decay stats
         if (this.state.evolutionStage !== 'EGG') {
-            this.state.stats.hunger = Math.max(0, this.state.stats.hunger - 1);
-            this.state.stats.happiness = Math.max(0, this.state.stats.happiness - 1);
+            let decayRate = 1;
+            if (this.state.evolutionStage === 'BABY') decayRate = 5;
+            else if (this.state.evolutionStage.startsWith('CHILD')) decayRate = 2;
+
+            this.state.stats.hunger = Math.max(0, this.state.stats.hunger - decayRate);
+            this.state.stats.happiness = Math.max(0, this.state.stats.happiness - decayRate);
 
             if (this.state.stats.hunger < 20 || this.state.stats.happiness < 20) {
                 this.state.stats.health = Math.max(0, this.state.stats.health - 2);
@@ -89,12 +96,14 @@ export class Game {
         this.catalog.unlock(nextStage);
 
         // Notify (optional)
-        chrome.notifications?.create({
-            type: 'basic',
-            iconUrl: 'src/assets/icons/icon128.png',
-            title: 'Chrometchi Evolved!',
-            message: `Your Chrometchi grew into a ${nextStage}!`
-        });
+        if (chrome.notifications) {
+            chrome.notifications.create('evolution_' + Date.now(), {
+                type: 'basic',
+                iconUrl: chrome.runtime.getURL('src/assets/icons/icon128.png'),
+                title: 'Chrometchi Evolved!',
+                message: `Your Chrometchi grew into a ${nextStage}!`
+            });
+        }
     }
 
     feed() {

@@ -14,6 +14,17 @@ async function init() {
         await gameInstance.save();
     }
     render();
+
+    // Notification Toggle
+    const toggle = document.getElementById('notification-toggle');
+    if (gameInstance.settings && gameInstance.settings.notifications !== undefined) {
+        toggle.checked = gameInstance.settings.notifications;
+    }
+    toggle.addEventListener('change', async (e) => {
+        gameInstance.settings.notifications = e.target.checked;
+        await gameInstance.save();
+    });
+
     setupListeners();
 }
 
@@ -49,9 +60,12 @@ function setupListeners() {
     });
 
     document.getElementById('btn-restart').addEventListener('click', async () => {
-        gameInstance.restart();
-        await gameInstance.save();
-        render();
+        if (confirm('Are you sure you want to reset your Chrometchi? All progress (except Zukan) will be lost!')) {
+            gameInstance.restart();
+            await gameInstance.save();
+            showEffect('🔄');
+            render();
+        }
     });
 
     // Encyclopedia
@@ -103,6 +117,7 @@ function getSpritePath(id) {
         'CHILD_WATER': '../assets/sprites/child_water.svg',
         'CHILD_WIND': '../assets/sprites/child_wind.svg',
         'CHILD_METAL': '../assets/sprites/child_metal.svg',
+        'CHILD_ETHER': '../assets/sprites/child_ether.svg',
         'ADULT_DRAGON': '../assets/sprites/adult_dragon.svg',
         'ADULT_BEAST': '../assets/sprites/adult_beast.svg',
         'ADULT_PHOENIX': '../assets/sprites/adult_phoenix.svg',
@@ -117,6 +132,8 @@ function getSpritePath(id) {
         'ADULT_PEGASUS': '../assets/sprites/adult_pegasus.svg',
         'ADULT_ROBOT': '../assets/sprites/adult_robot.svg',
         'ADULT_CYBORG': '../assets/sprites/adult_cyborg.svg',
+        'ADULT_ASTRA': '../assets/sprites/adult_astra.svg',
+        'ADULT_NEXUS': '../assets/sprites/adult_nexus.svg',
         'DEAD': '../assets/sprites/dead.svg'
     };
     return map[id] || '../assets/sprites/egg.svg';
@@ -176,9 +193,7 @@ function render() {
         creatureEl.src = getSpritePath('DEAD');
         creatureEl.className = ''; // No animation for dead
         msgArea.textContent = 'Your Chrometchi has passed away...';
-        restartBtn.style.display = 'inline-block';
     } else {
-        restartBtn.style.display = 'none';
         msgArea.textContent = '';
         creatureEl.src = getSpritePath(gameInstance.state.evolutionStage);
 
