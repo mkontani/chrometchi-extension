@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { MOOD_DECAY, POOP } from './constants';
 import { makePet } from './__fixtures__/pet';
 import { stepNeeds } from './needs';
 import type { PetState } from './types';
@@ -13,13 +14,14 @@ describe('stepNeeds', () => {
   test('adult hunger and mood decay by stage rates', () => {
     const r = stepNeeds(makePet({ stage: 'adult' }));
     expect(r.pet.stats.hunger).toBeCloseTo(99.65);
-    expect(r.pet.stats.mood).toBeCloseTo(99.7);
+    expect(r.pet.stats.mood).toBeCloseTo(99.8);
     expect(r.events).toEqual([]);
   });
 
   test('each poop on the floor adds 0.1 mood decay per awake minute', () => {
     const r = stepNeeds(makePet({ stage: 'adult', poops: 3 }));
-    expect(r.pet.stats.mood).toBeCloseTo(100 - 0.3 - 3 * 0.1);
+    expect(POOP.moodDecayPerPoop).toBe(0.1);
+    expect(r.pet.stats.mood).toBeCloseTo(100 - MOOD_DECAY.adult - 3 * 0.1);
     expect(r.pet.stats.hunger).toBeCloseTo(99.65);
   });
 

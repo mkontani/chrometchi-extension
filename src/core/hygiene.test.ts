@@ -30,7 +30,15 @@ describe('stepHygiene', () => {
     expect(r.events.filter((e) => e.type === 'pooped')).toEqual([]);
   });
 
-  test('poop left 120 minutes causes one poop mistake and sickness', () => {
+  test('poop left out is tolerated for 179 minutes; the 180th minute is a mistake', () => {
+    const dirty = (poopMin: number) => makePet({ poops: 1, episodes: { ...makePet().episodes, poopMin } });
+    expect(stepHygiene(dirty(178)).pet.history.totalMistakes).toBe(0);
+    expect(stepHygiene(dirty(178)).pet.sick).toBe(false);
+    expect(stepHygiene(dirty(179)).pet.history.totalMistakes).toBe(1);
+    expect(stepHygiene(dirty(179)).pet.sick).toBe(true);
+  });
+
+  test('poop left sickAfterMin minutes causes one poop mistake and sickness', () => {
     const r = stepHygiene(
       makePet({ poops: 1, episodes: { ...makePet().episodes, poopMin: POOP.sickAfterMin - 1 } }),
     );

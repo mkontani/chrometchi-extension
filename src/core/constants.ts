@@ -20,18 +20,22 @@ export const HUNGER_DECAY: Readonly<Record<Stage, number>> = {
   adult: 0.35,
 };
 
+/**
+ * Base rate; each poop left out adds POOP.moodDecayPerPoop. Tuned so care every 160 awake
+ * minutes (spec 4.3's lowest cadence) never lets mood bottom out (see balance.test.ts).
+ */
 export const MOOD_DECAY: Readonly<Record<Stage, number>> = {
   egg: 0,
   baby: 0.6,
-  child: 0.4,
-  young: 0.35,
-  adult: 0.3,
+  child: 0.25,
+  young: 0.2,
+  adult: 0.2,
 };
 
 export const VITALITY = { zeroNeedLoss: 0.5, sickLoss: 0.5, recover: 0.2, recoverAbove: 50 } as const;
 export const MISTAKE_AFTER_MIN = 15;
 /** moodDecayPerPoop: extra mood decay per awake minute for each poop left on the floor. */
-export const POOP = { delayMin: 30, max: 4, sickAfterMin: 120, moodDecayPerPoop: 0.1 } as const;
+export const POOP = { delayMin: 30, max: 4, sickAfterMin: 180, moodDecayPerPoop: 0.1 } as const;
 export const SUGAR = { sickAt: 3, decayEveryMin: 60 } as const;
 export const MEDICINE_DOSES = 2;
 export const PET_ACTION = { cooldownMin: 10, mood: 5 } as const;
