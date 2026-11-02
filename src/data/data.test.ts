@@ -47,6 +47,13 @@ describe('form data', () => {
     expect(FORMS.filter((f) => f.priority === 100 && f.stage === 'adult')).toHaveLength(4);
   });
 
+  test('the heavy line uses original pudding forms, not slimes', () => {
+    const ids = FORMS.map((f) => f.id);
+    expect(ids).toEqual(expect.arrayContaining(['adult_pudding', 'adult_grandpudding']));
+    expect(ids.filter((id) => /slime/.test(id))).toEqual([]);
+    for (const f of FORMS) expect(f.motif, f.id).not.toMatch(/slime|jelly mound|teardrop/i);
+  });
+
   test('every form has a 4-12 word motif', () => {
     for (const f of FORMS) {
       const words = f.motif.trim().split(/\s+/).length;
@@ -96,6 +103,15 @@ describe('i18n', () => {
 
   test('message keys are valid chrome.i18n keys', () => {
     for (const key of Object.keys(ja)) expect(key).toMatch(/^[A-Za-z0-9_]+$/);
+  });
+
+  test('form names avoid franchise-adjacent names', () => {
+    const banned = /カバオ|Kabao|モグロ|Moguro|スライム|Slime/i;
+    for (const [locale, msgs] of [['ja', ja], ['en', en]] as const) {
+      for (const f of FORMS) {
+        expect(msgs[`form_${f.id}`]?.message, `${locale} ${f.id}`).not.toMatch(banned);
+      }
+    }
   });
 
   test('no form name ends with っち or tchi', () => {

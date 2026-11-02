@@ -72,7 +72,7 @@
     "message": "ガンゴ"
   },
   "form_adult_mole": {
-    "message": "モグロ"
+    "message": "ホリモ"
   },
   "form_adult_tree": {
     "message": "ジュモク"
@@ -123,13 +123,13 @@
     "message": "クマロ"
   },
   "form_adult_hippo": {
-    "message": "カバオ"
+    "message": "アクビバ"
   },
-  "form_adult_slime": {
-    "message": "ゼリン"
+  "form_adult_pudding": {
+    "message": "カスタ"
   },
-  "form_adult_kingslime": {
-    "message": "オウゼリ"
+  "form_adult_grandpudding": {
+    "message": "グランカスタ"
   },
   "food_rice": {
     "message": "ごはん"
@@ -503,10 +503,10 @@
   "hint_adult_hippo": {
     "message": "ぽっちゃりな子がカップ遊びを好むと…？"
   },
-  "hint_adult_slime": {
+  "hint_adult_pudding": {
     "message": "ぽっちゃりな子を、ふつうに育てると…？"
   },
-  "hint_adult_kingslime": {
+  "hint_adult_grandpudding": {
     "message": "ぽっちゃりな子が、もっとぽっちゃりすると…？ ごくまれに…"
   }
 }

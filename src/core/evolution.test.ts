@@ -120,10 +120,10 @@ describe('selectNextForm', () => {
     const messy = pet('young_hinoko', 'young', { history: history({ gameCounts, stageMistakes: 1 }) });
     expect(next(messy, { rng: () => 0.1, hour: 12 })).toBe('adult_dragon');
   });
-  test('kingslime needs heavy weight AND rng < 0.3', () => {
+  test('grandpudding needs heavy weight AND rng < 0.3', () => {
     const p = pet('young_poyo', 'young', { stats: { weight: BASE_WEIGHT.young * 1.5 } });
-    expect(next(p, { rng: () => 0.1, hour: 12 })).toBe('adult_kingslime');
-    expect(next(p, { rng: () => 0.5, hour: 12 })).not.toBe('adult_kingslime');
+    expect(next(p, { rng: () => 0.1, hour: 12 })).toBe('adult_grandpudding');
+    expect(next(p, { rng: () => 0.5, hour: 12 })).toBe('adult_pudding');
   });
   test('vampire only between 18:00 and 22:00', () => {
     const p = pet('young_kage', 'young', { history: history({ stageMistakes: 6, totalMistakes: 6 }) });

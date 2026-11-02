@@ -75,6 +75,6 @@ export const FORMS: readonly FormDef[] = [
   // Adults: heavy
   form('adult_bear', 'adult', 'heavy', ['young_poyo'], { dominantGame: 'catch' }, 50, 'huge cuddly brown bear creature with a big round belly'),
   form('adult_hippo', 'adult', 'heavy', ['young_poyo'], { dominantGame: 'cups' }, 50, 'giant pink hippo creature with a wide open yawning mouth'),
-  form('adult_slime', 'adult', 'heavy', ['young_poyo'], {}, 0, 'wobbling teal jelly mound creature with a goofy smile'),
-  form('adult_kingslime', 'adult', 'heavy', ['young_poyo'], { weight: 'heavy', chance: 0.3 }, 100, 'enormous jelly mound creature wearing a golden crown and royal cape'),
+  form('adult_pudding', 'adult', 'heavy', ['young_poyo'], {}, 0, 'round wobbly custard pudding creature with a caramel top and happy face'),
+  form('adult_grandpudding', 'adult', 'heavy', ['young_poyo'], { weight: 'heavy', chance: 0.3 }, 100, 'huge crowned custard pudding creature with a caramel cape'),
 ];

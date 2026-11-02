@@ -240,7 +240,7 @@ Adults: each young has three adults. The first matches `dominantGame: 'catch'` (
 | young_gear | adult_robot | adult_ufo | adult_cyborg | – |
 | young_kage | adult_ghost | adult_alien | adult_bat | adult_vampire (minStageMistakes 6, hours [18,22]) |
 | young_kirari | adult_unicorn | adult_comet | adult_nexus | adult_astra (maxTotalMistakes 0) |
-| young_poyo | adult_bear | adult_hippo | adult_slime | adult_kingslime (weight heavy, chance 0.3) |
+| young_poyo | adult_bear | adult_hippo | adult_pudding | adult_grandpudding (weight heavy, chance 0.3) |
 
 Adults inherit their young's family. `messages.json` (ja and en) gains `form_<id>` for all 42 forms (original names; see Global Constraints), plus `food_<id>` ×6 and `game_<id>` ×3.
 

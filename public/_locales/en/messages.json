@@ -72,7 +72,7 @@
     "message": "Gango"
   },
   "form_adult_mole": {
-    "message": "Moguro"
+    "message": "Horimo"
   },
   "form_adult_tree": {
     "message": "Jumoku"
@@ -123,13 +123,13 @@
     "message": "Kumaro"
   },
   "form_adult_hippo": {
-    "message": "Kabao"
+    "message": "Akubiba"
   },
-  "form_adult_slime": {
-    "message": "Zelin"
+  "form_adult_pudding": {
+    "message": "Custa"
   },
-  "form_adult_kingslime": {
-    "message": "Ozelin"
+  "form_adult_grandpudding": {
+    "message": "Grancusta"
   },
   "food_rice": {
     "message": "Rice"
@@ -503,10 +503,10 @@
   "hint_adult_hippo": {
     "message": "A plump one that loves the cups game...?"
   },
-  "hint_adult_slime": {
+  "hint_adult_pudding": {
     "message": "A plump one, raised plainly...?"
   },
-  "hint_adult_kingslime": {
+  "hint_adult_grandpudding": {
     "message": "A plump one, grown even plumper...? Very rarely..."
   }
 }
