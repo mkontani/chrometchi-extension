@@ -38,6 +38,7 @@ export interface EngineDeps {
   queryIdle: () => Promise<IdleState>;
   notifier: Notifier;
   badge: Badge;
+  reportError(err: unknown, context: string): void;
 }
 
 export interface Engine {
@@ -103,8 +104,38 @@ function bookkeepZukan(save: SaveV1, events: GameEvent[], now: number): SaveV1 {
   return zukan === save.zukan ? save : { ...save, zukan };
 }
 
+/** Unlock-only bookkeeping for events of a mutation (the game it ended may already be replaced). */
+function unlockOnly(save: SaveV1, events: GameEvent[]): SaveV1 {
+  const zukan = unlockFromEvents(save.zukan, events);
+  return zukan === save.zukan ? save : { ...save, zukan };
+}
+
 export function createEngine(deps: EngineDeps): Engine {
   const enqueue = createSerialQueue();
+
+  async function notifyBestEffort(save: SaveV1, events: GameEvent[], now: number) {
+    const { pet } = save.game;
+    try {
+      return await deps.notifier.notify(events, {
+        settings: save.settings,
+        asleep: pet.asleep,
+        now,
+        lastNotified: save.meta.lastNotified,
+      });
+    } catch (err) {
+      deps.reportError(err, 'notify');
+      return save.meta.lastNotified;
+    }
+  }
+
+  async function updateBadgeBestEffort(save: SaveV1): Promise<void> {
+    const { pet } = save.game;
+    try {
+      await deps.badge.update(pet.lifecycle === 'alive' ? deriveWarning(pet) : 'none');
+    } catch (err) {
+      deps.reportError(err, 'badge');
+    }
+  }
 
   async function runOperation(mutate: Mutator): Promise<Mutation> {
     const now = deps.now();
@@ -116,19 +147,14 @@ export function createEngine(deps: EngineDeps): Engine {
       idle,
       rng: deps.rng,
     });
-    const mutation = mutate({ ...loaded, game: advanced.game }, now);
+    const afterAdvance = bookkeepZukan({ ...loaded, game: advanced.game }, advanced.events, now);
+    const mutation = mutate(afterAdvance, now);
     const events = [...advanced.events, ...mutation.events];
-    const withZukan = bookkeepZukan(mutation.save, events, now);
-    const { pet } = withZukan.game;
-    const lastNotified = await deps.notifier.notify(events, {
-      settings: withZukan.settings,
-      asleep: pet.asleep,
-      now,
-      lastNotified: withZukan.meta.lastNotified,
-    });
+    const withZukan = unlockOnly(mutation.save, mutation.events);
+    const lastNotified = await notifyBestEffort(withZukan, events, now);
     const save: SaveV1 = { ...withZukan, meta: { ...withZukan.meta, lastNotified } };
-    await deps.badge.update(pet.lifecycle === 'alive' ? deriveWarning(pet) : 'none');
     await deps.repo.save(save);
+    await updateBadgeBestEffort(save);
     return { ...mutation, save };
   }
 

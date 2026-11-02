@@ -5,19 +5,25 @@ import type { GameEvent, WarningLevel } from '@/core/types';
 import { createFreshSave, createSaveRepository } from '@/storage/repository';
 import { createMemoryArea } from '@/storage/__fixtures__/memory-area';
 import { SAVE_KEY, type SaveV1 } from '@/storage/schema';
-import { createEngine, type Notifier } from './engine';
+import { createEngine, type Badge, type Notifier } from './engine';
 
 const T0 = Date.UTC(2026, 0, 1, 12, 0, 0);
 const MIN = 60_000;
 
-function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0) {
+interface Overrides {
+  notifier?: Notifier;
+  badge?: Badge;
+}
+
+function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0, over: Overrides = {}) {
   const area = createMemoryArea();
   const clock = { now: startAt };
   const fresh = createFreshSave(startAt);
   area.data.set(SAVE_KEY, { ...fresh, game: makeGame({ lastTickAt: startAt, ...seed }) });
   const notifyCalls: GameEvent[][] = [];
   const badgeLevels: WarningLevel[] = [];
-  const notifier: Notifier = {
+  const errors: Array<[unknown, string]> = [];
+  const notifier: Notifier = over.notifier ?? {
     async notify(events, ctx) {
       notifyCalls.push(events);
       return ctx.lastNotified;
@@ -29,10 +35,11 @@ function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0) {
     rng: createRng(1),
     queryIdle: async () => 'active',
     notifier,
-    badge: { update: async (l) => void badgeLevels.push(l) },
+    badge: over.badge ?? { update: async (l) => void badgeLevels.push(l) },
+    reportError: (err, context) => void errors.push([err, context]),
   });
   const stored = () => area.data.get(SAVE_KEY) as SaveV1;
-  return { engine, clock, stored, notifyCalls, badgeLevels };
+  return { engine, clock, stored, notifyCalls, badgeLevels, errors };
 }
 
 describe('engine', () => {
@@ -162,4 +169,71 @@ describe('engine', () => {
     await engine.handle({ type: 'care', action: { kind: 'pet' } });
     expect(notifyCalls).toHaveLength(1);
   });
+
+  const dyingPet = () =>
+    makePet({ stats: { hunger: 0, vitality: 0.5 }, awakeMinutes: 100, criticalSeenAt: 20 });
+  const hatchingEgg = () =>
+    makePet({ formId: 'egg', stage: 'egg', awakeMinutes: 29, stageMinutes: 29, path: ['egg'] });
+
+  test('notifier failure is reported, state still saved, lastNotified kept', async () => {
+    const boom = new Error('notify down');
+    const { engine, clock, stored, errors } = setup({ pet: hatchingEgg() }, T0, {
+      notifier: {
+        async notify() {
+          throw boom;
+        },
+      },
+    });
+    clock.now = T0 + MIN;
+    const res = await engine.handle({ type: 'sync' });
+    expect(res.ok).toBe(true);
+    expect(stored().game.pet.formId).toBe('baby_puni');
+    expect(stored().meta.lastNotified).toEqual({});
+    expect(errors).toEqual([[boom, 'notify']]);
+  });
+
+  test('badge failure is reported but save and response are ok', async () => {
+    const boom = new Error('badge down');
+    const { engine, clock, stored, errors } = setup({ pet: hatchingEgg() }, T0, {
+      badge: {
+        async update() {
+          throw boom;
+        },
+      },
+    });
+    clock.now = T0 + MIN;
+    const res = await engine.handle({ type: 'sync' });
+    expect(res.ok).toBe(true);
+    expect(stored().game.pet.formId).toBe('baby_puni');
+    expect(errors).toEqual([[boom, 'badge']]);
+  });
+
+  test('notify gets advance + care events and its lastNotified is stored', async () => {
+    const seen: GameEvent[][] = [];
+    const { engine, clock, stored } = setup({ pet: hatchingEgg() }, T0, {
+      notifier: {
+        async notify(events) {
+          seen.push(events);
+          return { hatched: 123 };
+        },
+      },
+    });
+    clock.now = T0 + MIN;
+    await engine.handle({ type: 'care', action: { kind: 'lights', on: false } });
+    expect(seen[0]).toContainEqual({ type: 'hatched', to: 'baby_puni' });
+    expect(stored().meta.lastNotified).toEqual({ hatched: 123 });
+  });
+
+  test.each(['restart', 'startNewEgg'] as const)(
+    'death during advance of %s records the memory',
+    async (type) => {
+      const { engine, clock, stored } = setup({ pet: dyingPet() });
+      clock.now = T0 + MIN;
+      const res = await engine.handle({ type });
+      expect(res.ok).toBe(true);
+      expect(stored().game.generation).toBe(2);
+      expect(stored().zukan.memories).toHaveLength(1);
+      expect(stored().zukan.memories[0]?.generation).toBe(1);
+    },
+  );
 });
