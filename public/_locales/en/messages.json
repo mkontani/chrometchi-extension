@@ -157,5 +157,35 @@
   },
   "game_stop": {
     "message": "Stop"
+  },
+  "notify_hungry": {
+    "message": "Your pet looks hungry..."
+  },
+  "notify_unhappy": {
+    "message": "Your pet seems lonely. Play with it!"
+  },
+  "notify_pooped": {
+    "message": "Your pet made a mess. Time to clean up!"
+  },
+  "notify_sick": {
+    "message": "Your pet looks sick. Please take care of it."
+  },
+  "notify_danger": {
+    "message": "Your pet is getting weak...!"
+  },
+  "notify_critical": {
+    "message": "Your pet is in danger! Care for it right now!"
+  },
+  "notify_hatched": {
+    "message": "The egg has hatched!"
+  },
+  "notify_evolved": {
+    "message": "Your pet has evolved! Come take a look."
+  },
+  "notify_died": {
+    "message": "Your pet has passed away..."
+  },
+  "notify_departed": {
+    "message": "Your pet has moved on. Thank you for everything!"
   }
 }

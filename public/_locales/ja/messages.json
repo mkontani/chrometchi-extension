@@ -157,5 +157,35 @@
   },
   "game_stop": {
     "message": "ストップ"
+  },
+  "notify_hungry": {
+    "message": "おなかがすいたみたい…"
+  },
+  "notify_unhappy": {
+    "message": "さみしそう…あそんであげて！"
+  },
+  "notify_pooped": {
+    "message": "うんちをしたよ！そうじしてあげて"
+  },
+  "notify_sick": {
+    "message": "具合がわるそう…看病してあげて"
+  },
+  "notify_danger": {
+    "message": "元気がなくなってきたよ…！"
+  },
+  "notify_critical": {
+    "message": "このままだと危ない！すぐにお世話して！"
+  },
+  "notify_hatched": {
+    "message": "たまごがかえったよ！"
+  },
+  "notify_evolved": {
+    "message": "しんかしたよ！見に来てね"
+  },
+  "notify_died": {
+    "message": "お星さまになってしまいました…"
+  },
+  "notify_departed": {
+    "message": "旅立っていきました。ありがとう！"
   }
 }
