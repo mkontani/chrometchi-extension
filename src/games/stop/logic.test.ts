@@ -27,12 +27,28 @@ test('stop: marker moves at 0.8 units/s on try 0', () => {
 });
 
 test('stop: marker bounces at the ends', () => {
-  const s = run(stopGame.init(rng), 1500); // 1.2 units -> bounced to 0.8, moving left
+  const s = run(stopGame.init(rng), 1500); // 1.2 units -> 0.8, moving left
   expect(s.pos).toBeCloseTo(0.8, 5);
   expect(s.dir).toBe(-1);
-  const back = run(s, 1000); // 0.8 - 0.8 = 0 -> then bounces start of right
-  expect(back.pos).toBeGreaterThanOrEqual(0);
-  expect(back.pos).toBeLessThanOrEqual(1);
+  const back = run(s, 1250); // 0.8 left to 0, then 0.2 right
+  expect(back.pos).toBeCloseTo(0.2, 5);
+  expect(back.dir).toBe(1);
+});
+
+test('stop: a huge dt keeps the marker within [0,1]', () => {
+  const s = stopGame.step(stopGame.init(rng), 1_000_000_007, none, rng);
+  expect(s.phase).toBe('run');
+  expect(s.pos).toBeGreaterThanOrEqual(0);
+  expect(s.pos).toBeLessThanOrEqual(1);
+});
+
+test('stop: a huge dt in the pause moves to the next try or done', () => {
+  const paused = stopGame.step(stopGame.init(rng), 10, act, rng);
+  const next = stopGame.step(paused, 10_000, none, rng);
+  expect(next.phase).toBe('run');
+  expect(next.tryIndex).toBe(1);
+  const last = { ...paused, tryIndex: 4 };
+  expect(stopGame.step(last, 10_000, none, rng).phase).toBe('done');
 });
 
 test('stop: hit inside the zone, miss outside', () => {

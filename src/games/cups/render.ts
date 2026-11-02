@@ -1,4 +1,4 @@
-import type { CupsState } from './logic';
+import { cupPosition, type CupsState } from './logic';
 
 const SIZE = 180;
 const SLOT_W = 60;
@@ -16,13 +16,13 @@ export function renderCups(ctx: CanvasRenderingContext2D, s: CupsState): void {
   const showTreat = s.phase === 'show' || s.phase === 'reveal';
   s.slotOf.forEach((slot, cup) => {
     const lifted = showTreat && cup === s.treatCup;
-    const x = slot * SLOT_W + (SLOT_W - CUP_W) / 2;
+    const pos = cupPosition(s, cup);
     if (lifted) {
       ctx.fillStyle = '#ffd84a';
       ctx.fillRect(slot * SLOT_W + (SLOT_W - TREAT) / 2, CUP_Y + CUP_H - TREAT, TREAT, TREAT);
     }
     ctx.fillStyle = '#8a5a2b';
-    ctx.fillRect(x, lifted ? CUP_Y - LIFT : CUP_Y, CUP_W, CUP_H);
+    ctx.fillRect(pos.x, lifted ? pos.y - LIFT : pos.y, CUP_W, CUP_H);
   });
   if (s.phase === 'pick') {
     ctx.strokeStyle = '#ff7aa2';

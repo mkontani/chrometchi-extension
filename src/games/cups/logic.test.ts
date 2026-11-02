@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { createRng } from '@/core/rng';
 import type { GameInput } from '../types';
-import { cupsGame, type CupsState } from './logic';
+import { cupPosition, cupsGame, swapMs, type CupsState } from './logic';
 
 const none: GameInput = { left: false, right: false, action: false, pick: null };
 
@@ -144,4 +144,67 @@ test('cups: pickFromPointer maps x to slots', () => {
   expect(cupsGame.pickFromPointer?.(60, 90)).toBe(1);
   expect(cupsGame.pickFromPointer?.(125, 90)).toBe(2);
   expect(cupsGame.pickFromPointer?.(180, 90)).toBe(2);
+});
+
+test('cups: swapMs shrinks by 40ms per round', () => {
+  expect([0, 1, 4].map(swapMs)).toEqual([400, 360, 240]);
+});
+
+function midShuffle(ms: number): { s: CupsState; r: () => number } {
+  const r = seq(0, 0, 0); // treat cup 0; first swap slots 0 and 1
+  const s = advance(cupsGame.init(r), 800 + ms, r);
+  return { s, r };
+}
+
+test('cupPosition: cups at origin slots at the start of a swap', () => {
+  const { s } = midShuffle(0);
+  expect(s.swap).toEqual([0, 1]);
+  expect(cupPosition(s, 0)).toEqual({ x: 10, y: 80 });
+  expect(cupPosition(s, 1)).toEqual({ x: 70, y: 80 });
+  expect(cupPosition(s, 2)).toEqual({ x: 130, y: 80 });
+});
+
+test('cupPosition: mid-swap cups cross with opposite vertical offsets', () => {
+  const { s } = midShuffle(200); // t = 0.5
+  const a = cupPosition(s, 0);
+  const b = cupPosition(s, 1);
+  expect(a.x).toBeCloseTo(40);
+  expect(b.x).toBeCloseTo(40);
+  expect(a.y - 80).toBeCloseTo(-(b.y - 80));
+  expect(Math.abs(a.y - 80)).toBeCloseTo(14);
+  expect(a.y).not.toBe(b.y);
+  expect(cupPosition(s, 2)).toEqual({ x: 130, y: 80 });
+});
+
+test('cupPosition: after a swap the cups sit at the swapped slots', () => {
+  const { s } = midShuffle(0);
+  const done = { ...s, slotOf: [1, 0, 2], swap: null } as CupsState;
+  expect(cupPosition(done, 0)).toEqual({ x: 70, y: 80 });
+  expect(cupPosition(done, 1)).toEqual({ x: 10, y: 80 });
+  const end = { ...s, phaseMs: 400 } as CupsState; // t = 1 -> swapped x
+  expect(cupPosition(end, 0).x).toBeCloseTo(70);
+  expect(cupPosition(end, 1).x).toBeCloseTo(10);
+  expect(cupPosition(end, 0).y).toBeCloseTo(80);
+});
+
+test('cups: a huge dt from round start lands in pick with all swaps done', () => {
+  const r = createRng(21);
+  const s = cupsGame.step(cupsGame.init(r), 5000, none, r);
+  expect(s.phase).toBe('pick');
+  expect(s.swapsDone).toBe(3);
+  expect([...s.slotOf].sort()).toEqual([0, 1, 2]);
+});
+
+test('cups: reveal rolls into the next round and carries leftover time', () => {
+  const r = createRng(22);
+  const p = toPick(cupsGame.init(r), r);
+  const rev = cupsGame.step(p, 10, { ...none, pick: 0 }, r);
+  const next = cupsGame.step(rev, 1000, none, r);
+  expect(next.round).toBe(1);
+  expect(next.phase).toBe('show');
+  expect(next.phaseMs).toBe(300);
+  const far = cupsGame.step(rev, 5000, none, r); // 700 reveal + 800 show + 1440 shuffle
+  expect(far.round).toBe(1);
+  expect(far.phase).toBe('pick');
+  expect(far.swapsDone).toBe(4);
 });

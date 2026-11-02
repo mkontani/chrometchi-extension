@@ -12,6 +12,9 @@ export const BASE_SWAP_MS = 400;
 export const SWAP_MS_STEP = 40;
 const WIN_CORRECT = 3;
 const START_CURSOR = 1;
+export const CUP_W = 40;
+export const CUP_Y = 80;
+const ARC_PX = 14;
 
 export type CupsPhase = 'show' | 'shuffle' | 'pick' | 'reveal' | 'done';
 
@@ -31,7 +34,7 @@ export interface CupsState {
 }
 
 const swapCount = (round: number): number => BASE_SWAPS + round;
-const swapMs = (round: number): number => BASE_SWAP_MS - SWAP_MS_STEP * round;
+export const swapMs = (round: number): number => BASE_SWAP_MS - SWAP_MS_STEP * round;
 const clampSlot = (n: number): number => Math.max(0, Math.min(SLOTS - 1, n));
 
 function drawPair(rng: Rng): readonly [number, number] {
@@ -44,11 +47,17 @@ function exchange(slotOf: readonly number[], [a, b]: readonly [number, number]):
   return slotOf.map((slot) => (slot === a ? b : slot === b ? a : slot));
 }
 
-function startRound(round: number, slotOf: readonly number[], correct: number, rng: Rng): CupsState {
+function startRound(
+  round: number,
+  slotOf: readonly number[],
+  correct: number,
+  rng: Rng,
+  phaseMs = 0,
+): CupsState {
   return {
     round,
     phase: 'show',
-    phaseMs: 0,
+    phaseMs,
     slotOf,
     treatCup: Math.floor(rng() * SLOTS),
     swapsDone: 0,
@@ -81,9 +90,24 @@ function advance(s: CupsState, rng: Rng): CupsState {
   }
   if (s.phase === 'reveal' && s.phaseMs >= REVEAL_MS) {
     if (s.round + 1 >= ROUNDS) return { ...s, phase: 'done', phaseMs: 0 };
-    return advance(startRound(s.round + 1, s.slotOf, s.correct, rng), rng);
+    return advance(startRound(s.round + 1, s.slotOf, s.correct, rng, s.phaseMs - REVEAL_MS), rng);
   }
   return s;
+}
+
+const slotX = (slot: number): number => slot * SLOT_WIDTH + (SLOT_WIDTH - CUP_W) / 2;
+
+/** Cup top-left position in logical canvas coords; swapping cups cross in an arc. */
+export function cupPosition(s: CupsState, cup: number): { x: number; y: number } {
+  const slot = s.slotOf[cup] ?? 0;
+  if (s.phase !== 'shuffle' || s.swap === null || !s.swap.includes(slot)) {
+    return { x: slotX(slot), y: CUP_Y };
+  }
+  const [a, b] = s.swap;
+  const to = slot === a ? b : a;
+  const t = Math.max(0, Math.min(1, s.phaseMs / swapMs(s.round)));
+  const arc = ARC_PX * Math.sin(Math.PI * t) * (slot === a ? -1 : 1);
+  return { x: slotX(slot) + (slotX(to) - slotX(slot)) * t, y: CUP_Y + arc };
 }
 
 function choose(s: CupsState, slot: number): CupsState {

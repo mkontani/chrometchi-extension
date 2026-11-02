@@ -41,12 +41,11 @@ function startTry(tryIndex: number, hits: number, rng: Rng): StopState {
   };
 }
 
-/** Moves along [0,1], reflecting at the ends. */
+/** Moves along [0,1] as a triangle wave, reflecting at the ends. */
 function travel(pos: number, dir: 1 | -1, dist: number): { pos: number; dir: 1 | -1 } {
-  const raw = pos + dir * dist;
-  if (raw > 1) return travel(1, -1, raw - 1);
-  if (raw < 0) return travel(0, 1, -raw);
-  return { pos: raw, dir };
+  const unfolded = (dir === 1 ? pos : 2 - pos) + dist;
+  const m = unfolded % 2;
+  return m <= 1 ? { pos: m, dir: 1 } : { pos: 2 - m, dir: -1 };
 }
 
 function stopMarker(s: StopState): StopState {
