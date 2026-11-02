@@ -8,7 +8,10 @@ export function OutcomeToast({ outcome }: { outcome: CareOutcome | null }) {
   const [visible, setVisible] = useState<CareOutcome | null>(null);
 
   useEffect(() => {
-    if (outcome?.result !== 'refused') return;
+    if (outcome?.result !== 'refused') {
+      setVisible(null);
+      return;
+    }
     setVisible(outcome);
     const id = setTimeout(() => setVisible(null), TOAST_MS);
     return () => clearTimeout(id);

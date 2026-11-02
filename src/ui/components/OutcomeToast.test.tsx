@@ -33,3 +33,21 @@ test('a new refused outcome shows again after hiding', () => {
   rerender(<OutcomeToast outcome={{ ...refused, reason: 'asleep' }} />);
   expect(screen.getByText('refuse_asleep')).toBeTruthy();
 });
+
+test('refused then ok within 2s hides the toast', () => {
+  vi.useFakeTimers();
+  const { rerender } = render(<OutcomeToast outcome={refused} />);
+  act(() => void vi.advanceTimersByTime(500));
+  rerender(<OutcomeToast outcome={{ action: 'clean', result: 'ok' }} />);
+  expect(screen.queryByText('refuse_full')).toBeNull();
+  rerender(<OutcomeToast outcome={refused} />);
+  rerender(<OutcomeToast outcome={null} />);
+  expect(screen.queryByText('refuse_full')).toBeNull();
+});
+
+test('unmount leaves no timers', () => {
+  vi.useFakeTimers();
+  const { unmount } = render(<OutcomeToast outcome={refused} />);
+  unmount();
+  expect(vi.getTimerCount()).toBe(0);
+});

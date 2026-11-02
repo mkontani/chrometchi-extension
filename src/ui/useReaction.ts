@@ -31,7 +31,10 @@ export function useReaction(outcome: CareOutcome | null): ReactionState {
 
   useEffect(() => {
     const next = reactionFor(outcome);
-    if (!next.reaction) return;
+    if (!next.reaction) {
+      setState(NONE);
+      return;
+    }
     setState(next);
     const id = setTimeout(() => setState(NONE), REACTION_MS);
     return () => clearTimeout(id);
