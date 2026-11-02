@@ -19,8 +19,9 @@ function applyTransition(pet: PetState, asleepNow: boolean): StepResult {
   return { pet, events: [] };
 }
 
+/** Eggs sleep and wake like everyone else but are never charged a lights mistake. */
 function stepLightsEpisode(pet: PetState): StepResult {
-  if (!pet.asleep || !pet.lightsOn) return { pet, events: [] };
+  if (pet.stage === 'egg' || !pet.asleep || !pet.lightsOn) return { pet, events: [] };
   const lightsOnAsleepMin = pet.episodes.lightsOnAsleepMin + 1;
   if (lightsOnAsleepMin < MISTAKE_AFTER_MIN || pet.episodes.lightsMistakeTaken) {
     return { pet: { ...pet, episodes: { ...pet.episodes, lightsOnAsleepMin } }, events: [] };

@@ -51,6 +51,17 @@ describe('stepSleep', () => {
     expect(r.pet.episodes.lightsOnAsleepMin).toBe(0);
   });
 
+  test('an egg falls asleep and wakes but never takes a lights mistake', () => {
+    const egg = makePet({ stage: 'egg', formId: 'egg', lightsOn: true });
+    expect(stepSleep(egg, true).events).toEqual([{ type: 'fellAsleep' }]);
+    const night = run({ ...egg, asleep: true }, MISTAKE_AFTER_MIN + 30, true);
+    expect(night.events).toEqual([]);
+    expect(night.pet.history.totalMistakes).toBe(0);
+    expect(night.pet.episodes.lightsOnAsleepMin).toBe(0);
+    expect(night.pet.stats.mood).toBe(100);
+    expect(stepSleep(night.pet, false).events).toEqual([{ type: 'wokeUp' }]);
+  });
+
   test('waking turns the lights on, resets the episode and emits wokeUp', () => {
     const pet = makePet({
       asleep: true,
