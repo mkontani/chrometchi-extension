@@ -8,6 +8,8 @@ export default defineConfig({
     name: '__MSG_appName__',
     description: '__MSG_appDescription__',
     default_locale: 'en',
+    // Array.prototype.toSorted (src/core/evolution.ts) needs Chrome 110.
+    minimum_chrome_version: '110',
     permissions: ['storage', 'alarms', 'notifications', 'idle'],
     action: { default_title: '__MSG_appName__' },
   },
