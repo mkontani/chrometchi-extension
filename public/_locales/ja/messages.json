@@ -226,5 +226,44 @@
   },
   "error_generic": {
     "message": "エラーがおきました"
+  },
+  "refuse_full": {
+    "message": "おなかいっぱい"
+  },
+  "refuse_notSick": {
+    "message": "びょうきじゃないよ"
+  },
+  "refuse_asleep": {
+    "message": "ねているよ"
+  },
+  "refuse_notAlive": {
+    "message": "もういないよ"
+  },
+  "refuse_egg": {
+    "message": "まだたまごだよ"
+  },
+  "refuse_cooldown": {
+    "message": "ちょっとまってね"
+  },
+  "refuse_noPoop": {
+    "message": "きれいだよ"
+  },
+  "food_kind_meal": {
+    "message": "ごはん"
+  },
+  "food_kind_snack": {
+    "message": "おやつ"
+  },
+  "panel_food_title": {
+    "message": "なにをたべる？"
+  },
+  "panel_play_title": {
+    "message": "なにしてあそぶ？"
+  },
+  "close": {
+    "message": "とじる"
+  },
+  "action_pet": {
+    "message": "なでる"
   }
 }

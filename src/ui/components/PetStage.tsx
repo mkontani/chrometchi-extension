@@ -12,6 +12,7 @@ interface Props {
   reaction: Reaction;
   /** true when the happy reaction comes from playing (shows notes) */
   fromPlay?: boolean;
+  onPetClick?(): void;
 }
 
 export function choosePose(pet: PetState, reaction: Reaction, frame: 0 | 1): Pose {
@@ -52,25 +53,38 @@ function Poops({ count }: { count: number }) {
   );
 }
 
-export function PetStage({ pet, reaction, fromPlay = false }: Props) {
+export function PetStage({ pet, reaction, fromPlay = false, onPetClick }: Props) {
   const frame = useIdleFrame();
   const bg = backgroundUrl(pet.asleep ? 'room_night' : 'room_day');
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
   const style = bg ? { backgroundImage: `url(${bg})` } : undefined;
   const pose = choosePose(pet, reaction, frame);
+  const dark = pet.asleep && !pet.lightsOn;
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onPetClick?.();
+    }
+  };
   return (
-    <section class={`stage ${bgClass}`} style={style}>
+    <section class={`stage ${bgClass}${dark ? ' stage--dark' : ''}`} style={style}>
       <img
         class={`pet ${pose.startsWith('idle') ? 'pet--bounce' : ''}`}
         src={spriteUrl(pet.formId, pose)}
         width={128}
         height={128}
         alt={t(`form_${pet.formId}`)}
+        role="button"
+        tabIndex={0}
+        aria-label={t('action_pet')}
+        onClick={onPetClick}
+        onKeyDown={onKeyDown}
       />
       <Poops count={pet.poops} />
       {pet.asleep && <Effect id="zzz" cls="effect--zzz" />}
       {pet.sick && <Effect id="sweat" cls="effect--sweat" />}
       {reaction === 'happy' && <Effect id="sparkle" cls="effect--sparkle" />}
+      {dark && <div class="stage__dim" />}
       {reaction === 'happy' && fromPlay && <Effect id="note" cls="effect--note" />}
     </section>
   );

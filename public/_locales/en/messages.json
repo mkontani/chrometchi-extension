@@ -226,5 +226,44 @@
   },
   "error_generic": {
     "message": "Something went wrong"
+  },
+  "refuse_full": {
+    "message": "Too full"
+  },
+  "refuse_notSick": {
+    "message": "Not sick"
+  },
+  "refuse_asleep": {
+    "message": "Sleeping"
+  },
+  "refuse_notAlive": {
+    "message": "Gone"
+  },
+  "refuse_egg": {
+    "message": "Still an egg"
+  },
+  "refuse_cooldown": {
+    "message": "Wait a bit"
+  },
+  "refuse_noPoop": {
+    "message": "Already clean"
+  },
+  "food_kind_meal": {
+    "message": "Meal"
+  },
+  "food_kind_snack": {
+    "message": "Snack"
+  },
+  "panel_food_title": {
+    "message": "What to eat?"
+  },
+  "panel_play_title": {
+    "message": "What to play?"
+  },
+  "close": {
+    "message": "Close"
+  },
+  "action_pet": {
+    "message": "Pet"
   }
 }
