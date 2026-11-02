@@ -69,18 +69,26 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay }: Mai
     setPanel(null);
   };
   const close = () => setPanel(null);
+  const choice =
+    panel === 'feed' ? <FoodPanel onPick={pickFood} onClose={close} />
+    : panel === 'play' ? <PlayPanel onPick={onPlay} onClose={close} />
+    : null;
   return (
     <>
       <StatusBar pet={pet} />
-      <CriticalBanner pet={pet} onAck={ackCritical} />
-      <PetStage
-        pet={pet}
-        reaction={reaction}
-        fromPlay={fromPlay}
-        onPetClick={() => care({ kind: 'pet' })}
-      />
-      {panel === 'feed' && <FoodPanel onPick={pickFood} onClose={close} />}
-      {panel === 'play' && <PlayPanel onPick={onPlay} onClose={close} />}
+      {/* The banner and panels overlay the stage so its size never changes. */}
+      <div class="stage-area">
+        <PetStage
+          pet={pet}
+          reaction={reaction}
+          fromPlay={fromPlay}
+          onPetClick={() => care({ kind: 'pet' })}
+        />
+        <div class="stage-area__overlay stage-area__overlay--top">
+          <CriticalBanner pet={pet} onAck={ackCritical} />
+        </div>
+        {choice && <div class="stage-area__overlay stage-area__overlay--bottom">{choice}</div>}
+      </div>
       <OutcomeToast outcome={outcome} />
       <ActionBar pet={pet} onSelect={onSelect} />
       {error && <ErrorNote error={error} />}

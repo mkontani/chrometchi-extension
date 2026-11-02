@@ -28,6 +28,13 @@ async function seedAndOpen(context: BrowserContext, extensionId: string, save: S
 const fullHearts = (page: Page, label: string) =>
   page.getByRole('img', { name: label, exact: true }).locator('.heart--full').count();
 
+/** The stage is 352x272 content + 3px border and must never shrink under panels or banners. */
+const STAGE_PX = { width: 358, height: 278 };
+const stageBox = async (page: Page) => {
+  const box = await page.locator('.stage').boundingBox();
+  return box && { width: Math.round(box.width), height: Math.round(box.height) };
+};
+
 test('fresh install shows an egg', async ({ popup, msg }) => {
   await expect(popup.getByRole('button', { name: msg('action_pet'), exact: true })).toHaveAttribute('alt', msg('form_egg'));
 });
@@ -44,6 +51,8 @@ test('feeding rice increases hunger hearts', async ({ context, extensionId, msg 
   await expect(page.getByRole('button', { name: msg('action_feed'), exact: true })).toBeEnabled();
   const before = await fullHearts(page, msg('stat_hunger'));
   await page.getByRole('button', { name: msg('action_feed'), exact: true }).click();
+  await expect(page.locator('.panel')).toBeVisible();
+  expect(await stageBox(page)).toEqual(STAGE_PX);
   await page.locator('.panel__item').first().click(); // rice is the first food
   await expect.poll(() => fullHearts(page, msg('stat_hunger'))).toBeGreaterThan(before);
 });
@@ -92,6 +101,9 @@ test('restart asks for confirmation', async ({ context, extensionId, msg }) => {
 test('critical state shows banner and stamps criticalSeenAt', async ({ context, extensionId, msg }) => {
   const page = await seedAndOpen(context, extensionId, seed({ stats: { vitality: 20 } }));
   await expect(page.getByRole('alert').filter({ hasText: msg('critical_banner') })).toBeVisible();
+  await page.getByRole('button', { name: msg('action_feed'), exact: true }).click();
+  await expect(page.locator('.panel')).toBeVisible();
+  expect(await stageBox(page)).toEqual(STAGE_PX); // banner + panel together must not squeeze it
   await expect
     .poll(async () => (await readSave(context)).game.pet.criticalSeenAt)
     .not.toBeNull();

@@ -195,6 +195,18 @@ test('critical pet shows the banner and acknowledges once', () => {
   expect(send.mock.calls.filter(([r]) => r.type === 'ackCritical')).toHaveLength(1);
 });
 
+test.each(['action_feed', 'action_play'])(
+  'the %s panel and the critical banner overlay the stage instead of pushing it',
+  (button) => {
+    const { ui } = setup(null, { stats: { ...pet.stats, vitality: 10 }, criticalSeenAt: 3 });
+    fireEvent.click(screen.getByLabelText(button));
+    const inArea = (selector: string) => ui.container.querySelector(`.stage-area ${selector}`);
+    expect(inArea('.stage')).toBeInstanceOf(HTMLElement);
+    expect(inArea('.stage-area__overlay--bottom .panel')).toBeInstanceOf(HTMLElement);
+    expect(inArea('.stage-area__overlay--top .critical-banner')).toBeInstanceOf(HTMLElement);
+  },
+);
+
 test('a dead pet shows the ending view and new egg sends startNewEgg', () => {
   const { send } = setup(null, { lifecycle: 'dead' });
   expect(screen.getByText('ending_dead_title')).toBeTruthy();

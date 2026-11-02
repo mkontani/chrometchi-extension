@@ -42,7 +42,12 @@ body {
 .heart--half:not(img) { background: linear-gradient(90deg, var(--accent) 50%, #d9cfe0 50%); }
 .heart--empty:not(img) { background: #d9cfe0; }
 
+.stage-area { position: relative; flex-shrink: 0; }
+.stage-area__overlay { position: absolute; left: 3px; right: 3px; z-index: 5; }
+.stage-area__overlay--top { top: 3px; }
+.stage-area__overlay--bottom { bottom: 3px; }
 .stage {
+  flex-shrink: 0;
   position: relative; box-sizing: content-box; width: 352px; height: 272px; border: 3px solid var(--ink);
   background-size: 352px 272px; background-repeat: no-repeat; image-rendering: pixelated;
 }
@@ -94,8 +99,9 @@ body {
 .panel__tag { font-size: 9px; padding: 0 3px; background: var(--ink); color: #fff; }
 .panel__tag--snack { background: var(--accent); }
 
+/* Below the critical banner and above a bottom panel; z-index keeps it over both overlays. */
 .toast {
-  position: absolute; left: 50%; top: 60px; transform: translateX(-50%); z-index: 10;
+  position: absolute; left: 50%; top: 92px; transform: translateX(-50%); z-index: 10;
   border: 3px solid var(--ink); background: #fff; padding: 4px 10px; font-size: 12px;
 }
 
