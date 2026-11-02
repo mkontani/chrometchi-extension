@@ -3,12 +3,13 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
 
-interface S { elapsed: number; picks: number[] }
+interface S { elapsed: number; picks: number[]; lefts: number }
 const stub = vi.hoisted(() => ({
   id: 'catch' as const,
-  init: (): S => ({ elapsed: 0, picks: [] }),
-  step: (s: S, dt: number, input: { pick: number | null }): S => ({
+  init: (): S => ({ elapsed: 0, picks: [], lefts: 0 }),
+  step: (s: S, dt: number, input: { pick: number | null; left: boolean }): S => ({
     elapsed: s.elapsed + dt,
+    lefts: s.lefts + (input.left ? 1 : 0),
     picks: input.pick === null ? s.picks : [...s.picks, input.pick],
   }),
   isOver: (s: S) => s.elapsed >= 1000,
@@ -83,4 +84,42 @@ test('arrow keys feed edges', () => {
   const ev = new KeyboardEvent('keydown', { key: 'ArrowLeft', cancelable: true });
   window.dispatchEvent(ev);
   expect(ev.defaultPrevented).toBe(true);
+});
+
+const lastState = () => {
+  const calls = (stub.render as ReturnType<typeof vi.fn>).mock.calls;
+  return calls[calls.length - 1]?.[1] as S;
+};
+
+test('taps map from the content box: far right is lane 4, border taps are ignored', () => {
+  const ui = render(<MiniGameHost game="catch" onFinish={vi.fn()} onCancel={vi.fn()} />);
+  const canvas = ui.container.querySelector('canvas') as HTMLCanvasElement;
+  canvas.getBoundingClientRect = () => ({ left: 0, top: 0, width: 360, height: 360 }) as DOMRect;
+  Object.defineProperty(canvas, 'clientLeft', { value: 3 });
+  Object.defineProperty(canvas, 'clientTop', { value: 3 });
+  fireEvent.pointerDown(canvas, { clientX: 356, clientY: 100 }); // content x = 353 of 354
+  fireEvent.pointerDown(canvas, { clientX: 1, clientY: 100 }); // on the border
+  act(() => void vi.advanceTimersByTime(20));
+  expect(lastState().picks).toEqual([4]);
+});
+
+test('quit is removed once the game is over and onFinish still fires once', () => {
+  const onFinish = vi.fn();
+  const onCancel = vi.fn();
+  render(<MiniGameHost game="catch" onFinish={onFinish} onCancel={onCancel} />);
+  expect(screen.getByText('game_quit')).toBeTruthy();
+  act(() => void vi.advanceTimersByTime(1200));
+  expect(screen.queryByText('game_quit')).toBeNull();
+  act(() => void vi.advanceTimersByTime(1500));
+  expect(onFinish).toHaveBeenCalledTimes(1);
+  expect(onCancel).not.toHaveBeenCalled();
+});
+
+test('auto-repeat keydown does not add edges', () => {
+  render(<MiniGameHost game="catch" onFinish={vi.fn()} onCancel={vi.fn()} />);
+  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+  act(() => void vi.advanceTimersByTime(20));
+  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', repeat: true }));
+  act(() => void vi.advanceTimersByTime(20));
+  expect(lastState().lefts).toBe(1);
 });

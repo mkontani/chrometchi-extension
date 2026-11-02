@@ -105,7 +105,8 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 10;
 }
 .minigame__hint { margin: 8px 0 0; font-size: 12px; text-align: center; }
-.minigame__canvas { border: 3px solid var(--ink); box-sizing: border-box; touch-action: none; }
+.minigame__frame { border: 3px solid var(--ink); line-height: 0; }
+.minigame__canvas { display: block; box-sizing: content-box; touch-action: none; }
 .minigame__result {
   position: absolute; top: 240px; left: 0; right: 0; text-align: center; font-size: 28px;
   background: #fff; border: 3px solid var(--ink); margin: 0 40px; padding: 8px;
