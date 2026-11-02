@@ -1,4 +1,161 @@
 {
-  "appName": { "message": "Chrometchi" },
-  "appDescription": { "message": "ブラウザで育てるドット絵のバーチャルペット" }
+  "appName": {
+    "message": "Chrometchi"
+  },
+  "appDescription": {
+    "message": "ブラウザで育てるドット絵のバーチャルペット"
+  },
+  "form_egg": {
+    "message": "タマゴ"
+  },
+  "form_baby_puni": {
+    "message": "プニ"
+  },
+  "form_child_kemu": {
+    "message": "ケム"
+  },
+  "form_child_dango": {
+    "message": "ダンゴ"
+  },
+  "form_child_hoshi": {
+    "message": "ホシ"
+  },
+  "form_child_mochi": {
+    "message": "モチ"
+  },
+  "form_young_kirari": {
+    "message": "キラリ"
+  },
+  "form_young_kage": {
+    "message": "カゲ"
+  },
+  "form_young_poyo": {
+    "message": "ポヨ"
+  },
+  "form_young_hinoko": {
+    "message": "ヒノコ"
+  },
+  "form_young_shizuku": {
+    "message": "シズク"
+  },
+  "form_young_mebuki": {
+    "message": "メブキ"
+  },
+  "form_young_fuwari": {
+    "message": "フワリ"
+  },
+  "form_young_gear": {
+    "message": "ギア"
+  },
+  "form_adult_dragon": {
+    "message": "ドラゴ"
+  },
+  "form_adult_beast": {
+    "message": "ガルム"
+  },
+  "form_adult_salamander": {
+    "message": "サラマ"
+  },
+  "form_adult_phoenix": {
+    "message": "フェニア"
+  },
+  "form_adult_serpent": {
+    "message": "ミズチ"
+  },
+  "form_adult_turtle": {
+    "message": "ゲンブ"
+  },
+  "form_adult_kraken": {
+    "message": "クラーケル"
+  },
+  "form_adult_golem": {
+    "message": "ガンゴ"
+  },
+  "form_adult_mole": {
+    "message": "モグロ"
+  },
+  "form_adult_tree": {
+    "message": "ジュモク"
+  },
+  "form_adult_griffin": {
+    "message": "グリフォ"
+  },
+  "form_adult_owl": {
+    "message": "フクロー"
+  },
+  "form_adult_pegasus": {
+    "message": "ペガロ"
+  },
+  "form_adult_robot": {
+    "message": "ロボッタ"
+  },
+  "form_adult_ufo": {
+    "message": "ユーフォン"
+  },
+  "form_adult_cyborg": {
+    "message": "サイボロ"
+  },
+  "form_adult_ghost": {
+    "message": "ユーレ"
+  },
+  "form_adult_alien": {
+    "message": "エイリー"
+  },
+  "form_adult_bat": {
+    "message": "コウモ"
+  },
+  "form_adult_vampire": {
+    "message": "ヴァミル"
+  },
+  "form_adult_unicorn": {
+    "message": "ユニア"
+  },
+  "form_adult_comet": {
+    "message": "スイセイ"
+  },
+  "form_adult_nexus": {
+    "message": "ネクサ"
+  },
+  "form_adult_astra": {
+    "message": "アストラ"
+  },
+  "form_adult_bear": {
+    "message": "クマロ"
+  },
+  "form_adult_hippo": {
+    "message": "カバオ"
+  },
+  "form_adult_slime": {
+    "message": "ゼリン"
+  },
+  "form_adult_kingslime": {
+    "message": "オウゼリ"
+  },
+  "food_rice": {
+    "message": "ごはん"
+  },
+  "food_meat": {
+    "message": "おにく"
+  },
+  "food_fish": {
+    "message": "おさかな"
+  },
+  "food_veggie": {
+    "message": "やさい"
+  },
+  "food_cake": {
+    "message": "ケーキ"
+  },
+  "food_candy": {
+    "message": "キャンディ"
+  },
+  "game_catch": {
+    "message": "キャッチ"
+  },
+  "game_cups": {
+    "message": "カップあて"
+  },
+  "game_stop": {
+    "message": "ストップ"
+  }
 }

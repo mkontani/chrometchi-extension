@@ -1,4 +1,161 @@
 {
-  "appName": { "message": "Chrometchi" },
-  "appDescription": { "message": "A pixel-art virtual pet you raise in your browser" }
+  "appName": {
+    "message": "Chrometchi"
+  },
+  "appDescription": {
+    "message": "A pixel-art virtual pet you raise in your browser"
+  },
+  "form_egg": {
+    "message": "Egg"
+  },
+  "form_baby_puni": {
+    "message": "Puni"
+  },
+  "form_child_kemu": {
+    "message": "Kemu"
+  },
+  "form_child_dango": {
+    "message": "Dango"
+  },
+  "form_child_hoshi": {
+    "message": "Hoshi"
+  },
+  "form_child_mochi": {
+    "message": "Mochi"
+  },
+  "form_young_kirari": {
+    "message": "Kirari"
+  },
+  "form_young_kage": {
+    "message": "Kage"
+  },
+  "form_young_poyo": {
+    "message": "Poyo"
+  },
+  "form_young_hinoko": {
+    "message": "Hinoko"
+  },
+  "form_young_shizuku": {
+    "message": "Shizuku"
+  },
+  "form_young_mebuki": {
+    "message": "Mebuki"
+  },
+  "form_young_fuwari": {
+    "message": "Fuwari"
+  },
+  "form_young_gear": {
+    "message": "Gear"
+  },
+  "form_adult_dragon": {
+    "message": "Drago"
+  },
+  "form_adult_beast": {
+    "message": "Garum"
+  },
+  "form_adult_salamander": {
+    "message": "Salama"
+  },
+  "form_adult_phoenix": {
+    "message": "Fenia"
+  },
+  "form_adult_serpent": {
+    "message": "Mizuchi"
+  },
+  "form_adult_turtle": {
+    "message": "Genbu"
+  },
+  "form_adult_kraken": {
+    "message": "Krakel"
+  },
+  "form_adult_golem": {
+    "message": "Gango"
+  },
+  "form_adult_mole": {
+    "message": "Moguro"
+  },
+  "form_adult_tree": {
+    "message": "Jumoku"
+  },
+  "form_adult_griffin": {
+    "message": "Griffo"
+  },
+  "form_adult_owl": {
+    "message": "Fukuro"
+  },
+  "form_adult_pegasus": {
+    "message": "Pegaro"
+  },
+  "form_adult_robot": {
+    "message": "Robotta"
+  },
+  "form_adult_ufo": {
+    "message": "Ufon"
+  },
+  "form_adult_cyborg": {
+    "message": "Cyboro"
+  },
+  "form_adult_ghost": {
+    "message": "Yure"
+  },
+  "form_adult_alien": {
+    "message": "Ailie"
+  },
+  "form_adult_bat": {
+    "message": "Koumo"
+  },
+  "form_adult_vampire": {
+    "message": "Vamiru"
+  },
+  "form_adult_unicorn": {
+    "message": "Unia"
+  },
+  "form_adult_comet": {
+    "message": "Suisei"
+  },
+  "form_adult_nexus": {
+    "message": "Nexa"
+  },
+  "form_adult_astra": {
+    "message": "Astra"
+  },
+  "form_adult_bear": {
+    "message": "Kumaro"
+  },
+  "form_adult_hippo": {
+    "message": "Kabao"
+  },
+  "form_adult_slime": {
+    "message": "Zelin"
+  },
+  "form_adult_kingslime": {
+    "message": "Ozelin"
+  },
+  "food_rice": {
+    "message": "Rice"
+  },
+  "food_meat": {
+    "message": "Meat"
+  },
+  "food_fish": {
+    "message": "Fish"
+  },
+  "food_veggie": {
+    "message": "Veggies"
+  },
+  "food_cake": {
+    "message": "Cake"
+  },
+  "food_candy": {
+    "message": "Candy"
+  },
+  "game_catch": {
+    "message": "Catch"
+  },
+  "game_cups": {
+    "message": "Cups"
+  },
+  "game_stop": {
+    "message": "Stop"
+  }
 }
