@@ -113,7 +113,7 @@ const zukanSchema: z.ZodType<Zukan> = z.object({
   memories: z.array(memorySchema),
 });
 
-const settingsSchema: z.ZodType<Settings> = z.object({
+export const settingsSchema = z.object({
   notifications: z.boolean(),
   sound: z.boolean(),
   sleepStartMin: minuteOfDay,
