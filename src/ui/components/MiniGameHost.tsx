@@ -43,13 +43,13 @@ export function MiniGameHost({ game, onFinish, onCancel }: Props) {
   const finishRef = useRef(onFinish);
   finishRef.current = onFinish;
   const def = MINI_GAMES[game];
-  const take = useGameInput(canvasRef, def?.pickFromPointer);
+  const take = useGameInput(canvasRef, def.pickFromPointer);
   const takeRef = useRef(take);
   takeRef.current = take;
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d');
-    if (!def || !ctx) return;
+    if (!ctx) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const stop = startLoop(def, ctx, () => takeRef.current(), (won) => {
       setResult(won);
