@@ -187,5 +187,44 @@
   },
   "notify_departed": {
     "message": "Your pet has moved on. Thank you for everything!"
+  },
+  "stat_hunger": {
+    "message": "Hunger"
+  },
+  "stat_mood": {
+    "message": "Mood"
+  },
+  "stat_vitality": {
+    "message": "Vitality"
+  },
+  "stat_weight": {
+    "message": "Weight"
+  },
+  "action_feed": {
+    "message": "Feed"
+  },
+  "action_play": {
+    "message": "Play"
+  },
+  "action_clean": {
+    "message": "Clean"
+  },
+  "action_medicine": {
+    "message": "Medicine"
+  },
+  "action_lights": {
+    "message": "Lights"
+  },
+  "action_zukan": {
+    "message": "Pets"
+  },
+  "action_settings": {
+    "message": "Settings"
+  },
+  "loading": {
+    "message": "Loading..."
+  },
+  "error_generic": {
+    "message": "Something went wrong"
   }
 }

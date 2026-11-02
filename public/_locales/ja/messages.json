@@ -187,5 +187,44 @@
   },
   "notify_departed": {
     "message": "旅立っていきました。ありがとう！"
+  },
+  "stat_hunger": {
+    "message": "おなか"
+  },
+  "stat_mood": {
+    "message": "ごきげん"
+  },
+  "stat_vitality": {
+    "message": "げんき"
+  },
+  "stat_weight": {
+    "message": "たいじゅう"
+  },
+  "action_feed": {
+    "message": "ごはん"
+  },
+  "action_play": {
+    "message": "あそぶ"
+  },
+  "action_clean": {
+    "message": "そうじ"
+  },
+  "action_medicine": {
+    "message": "くすり"
+  },
+  "action_lights": {
+    "message": "でんき"
+  },
+  "action_zukan": {
+    "message": "ずかん"
+  },
+  "action_settings": {
+    "message": "せってい"
+  },
+  "loading": {
+    "message": "よみこみちゅう…"
+  },
+  "error_generic": {
+    "message": "エラーがおきました"
   }
 }
