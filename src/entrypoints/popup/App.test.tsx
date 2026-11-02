@@ -32,11 +32,14 @@ test('shows loading while save is null', () => {
   expect(screen.getByText('loading')).toBeTruthy();
 });
 
-test('shows error text', () => {
+test('shows only the localized generic error; the raw detail goes to the console', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
   useGame.mockReturnValue({ save: null, outcome: null, error: 'boom', send: vi.fn() });
   render(<App />);
   expect(screen.getByText('error_generic')).toBeTruthy();
-  expect(screen.getByText('boom')).toBeTruthy();
+  expect(screen.queryByText('boom')).toBeNull();
+  expect(warn).toHaveBeenCalledWith(expect.any(String), 'boom');
+  warn.mockRestore();
 });
 
 test('clicking clean sends the care request', () => {

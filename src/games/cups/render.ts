@@ -1,4 +1,5 @@
-import { cupPosition, type CupsState } from './logic';
+import { drawCounter } from '../hud';
+import { cupPosition, ROUNDS, type CupsState } from './logic';
 
 const SIZE = 180;
 const SLOT_W = 60;
@@ -7,6 +8,8 @@ const CUP_H = 44;
 const CUP_Y = 80;
 const LIFT = 22;
 const TREAT = 14;
+const TREAT_COLOR = '#ffd84a';
+const CUP_COLOR = '#8a5a2b';
 
 /** Placeholder pixel shapes; Plan 2 swaps in sprites. */
 export function renderCups(ctx: CanvasRenderingContext2D, s: CupsState): void {
@@ -18,10 +21,10 @@ export function renderCups(ctx: CanvasRenderingContext2D, s: CupsState): void {
     const lifted = showTreat && cup === s.treatCup;
     const pos = cupPosition(s, cup);
     if (lifted) {
-      ctx.fillStyle = '#ffd84a';
+      ctx.fillStyle = TREAT_COLOR;
       ctx.fillRect(slot * SLOT_W + (SLOT_W - TREAT) / 2, CUP_Y + CUP_H - TREAT, TREAT, TREAT);
     }
-    ctx.fillStyle = '#8a5a2b';
+    ctx.fillStyle = CUP_COLOR;
     ctx.fillRect(pos.x, lifted ? pos.y - LIFT : pos.y, CUP_W, CUP_H);
   });
   if (s.phase === 'pick') {
@@ -33,7 +36,6 @@ export function renderCups(ctx: CanvasRenderingContext2D, s: CupsState): void {
     ctx.fillStyle = s.chosen === treatSlot ? '#3cb371' : '#d9534f';
     ctx.fillRect(s.chosen * SLOT_W + SLOT_W / 2 - 4, CUP_Y + CUP_H + 8, 8, 8);
   }
-  ctx.fillStyle = '#2b2233';
-  ctx.font = '10px monospace';
-  ctx.fillText(`${s.round + 1}/5  ok ${s.correct}`, 4, SIZE - 4);
+  drawCounter(ctx, 4, CUP_COLOR, `${Math.min(s.round + 1, ROUNDS)}/${ROUNDS}`);
+  drawCounter(ctx, 64, TREAT_COLOR, `×${s.correct}`);
 }

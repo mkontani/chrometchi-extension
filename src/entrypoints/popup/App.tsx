@@ -35,11 +35,14 @@ function sfxFor(outcome: CareOutcome): SfxName {
 type Panel = 'feed' | 'play' | 'zukan' | 'settings';
 const PANELS: readonly ActionKind[] = ['feed', 'play', 'zukan', 'settings'];
 
+/** Raw engine/Chrome errors are not localized, so the UI shows only a generic message. */
 function ErrorNote({ error }: { error: string }) {
+  useEffect(() => {
+    console.warn('[chrometchi] request failed:', error);
+  }, [error]);
   return (
     <div class="error" role="alert">
       <p>{t('error_generic')}</p>
-      <small>{error}</small>
     </div>
   );
 }
