@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'preact/hooks';
-import type { CareAction, FoodId, GameId } from '@/core/types';
+import { useCallback, useEffect, useState } from 'preact/hooks';
+import type { CareAction, CareOutcome, FoodId, GameId } from '@/core/types';
+import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
 import { ActionBar, type ActionKind } from '@/ui/components/ActionBar';
 import { CriticalBanner } from '@/ui/components/CriticalBanner';
@@ -14,7 +15,7 @@ import { PlayPanel } from '@/ui/components/PlayPanel';
 import { SettingsView } from '@/ui/components/SettingsView';
 import { StatusBar } from '@/ui/components/StatusBar';
 import { ZukanView } from '@/ui/components/ZukanView';
-import { useGame } from '@/ui/useGame';
+import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
 
 type Panel = 'feed' | 'play' | 'zukan' | 'settings';
@@ -29,22 +30,19 @@ function ErrorNote({ error }: { error: string }) {
   );
 }
 
-export function App() {
-  const { save, outcome, error, send } = useGame();
-  const [panel, setPanel] = useState<Panel | null>(null);
-  const [activeGame, setActiveGame] = useState<GameId | null>(null);
+interface MainProps {
+  save: SaveV1;
+  outcome: CareOutcome | null;
+  error: string | null;
+  send: UseGame['send'];
+  panel: Panel | null;
+  setPanel(next: Panel | null | ((cur: Panel | null) => Panel | null)): void;
+  onPlay(game: GameId): void;
+}
+
+function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay }: MainProps) {
   const { reaction, fromPlay } = useReaction(outcome);
   const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
-
-  if (!save) {
-    return (
-      <main class="app">
-        <p class="message">{t('loading')}</p>
-        {error && <ErrorNote error={error} />}
-      </main>
-    );
-  }
-
   const pet = save.game.pet;
   const care = (action: CareAction) => void send({ type: 'care', action });
   const onSelect = (kind: ActionKind) => {
@@ -56,14 +54,9 @@ export function App() {
     care({ kind: 'feed', food });
     setPanel(null);
   };
-  const pickGame = (game: GameId) => {
-    setActiveGame(game);
-    setPanel(null);
-  };
   const close = () => setPanel(null);
-
   return (
-    <main class="app">
+    <>
       <StatusBar pet={pet} />
       <CriticalBanner pet={pet} onAck={ackCritical} />
       <PetStage
@@ -73,44 +66,98 @@ export function App() {
         onPetClick={() => care({ kind: 'pet' })}
       />
       {panel === 'feed' && <FoodPanel onPick={pickFood} onClose={close} />}
-      {panel === 'play' && <PlayPanel onPick={pickGame} onClose={close} />}
+      {panel === 'play' && <PlayPanel onPick={onPlay} onClose={close} />}
       <OutcomeToast outcome={outcome} />
       <ActionBar pet={pet} onSelect={onSelect} />
       {error && <ErrorNote error={error} />}
-      {panel === 'zukan' && (
-        <Overlay title={t('zukan_title')} onClose={close}>
-          <ZukanView zukan={save.zukan} />
-        </Overlay>
-      )}
-      {panel === 'settings' && (
-        <Overlay title={t('settings_title')} onClose={close}>
-          <SettingsView
-            settings={save.settings}
-            onChange={(patch) => void send({ type: 'updateSettings', patch })}
-            onRestart={() => {
-              void send({ type: 'restart' });
-              close();
-            }}
-          />
-        </Overlay>
-      )}
-      {activeGame && (
-        <MiniGameHost
-          game={activeGame}
-          onFinish={(won) => {
-            care({ kind: 'play', game: activeGame, won });
-            setActiveGame(null);
-          }}
-          onCancel={() => setActiveGame(null)}
-        />
-      )}
-      {pet.lifecycle !== 'alive' && (
-        <EndingView pet={pet} onNewEgg={() => void send({ type: 'startNewEgg' })} />
-      )}
+    </>
+  );
+}
+
+function InfoOverlay(props: { kind: 'zukan' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
+  const { kind, save, send, onClose } = props;
+  if (kind === 'zukan') {
+    return (
+      <Overlay title={t('zukan_title')} onClose={onClose}>
+        <ZukanView zukan={save.zukan} />
+      </Overlay>
+    );
+  }
+  return (
+    <Overlay title={t('settings_title')} onClose={onClose}>
+      <SettingsView
+        settings={save.settings}
+        onChange={(patch) => void send({ type: 'updateSettings', patch })}
+        onRestart={() => {
+          void send({ type: 'restart' });
+          onClose();
+        }}
+      />
+    </Overlay>
+  );
+}
+
+export function App() {
+  const { save, outcome, error, send } = useGame();
+  const [panel, setPanel] = useState<Panel | null>(null);
+  const [activeGame, setActiveGame] = useState<GameId | null>(null);
+  const alive = save?.game.pet.lifecycle === 'alive';
+
+  useEffect(() => {
+    if (save && !alive) {
+      setActiveGame(null);
+      setPanel(null);
+    }
+  }, [save, alive]);
+
+  if (!save) {
+    return (
+      <main class="app">
+        <p class="message">{t('loading')}</p>
+        {error && <ErrorNote error={error} />}
+      </main>
+    );
+  }
+
+  const pet = save.game.pet;
+  const close = () => setPanel(null);
+  const endGame = () => setActiveGame(null);
+  const onPlay = (game: GameId) => {
+    setActiveGame(game);
+    setPanel(null);
+  };
+  const onFinish = (won: boolean) => {
+    if (activeGame) void send({ type: 'care', action: { kind: 'play', game: activeGame, won } });
+    endGame();
+  };
+
+  // Exactly one layer is mounted at a time, by priority.
+  let layer;
+  if (save.meta.showRenewal || save.meta.showDataReset) {
+    layer = (
       <NoticeDialog
         meta={save.meta}
         onDismiss={(notice) => void send({ type: 'dismissNotice', notice })}
       />
-    </main>
-  );
+    );
+  } else if (!alive) {
+    layer = <EndingView pet={pet} onNewEgg={() => void send({ type: 'startNewEgg' })} />;
+  } else if (activeGame) {
+    layer = <MiniGameHost game={activeGame} onFinish={onFinish} onCancel={endGame} />;
+  } else if (panel === 'zukan' || panel === 'settings') {
+    layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
+  } else {
+    layer = (
+      <MainScreen
+        save={save}
+        outcome={outcome}
+        error={error}
+        send={send}
+        panel={panel}
+        setPanel={setPanel}
+        onPlay={onPlay}
+      />
+    );
+  }
+  return <main class="app">{layer}</main>;
 }

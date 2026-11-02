@@ -16,3 +16,11 @@ test('is a labelled alertdialog; confirm and cancel call their handlers', () => 
   fireEvent.click(screen.getByText('yes'));
   expect(onConfirm).toHaveBeenCalled();
 });
+
+test('focuses the primary button and Escape cancels', () => {
+  const onCancel = vi.fn();
+  render(<ConfirmDialog message="m" confirmLabel="yes" cancelLabel="no" onConfirm={vi.fn()} onCancel={onCancel} />);
+  expect(document.activeElement).toBe(screen.getByText('yes'));
+  fireEvent.keyDown(screen.getByText('yes'), { key: 'Escape' });
+  expect(onCancel).toHaveBeenCalledTimes(1);
+});

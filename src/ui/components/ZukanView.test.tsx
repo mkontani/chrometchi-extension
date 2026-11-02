@@ -48,3 +48,9 @@ test('lists memories newest first', () => {
     'memory_line|1,form_child_kemu,ending_dead,2',
   ]);
 });
+
+test('never requests hints for egg or baby', () => {
+  render(<ZukanView zukan={{ discovered: [], memories: [] }} />);
+  expect(screen.queryByText('hint_egg')).toBeNull();
+  expect(screen.queryByText('hint_baby_puni')).toBeNull();
+});

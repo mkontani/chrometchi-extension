@@ -208,3 +208,91 @@ test('renewal notice shows and dismisses', () => {
   fireEvent.click(screen.getByText('ok'));
   expect(send).toHaveBeenCalledWith({ type: 'dismissNotice', notice: 'renewal' });
 });
+
+const critStats = { ...pet.stats, hunger: 0, mood: 0, vitality: 0 };
+const notice = { meta: { lastNotified: {}, showRenewal: true, showDataReset: false } };
+const acks = (send: ReturnType<typeof vi.fn>) =>
+  send.mock.calls.filter(([r]) => r.type === 'ackCritical').length;
+
+test('notice replaces the ending layer; ending replaces the main screen', () => {
+  setup(null, { lifecycle: 'dead' }, notice);
+  expect(screen.getByText('notice_renewal')).toBeTruthy();
+  expect(screen.queryByText('ending_dead_title')).toBeNull();
+  expect(screen.queryByLabelText('action_feed')).toBeNull();
+  cleanup();
+  setup(null, { lifecycle: 'dead' });
+  expect(screen.getByText('ending_dead_title')).toBeTruthy();
+  expect(screen.queryByLabelText('action_feed')).toBeNull();
+  expect(screen.queryByLabelText('action_pet')).toBeNull();
+});
+
+test('main screen is not mounted while zukan or settings is open', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  expect(screen.getByText('zukan_title')).toBeTruthy();
+  expect(screen.queryByLabelText('action_feed')).toBeNull();
+  expect(screen.queryByLabelText('action_pet')).toBeNull();
+});
+
+test('mini-game replaces zukan layer and main screen', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_play'));
+  fireEvent.click(screen.getByText('game_catch'));
+  expect(screen.getByText('game_hint_catch')).toBeTruthy();
+  expect(screen.queryByLabelText('action_feed')).toBeNull();
+  expect(screen.queryByText('zukan_title')).toBeNull();
+});
+
+test('a running mini-game disappears when the pet dies and never sends play', () => {
+  const send = vi.fn().mockResolvedValue(undefined);
+  useGame.mockReturnValue({ save: fullSave(), outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_play'));
+  fireEvent.click(screen.getByText('game_catch'));
+  expect(screen.getByText('game_hint_catch')).toBeTruthy();
+  useGame.mockReturnValue({ save: fullSave({ lifecycle: 'dead' }), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.queryByText('game_hint_catch')).toBeNull();
+  expect(screen.getByText('ending_dead_title')).toBeTruthy();
+  // pet "revived" by a new egg must not resurrect the old game
+  useGame.mockReturnValue({ save: fullSave(), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.queryByText('game_hint_catch')).toBeNull();
+  expect(send).not.toHaveBeenCalled();
+});
+
+test('no ackCritical while zukan is open; sent once after returning', () => {
+  const { send } = setup(null, { stats: critStats, criticalSeenAt: null }, { _x: 1 });
+  // main screen shows first, so ack was already sent once
+  expect(acks(send)).toBe(1);
+  cleanup();
+  const s2 = setup(null, { stats: critStats, criticalSeenAt: null, lifecycle: 'dead' });
+  expect(acks(s2.send)).toBe(0);
+});
+
+test('ack is deferred while a notice hides the main screen', () => {
+  const send = vi.fn().mockResolvedValue(undefined);
+  const crit = { stats: critStats, criticalSeenAt: null };
+  useGame.mockReturnValue({ save: fullSave(crit, notice), outcome: null, error: null, send });
+  const ui = render(<App />);
+  expect(acks(send)).toBe(0);
+  useGame.mockReturnValue({ save: fullSave(crit), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  expect(acks(send)).toBe(1);
+});
+
+test('Escape closes the zukan overlay', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  fireEvent.keyDown(screen.getByText('zukan_title'), { key: 'Escape' });
+  expect(screen.queryByText('zukan_title')).toBeNull();
+});
+
+test('Escape in the restart dialog cancels only the dialog', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_settings'));
+  fireEvent.click(screen.getByText('settings_restart'));
+  fireEvent.keyDown(screen.getByText('confirm_yes'), { key: 'Escape' });
+  expect(screen.queryByRole('alertdialog')).toBeNull();
+  expect(screen.getByText('settings_title')).toBeTruthy();
+});

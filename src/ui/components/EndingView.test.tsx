@@ -29,3 +29,8 @@ test('departed shows the happy sprite and farewell', () => {
   expect(screen.getByText('ending_departed_title')).toBeTruthy();
   expect(container.querySelector('img')?.getAttribute('src')).toBe('child_kemu-happy.png');
 });
+
+test('focuses the new egg button', () => {
+  render(<EndingView pet={makePet({ ...base, lifecycle: 'dead' })} onNewEgg={vi.fn()} />);
+  expect(document.activeElement).toBe(screen.getByText('new_egg'));
+});

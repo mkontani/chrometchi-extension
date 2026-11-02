@@ -24,3 +24,8 @@ test('renders nothing without notices', () => {
   const { container } = render(<NoticeDialog meta={{ showRenewal: false, showDataReset: false }} onDismiss={vi.fn()} />);
   expect(container.textContent).toBe('');
 });
+
+test('focuses the OK button', () => {
+  render(<NoticeDialog meta={{ showRenewal: true, showDataReset: false }} onDismiss={vi.fn()} />);
+  expect(document.activeElement).toBe(screen.getByText('ok'));
+});

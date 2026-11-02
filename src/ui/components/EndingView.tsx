@@ -1,5 +1,6 @@
 import type { PetState } from '@/core/types';
 import { t } from '@/i18n/t';
+import { useAutoFocus } from '@/ui/useAutoFocus';
 import { effectUrl, spriteUrl } from '@/ui/assets';
 
 function Emblem({ pet }: { pet: PetState }) {
@@ -15,6 +16,7 @@ function Emblem({ pet }: { pet: PetState }) {
 }
 
 export function EndingView({ pet, onNewEgg }: { pet: PetState; onNewEgg(): void }) {
+  const btn = useAutoFocus<HTMLButtonElement>();
   const title = t(pet.lifecycle === 'dead' ? 'ending_dead_title' : 'ending_departed_title');
   const path = pet.path.map((id) => t(`form_${id}`)).join(' → ');
   return (
@@ -22,7 +24,7 @@ export function EndingView({ pet, onNewEgg }: { pet: PetState; onNewEgg(): void 
       <Emblem pet={pet} />
       <h2>{title}</h2>
       <p>{t('ending_summary', [String(Math.floor(pet.awakeMinutes / 60)), path])}</p>
-      <button type="button" class="dialog__btn" onClick={onNewEgg}>
+      <button ref={btn} type="button" class="dialog__btn" onClick={onNewEgg}>
         {t('new_egg')}
       </button>
     </section>

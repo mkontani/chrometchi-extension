@@ -43,7 +43,7 @@ export function ZukanView({ zukan }: { zukan: Zukan }) {
             key={def.id}
             def={def}
             found={found.has(def.id)}
-            hinted={def.from.some((p) => found.has(p))}
+            hinted={def.stage !== 'egg' && def.stage !== 'baby' && def.from.some((p) => found.has(p))}
           />
         ))}
       </ul>
