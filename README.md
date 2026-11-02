@@ -1,50 +1,43 @@
+# Chrometchi
 
-# Chrometchi Extension 🥚👾
-
-Chrometchi is a retro-style virtual pet game that lives in your Chrome browser! Raise your creature from an egg, feed it, play with it, and discover various evolution paths.
-
-![Chrometchi1 Icon](src/assets/sprites/egg.svg)
-![Chrometchi1 Icon](src/assets/sprites/baby.svg)
-![Chrometchi2 Icon](src/assets/sprites/child_solar.svg)
-![Chrometchi2 Icon](src/assets/sprites/adult_dragon.svg)
+A pixel-art virtual pet that lives in your Chrome toolbar. Hatch an egg, raise it through
+its life stages, and discover all 42 forms.
 
 ## Features
 
--   **Deep Evolution System**: 16 unique monsters to discover!
-    -   Your care style (Stats) and a bit of luck (RNG) determine evolution.
-    -   Branches include Solar, Lunar, Earth, and Water paths.
--   **Retro Pixel Art**: Original SVG-based pixel art for every character.
--   **Encyclopedia (Zukan)**: Automatically records every monster you discover. Can you complete the collection?
--   **Dynamic Stats**: Manage Hunger, Happiness, and Health. Neglect leads to sickness and death!
--   **Persistent World**: Your Chrometchi grows even when the popup is closed (via background alarms).
+- **42 forms** across five stages. How you care for your pet decides what it becomes.
+- **Care**: 6 foods, 3 mini-games (Catch, Cups, Stop), cleaning up, medicine, lights out, and petting.
+- **Time only runs while Chrome is open.** Your pet sleeps at night (configurable) and needs the lights off.
+- **Warnings before death**: notifications and an in-popup banner tell you when life is in danger.
+- **Zukan**: a collection of every form you have discovered, plus memories of past pets.
+- English and Japanese, optional chiptune sound effects (off by default).
 
-## Installation
+## Install from source
 
-1.  Clone this repository.
-2.  Open Chrome and navigate to `chrome://extensions`.
-3.  Enable **Developer mode** (toggle in the top right).
-4.  Click **Load unpacked** and select this directory.
-5.  Pin the extension icon to your toolbar and start raising your egg!
+```bash
+npm ci
+npm run build
+```
 
-## How to Play
-
-1.  **Start**: Click the extension icon. You'll start with an Egg.
-2.  **Care**:
-    -   **Feed** (🍖): Reduces hunger.
-    -   **Play** (🎵): Increases happiness.
-    -   **Heal** (💊): Cures sickness if health gets low.
-    -   **Clean** (✨): Keeps the environment clean (Visual effect).
-3.  **Evolve**:
-    -   Egg hatches after 5 minutes.
-    -   Baby evolves after 15 minutes.
-    -   Child evolves into Adult after 35 minutes.
-    -   *Time flies when you're having fun!*
-4.  **Collection**: Click the **Zukan** button to see your discovered monsters.
+Then open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select
+`.output/chrome-mv3`.
 
 ## Development
 
--   **Run Tests**: Open `src/test/test.html` in your browser (may require a local server due to CORS).
-    ```bash
-    python3 -m http.server 8000
-    # Open http://localhost:8000/src/test/test.html
-    ```
+Built with [WXT](https://wxt.dev), TypeScript and Preact.
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start WXT dev mode with hot reload |
+| `npm test` | Run unit tests (Vitest) |
+| `npm run test:coverage` | Unit tests with the 80% coverage gate |
+| `npm run e2e` | Build and run Playwright extension tests |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript type check |
+| `npm run zip` | Package `.output/*-chrome.zip` for release |
+
+Before the first e2e run: `npx playwright install chromium`.
+
+## Credits
+
+Pixel art generated with PixelLab.
