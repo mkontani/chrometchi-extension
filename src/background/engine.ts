@@ -21,6 +21,8 @@ export interface Notifier {
     ctx: {
       settings: Settings;
       asleep: boolean;
+      /** a hatched pet whose lights are still on, so a bedtime reminder is useful */
+      lightsReminder: boolean;
       now: number;
       lastNotified: SaveMeta['lastNotified'];
     },
@@ -119,6 +121,7 @@ export function createEngine(deps: EngineDeps): Engine {
       return await deps.notifier.notify(events, {
         settings: save.settings,
         asleep: pet.asleep,
+        lightsReminder: pet.stage !== 'egg' && pet.lightsOn,
         now,
         lastNotified: save.meta.lastNotified,
       });

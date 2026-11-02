@@ -21,6 +21,7 @@ function kindOf(event: GameEvent): NotifyKind | null {
     case 'evolved':
     case 'died':
     case 'departed':
+    case 'fellAsleep':
       return event.type;
     case 'warning':
       return event.level === 'danger' || event.level === 'critical' ? event.level : null;
@@ -29,18 +30,24 @@ function kindOf(event: GameEvent): NotifyKind | null {
   }
 }
 
+/** Asleep pets stay quiet, except for the one bedtime nudge to turn the lights off. */
+function allowed(kind: NotifyKind, asleep: boolean, lightsReminder: boolean): boolean {
+  if (kind === 'fellAsleep') return lightsReminder;
+  return !asleep;
+}
+
 export function createNotifier(
   api: NotificationsApi,
   translate: typeof t,
   iconUrl: string,
 ): Notifier {
   return {
-    async notify(events, { settings, asleep, now, lastNotified }) {
-      if (!settings.notifications || asleep) return lastNotified;
+    async notify(events, { settings, asleep, lightsReminder, now, lastNotified }) {
+      if (!settings.notifications) return lastNotified;
       const kinds = new Set<NotifyKind>();
       for (const e of events) {
         const k = kindOf(e);
-        if (k) kinds.add(k);
+        if (k && allowed(k, asleep, lightsReminder)) kinds.add(k);
       }
       let updated = lastNotified;
       for (const kind of kinds) {

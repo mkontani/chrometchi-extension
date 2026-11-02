@@ -11,7 +11,8 @@ export type NotifyKind =
   | 'hatched'
   | 'evolved'
   | 'died'
-  | 'departed';
+  | 'departed'
+  | 'fellAsleep';
 
 export interface SaveMeta {
   lastNotified: Partial<Record<NotifyKind, number>>;
@@ -131,6 +132,7 @@ const notifyKinds = [
   'evolved',
   'died',
   'departed',
+  'fellAsleep',
 ] as const;
 
 const metaSchema: z.ZodType<SaveMeta> = z.object({

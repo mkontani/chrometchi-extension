@@ -15,6 +15,7 @@ function setup() {
 const ctx = (over: Record<string, unknown> = {}) => ({
   settings,
   asleep: false,
+  lightsReminder: false,
   now: 1_000_000,
   lastNotified: {},
   ...over,
@@ -91,4 +92,25 @@ test('notifier lets api errors propagate', async () => {
   const create = vi.fn().mockRejectedValue(new Error('boom'));
   const notifier = createNotifier({ create }, translate, 'i');
   await expect(notifier.notify([{ type: 'hatched', to: 'baby_puni' }], ctx())).rejects.toThrow('boom');
+});
+
+test('fellAsleep notifies while asleep when the lights still need turning off', async () => {
+  const { create, notifier } = setup();
+  const last = await notifier.notify(
+    [{ type: 'fellAsleep' }, { type: 'hungry' }],
+    ctx({ asleep: true, lightsReminder: true }),
+  );
+  expect(create.mock.calls.map((c) => c[1]?.message)).toEqual(['T:notify_fellAsleep']);
+  expect(last).toEqual({ fellAsleep: 1_000_000 });
+});
+
+test('fellAsleep stays silent without a lights reminder or with notifications off', async () => {
+  const { create, notifier } = setup();
+  const ev: GameEvent[] = [{ type: 'fellAsleep' }];
+  await notifier.notify(ev, ctx({ asleep: true, lightsReminder: false }));
+  await notifier.notify(
+    ev,
+    ctx({ asleep: true, lightsReminder: true, settings: { notifications: false } }),
+  );
+  expect(create).not.toHaveBeenCalled();
 });

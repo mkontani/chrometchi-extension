@@ -224,6 +224,27 @@ describe('engine', () => {
     expect(stored().meta.lastNotified).toEqual({ hatched: 123 });
   });
 
+  test.each([
+    ['baby', true],
+    ['egg', false],
+  ] as const)('falling asleep as %s passes lightsReminder=%s', async (stage, expected) => {
+    const bedtime = Date.UTC(2026, 0, 1, 21, 59, 0);
+    const pet = makePet({ stage, formId: stage === 'egg' ? 'egg' : 'baby_puni' });
+    const seen: Array<{ events: GameEvent[]; lightsReminder: boolean }> = [];
+    const { engine, clock } = setup({ pet }, bedtime, {
+      notifier: {
+        async notify(events, ctx) {
+          seen.push({ events, lightsReminder: ctx.lightsReminder });
+          return ctx.lastNotified;
+        },
+      },
+    });
+    clock.now = bedtime + MIN;
+    await engine.handle({ type: 'sync' });
+    expect(seen[0]?.events).toContainEqual({ type: 'fellAsleep' });
+    expect(seen[0]?.lightsReminder).toBe(expected);
+  });
+
   test.each(['restart', 'startNewEgg'] as const)(
     'death during advance of %s records the memory',
     async (type) => {

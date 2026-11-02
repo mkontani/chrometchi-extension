@@ -188,6 +188,9 @@
   "notify_departed": {
     "message": "旅立っていきました。ありがとう！"
   },
+  "notify_fellAsleep": {
+    "message": "ねむっちゃった。電気を消してあげてね"
+  },
   "stat_hunger": {
     "message": "おなか"
   },

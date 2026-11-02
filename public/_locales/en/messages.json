@@ -188,6 +188,9 @@
   "notify_departed": {
     "message": "Your pet has moved on. Thank you for everything!"
   },
+  "notify_fellAsleep": {
+    "message": "Your pet fell asleep. Turn off the light!"
+  },
   "stat_hunger": {
     "message": "Hunger"
   },
