@@ -349,7 +349,7 @@
     "message": "Start over"
   },
   "confirm_restart": {
-    "message": "Really start over? Your current pet and zukan will be erased."
+    "message": "Really start over? You'll say goodbye to your current pet and start a new egg. Your zukan is kept."
   },
   "confirm_yes": {
     "message": "Start over"

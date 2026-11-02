@@ -101,6 +101,14 @@ describe('i18n', () => {
     }
   });
 
+  test('restart confirmation says goodbye to the pet and keeps the zukan', () => {
+    expect(ja.confirm_restart?.message).toMatch(/お別れ/);
+    expect(ja.confirm_restart?.message).toMatch(/ずかんはそのまま/);
+    expect(en.confirm_restart?.message).toMatch(/goodbye/i);
+    expect(en.confirm_restart?.message).toMatch(/kept/i);
+    expect(en.confirm_restart?.message).not.toMatch(/erase/i);
+  });
+
   test('message keys are valid chrome.i18n keys', () => {
     for (const key of Object.keys(ja)) expect(key).toMatch(/^[A-Za-z0-9_]+$/);
   });
