@@ -9,6 +9,8 @@ const IDLE_INTERVAL_MS = 500;
 
 interface Props {
   pet: PetState;
+  /** picks the egg's shell pattern */
+  generation: number;
   reaction: Reaction;
   /** true when the happy reaction comes from playing (shows notes) */
   fromPlay?: boolean;
@@ -53,7 +55,7 @@ function Poops({ count }: { count: number }) {
   );
 }
 
-export function PetStage({ pet, reaction, fromPlay = false, onPetClick }: Props) {
+export function PetStage({ pet, generation, reaction, fromPlay = false, onPetClick }: Props) {
   const frame = useIdleFrame();
   const bg = backgroundUrl(pet.asleep ? 'room_night' : 'room_day');
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
@@ -71,7 +73,7 @@ export function PetStage({ pet, reaction, fromPlay = false, onPetClick }: Props)
     <section class={`stage ${bgClass}${dark ? ' stage--dark' : ''}`} style={style}>
       <img
         class={`pet ${pose.startsWith('idle') ? 'pet--bounce' : ''}`}
-        src={spriteUrl(pet.formId, pose)}
+        src={spriteUrl(pet.formId, pose, generation)}
         width={128}
         height={128}
         alt={formName}

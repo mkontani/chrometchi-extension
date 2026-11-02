@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { basename, extname } from 'node:path';
 import { PNG } from 'pngjs';
 import type { FormDef, Pose } from '../../src/core/types';
+import { EGG_PATTERNS } from '../../src/data/eggs';
 
 export type IssueKind =
   | 'missing'
@@ -84,9 +85,14 @@ export function checkImage(file: string, opts: CheckOptions): Issue[] {
   return issues;
 }
 
+const spriteDirs = (f: FormDef): string[] =>
+  f.id === 'egg' ? EGG_PATTERNS.map((p) => `egg/${p}`) : [f.id];
+
 export function requiredSpritePaths(forms: readonly FormDef[]): string[] {
   return forms.flatMap((f) =>
-    (f.id === 'egg' ? EGG_POSES : ALL_POSES).map((p) => `src/assets/sprites/${f.id}/${p}.png`),
+    spriteDirs(f).flatMap((dir) =>
+      (f.id === 'egg' ? EGG_POSES : ALL_POSES).map((p) => `src/assets/sprites/${dir}/${p}.png`),
+    ),
   );
 }
 

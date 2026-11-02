@@ -83,6 +83,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay }: Mai
       <div class="stage-area">
         <PetStage
           pet={pet}
+          generation={save.game.generation}
           reaction={reaction}
           fromPlay={fromPlay}
           onPetClick={() => care({ kind: 'pet' })}

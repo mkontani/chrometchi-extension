@@ -7,6 +7,13 @@ test('spriteUrl falls back to placeholder for unknown forms', () => {
   expect(spriteUrl('nope', 'happy')).toBe(placeholder);
 });
 
+test('egg sprites follow the generation pattern, other forms ignore it', () => {
+  expect(spriteUrl('egg', 'idle0', 1)).toContain('/sprites/egg/plain/idle0');
+  expect(spriteUrl('egg', 'idle0', 2)).toContain('/sprites/egg/dots/idle0');
+  expect(spriteUrl('egg', 'happy', 4)).toContain('/sprites/egg/stars/idle0');
+  expect(spriteUrl('baby_puni', 'idle0', 3)).toContain('/sprites/baby_puni/idle0');
+});
+
 test('iconUrl returns null when the icon file does not exist', () => {
   expect(iconUrl('feed')).toBeNull();
   expect(effectUrl('poop')).toBeNull();

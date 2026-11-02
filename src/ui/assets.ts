@@ -1,3 +1,4 @@
+import { eggPattern } from '@/data/eggs';
 import { FOODS } from '@/data/foods';
 import { GAMES } from '@/data/games';
 import type { FoodId, FormId, GameId, Pose } from '@/core/types';
@@ -29,10 +30,12 @@ export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'
 
 const lookup = (path: string): string | null => FILES[`/src/assets/${path}.png`] ?? null;
 
-export function spriteUrl(formId: FormId, pose: Pose): string {
+/** `generation` only matters for the egg, whose shell pattern changes each generation. */
+export function spriteUrl(formId: FormId, pose: Pose, generation = 1): string {
+  const dir = formId === 'egg' ? `egg/${eggPattern(generation)}` : formId;
   return (
-    lookup(`sprites/${formId}/${pose}`) ??
-    lookup(`sprites/${formId}/idle0`) ??
+    lookup(`sprites/${dir}/${pose}`) ??
+    lookup(`sprites/${dir}/idle0`) ??
     (lookup('sprites/_placeholder/idle0') as string)
   );
 }
