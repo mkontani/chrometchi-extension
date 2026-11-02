@@ -90,9 +90,16 @@ function pat(pet: PetState, action: CareAction): CareResult {
   return ok({ ...next, lastPetAt: pet.awakeMinutes }, action);
 }
 
-export function applyCare(pet: PetState, action: CareAction): CareResult {
-  if (pet.lifecycle !== 'alive') return refuse(pet, action, 'notAlive');
-  if (pet.stage === 'egg' && action.kind !== 'lights') return refuse(pet, action, 'egg');
+const RESCUE_KINDS: ReadonlySet<CareAction['kind']> = new Set(['feed', 'play', 'clean', 'medicine']);
+
+/** Real care re-arms the death grace: dying again needs a fresh critical-banner view (spec 4.4). */
+function rearmGrace(r: CareResult): CareResult {
+  const rescued = r.outcome.result === 'ok' && RESCUE_KINDS.has(r.outcome.action);
+  if (!rescued || r.pet.criticalSeenAt === null) return r;
+  return { ...r, pet: { ...r.pet, criticalSeenAt: null } };
+}
+
+function dispatch(pet: PetState, action: CareAction): CareResult {
   switch (action.kind) {
     case 'feed':
       return feed(pet, action);
@@ -107,4 +114,10 @@ export function applyCare(pet: PetState, action: CareAction): CareResult {
     case 'pet':
       return pat(pet, action);
   }
+}
+
+export function applyCare(pet: PetState, action: CareAction): CareResult {
+  if (pet.lifecycle !== 'alive') return refuse(pet, action, 'notAlive');
+  if (pet.stage === 'egg' && action.kind !== 'lights') return refuse(pet, action, 'egg');
+  return rearmGrace(dispatch(pet, action));
 }

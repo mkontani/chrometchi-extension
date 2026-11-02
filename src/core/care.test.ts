@@ -184,3 +184,30 @@ describe('pet', () => {
     refused(makePet({ asleep: true }), { kind: 'pet' }, 'asleep');
   });
 });
+
+describe('death grace re-arm', () => {
+  const seen = (patch: Parameters<typeof makePet>[0] = {}) =>
+    makePet({ criticalSeenAt: 12, stats: { hunger: 10, mood: 10, vitality: 5 }, ...patch });
+
+  test.each<[string, CareAction, Parameters<typeof makePet>[0]]>([
+    ['feed', { kind: 'feed', food: 'rice' }, {}],
+    ['play', { kind: 'play', game: 'catch', won: false }, {}],
+    ['clean', { kind: 'clean' }, { poops: 1 }],
+    ['medicine', { kind: 'medicine' }, { sick: true, medicineNeeded: 2 }],
+  ])('ok %s clears criticalSeenAt', (_name, action, patch) => {
+    const r = applyCare(seen(patch), action);
+    expect(r.outcome.result).toBe('ok');
+    expect(r.pet.criticalSeenAt).toBeNull();
+  });
+
+  test('refused care keeps criticalSeenAt', () => {
+    const r = applyCare(seen(), { kind: 'clean' });
+    expect(r.outcome.result).toBe('refused');
+    expect(r.pet.criticalSeenAt).toBe(12);
+  });
+
+  test('petting and lights do not count as rescue care', () => {
+    expect(applyCare(seen(), { kind: 'pet' }).pet.criticalSeenAt).toBe(12);
+    expect(applyCare(seen(), { kind: 'lights', on: true }).pet.criticalSeenAt).toBe(12);
+  });
+});

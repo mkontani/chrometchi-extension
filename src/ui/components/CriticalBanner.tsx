@@ -13,7 +13,12 @@ export function CriticalBanner({ pet, onAck }: Props) {
   const needsAck = visible && pet.criticalSeenAt === null;
   const sent = useRef(false);
   useEffect(() => {
-    if (!needsAck || sent.current) return;
+    // Re-arm once acknowledged (or no longer critical) so a later episode is acknowledged again.
+    if (!needsAck) {
+      sent.current = false;
+      return;
+    }
+    if (sent.current) return;
     sent.current = true;
     onAck();
   }, [needsAck, onAck]);

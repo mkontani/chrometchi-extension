@@ -31,3 +31,21 @@ test('renders nothing when not critical or not alive', () => {
   expect(container.textContent).toBe('');
   expect(onAck).not.toHaveBeenCalled();
 });
+
+test('acknowledges again when a later critical episode needs it', () => {
+  const onAck = vi.fn();
+  const { rerender } = render(<CriticalBanner pet={critical()} onAck={onAck} />);
+  rerender(<CriticalBanner pet={critical({ criticalSeenAt: 5 })} onAck={onAck} />);
+  expect(onAck).toHaveBeenCalledTimes(1);
+  // Care cleared the acknowledgement while the pet is still critical.
+  rerender(<CriticalBanner pet={critical()} onAck={onAck} />);
+  expect(onAck).toHaveBeenCalledTimes(2);
+});
+
+test('acknowledges again after recovering and becoming critical once more', () => {
+  const onAck = vi.fn();
+  const { rerender } = render(<CriticalBanner pet={critical()} onAck={onAck} />);
+  rerender(<CriticalBanner pet={makePet()} onAck={onAck} />);
+  rerender(<CriticalBanner pet={critical()} onAck={onAck} />);
+  expect(onAck).toHaveBeenCalledTimes(2);
+});
