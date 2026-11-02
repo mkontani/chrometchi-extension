@@ -25,7 +25,7 @@ export const FORMS: readonly FormDef[] = [
   form('child_mochi', 'child', 'none', CHILD_FROM, {}, 0, 'soft white rice cake creature with pink cheeks and stubby ears'),
 
   // Young
-  form('young_kirari', 'young', 'ether', ['child_hoshi'], { maxStageMistakes: 0 }, 100, 'graceful creature with crystal shard wings and a glittering star crown'),
+  form('young_kirari', 'young', 'ether', ['child_hoshi'], { maxStageMistakes: 0, chance: 0.5 }, 100, 'graceful creature with crystal shard wings and a glittering star crown'),
   form('young_kage', 'young', 'lunar', ['child_mochi', 'child_kemu', 'child_dango'], { minStageMistakes: 3 }, 90, 'slender shadow creature with glowing yellow eyes and a wispy tail'),
   form('young_poyo', 'young', 'heavy', ['child_dango', 'child_mochi'], { weight: 'heavy' }, 80, 'big bouncy round pudgy creature with a wide happy smile'),
   form('young_hinoko', 'young', 'solar', ['child_hoshi', 'child_mochi', 'child_dango'], { dominantFood: ['meat'] }, 50, 'small orange lizard-like creature with a flame on its tail'),
@@ -70,7 +70,7 @@ export const FORMS: readonly FormDef[] = [
   form('adult_unicorn', 'adult', 'ether', ['young_kirari'], { dominantGame: 'catch' }, 50, 'pearly white horned horse creature with a sparkling rainbow mane'),
   form('adult_comet', 'adult', 'ether', ['young_kirari'], { dominantGame: 'cups' }, 50, 'streaking fox-like creature with a glittering comet tail of stars'),
   form('adult_nexus', 'adult', 'ether', ['young_kirari'], {}, 0, 'floating crystal orb creature surrounded by orbiting gem shards'),
-  form('adult_astra', 'adult', 'ether', ['young_kirari'], { maxTotalMistakes: 0 }, 100, 'celestial angelic creature with a galaxy cloak and a halo of stars'),
+  form('adult_astra', 'adult', 'ether', ['young_kirari'], { maxTotalMistakes: 0, chance: 0.5 }, 100, 'celestial angelic creature with a galaxy cloak and a halo of stars'),
 
   // Adults: heavy
   form('adult_bear', 'adult', 'heavy', ['young_poyo'], { dominantGame: 'catch' }, 50, 'huge cuddly brown bear creature with a big round belly'),

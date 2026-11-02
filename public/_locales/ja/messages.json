@@ -402,7 +402,7 @@
     "message": "ふつうに育てると…？"
   },
   "hint_young_kirari": {
-    "message": "きらめく子が、さらに頑張ると…？"
+    "message": "きらめく子が、さらに頑張ると…？ ときどき…"
   },
   "hint_young_kage": {
     "message": "くらい子が、もっとサボると…？"
@@ -495,7 +495,7 @@
     "message": "きらめく子を、ふつうに育てると…？"
   },
   "hint_adult_astra": {
-    "message": "一度もミスせず育てると…？"
+    "message": "一度もミスせず育てると…？ ときどき…"
   },
   "hint_adult_bear": {
     "message": "ぽっちゃりな子がキャッチ遊びを好むと…？"

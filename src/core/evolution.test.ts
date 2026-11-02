@@ -131,11 +131,19 @@ describe('selectNextForm', () => {
     expect(next(p, { rng: () => 0.5, hour: 12 })).not.toBe('adult_vampire');
     expect(next(p, { rng: () => 0.5, hour: 22 })).not.toBe('adult_vampire');
   });
-  test('astra requires 0 total mistakes over the whole life', () => {
+  test('astra needs 0 total mistakes over the whole life AND rng < 0.5', () => {
     const clean = pet('young_kirari', 'young');
-    expect(next(clean)).toBe('adult_astra');
+    expect(next(clean, { rng: () => 0.4, hour: 12 })).toBe('adult_astra');
+    expect(next(clean, { rng: () => 0.6, hour: 12 })).toBe('adult_nexus');
     const past = pet('young_kirari', 'young', { history: history({ totalMistakes: 1 }) });
-    expect(next(past)).not.toBe('adult_astra');
+    expect(next(past, { rng: () => 0.1, hour: 12 })).not.toBe('adult_astra');
+  });
+  test('kirari needs 0 stage mistakes AND rng < 0.5', () => {
+    const perfect = pet('child_hoshi', 'child');
+    expect(next(perfect, { rng: () => 0.4, hour: 12 })).toBe('young_kirari');
+    expect(next(perfect, { rng: () => 0.6, hour: 12 })).toBe('young_gear');
+    const messy = pet('child_hoshi', 'child', { history: history({ stageMistakes: 1 }) });
+    expect(next(messy, { rng: () => 0.1, hour: 12 })).not.toBe('young_kirari');
   });
   test('throws when no form matches', () => {
     expect(() => selectNextForm(pet('adult_dragon', 'adult'), FORMS, ctx)).toThrow(
