@@ -81,6 +81,12 @@ function medicine(pet: PetState, action: CareAction): CareResult {
   return ok({ ...pet, medicineNeeded: needed, sick: needed > 0 }, action);
 }
 
+/** Lights can always be turned on; turning them off is only for a sleeping pet (or egg). */
+function lights(pet: PetState, action: Extract<CareAction, { kind: 'lights' }>): CareResult {
+  if (!action.on && !pet.asleep) return refuse(pet, action, 'awake');
+  return ok({ ...pet, lightsOn: action.on }, action);
+}
+
 function pat(pet: PetState, action: CareAction): CareResult {
   if (pet.asleep) return refuse(pet, action, 'asleep');
   if (pet.lastPetAt !== null && pet.awakeMinutes - pet.lastPetAt < PET_ACTION.cooldownMin) {
@@ -110,7 +116,7 @@ function dispatch(pet: PetState, action: CareAction): CareResult {
     case 'medicine':
       return medicine(pet, action);
     case 'lights':
-      return ok({ ...pet, lightsOn: action.on }, action);
+      return lights(pet, action);
     case 'pet':
       return pat(pet, action);
   }

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
-import type { Stage } from '@/core/types';
+import type { RefuseReason, Stage } from '@/core/types';
 import { FOODS } from './foods';
 import { FORMS } from './forms';
 import { GAMES } from './games';
@@ -80,6 +80,17 @@ describe('i18n', () => {
     for (const f of hinted) {
       expect(ja[`hint_${f.id}`]?.message, `ja ${f.id}`).toBeTruthy();
       expect(en[`hint_${f.id}`]?.message, `en ${f.id}`).toBeTruthy();
+    }
+  });
+
+  test('every refuse reason has a message in both locales', () => {
+    const reasons: Record<RefuseReason, true> = {
+      full: true, notSick: true, asleep: true, awake: true,
+      notAlive: true, egg: true, cooldown: true, noPoop: true,
+    };
+    for (const reason of Object.keys(reasons)) {
+      expect(ja[`refuse_${reason}`]?.message, `ja ${reason}`).toBeTruthy();
+      expect(en[`refuse_${reason}`]?.message, `en ${reason}`).toBeTruthy();
     }
   });
 

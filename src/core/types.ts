@@ -160,6 +160,7 @@ export type RefuseReason =
   | 'full'
   | 'notSick'
   | 'asleep'
+  | 'awake'
   | 'notAlive'
   | 'egg'
   | 'cooldown'

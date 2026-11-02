@@ -236,6 +236,9 @@
   "refuse_asleep": {
     "message": "ねているよ"
   },
+  "refuse_awake": {
+    "message": "まだ起きてるよ"
+  },
   "refuse_notAlive": {
     "message": "もういないよ"
   },

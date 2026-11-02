@@ -236,6 +236,9 @@
   "refuse_asleep": {
     "message": "Sleeping"
   },
+  "refuse_awake": {
+    "message": "Still awake!"
+  },
   "refuse_notAlive": {
     "message": "Gone"
   },

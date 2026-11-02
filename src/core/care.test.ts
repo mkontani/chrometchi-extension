@@ -164,6 +164,19 @@ describe('lights', () => {
     expect(r.pet.lightsOn).toBe(false);
     expect(egg.lightsOn).toBe(true);
   });
+
+  test.each([
+    ['pet', makePet()],
+    ['egg', makePet({ stage: 'egg', formId: 'egg' })],
+  ])('turning the lights off while awake is refused for an awake %s', (_name, pet) => {
+    refused(pet, { kind: 'lights', on: false }, 'awake');
+  });
+
+  test.each([false, true])('turning the lights on is always ok (asleep: %s)', (asleep) => {
+    const r = applyCare(makePet({ asleep, lightsOn: false }), { kind: 'lights', on: true });
+    expect(r.outcome).toEqual({ action: 'lights', result: 'ok' });
+    expect(r.pet.lightsOn).toBe(true);
+  });
 });
 
 describe('pet', () => {
