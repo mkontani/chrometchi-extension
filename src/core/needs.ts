@@ -1,4 +1,4 @@
-import { HUNGER_DECAY, MISTAKE_AFTER_MIN, MOOD_DECAY } from './constants';
+import { HUNGER_DECAY, MISTAKE_AFTER_MIN, MOOD_DECAY, POOP } from './constants';
 import type { Episodes, GameEvent, MistakeReason, PetState, StepResult } from './types';
 
 interface NeedStep {
@@ -28,15 +28,16 @@ function stepNeed(
   return { value: next, zeroMin: nextZero, taken, events };
 }
 
-/** One awake minute of hunger/mood decay plus care-mistake episode tracking. */
+/** One awake minute of hunger/mood decay (poops left out sour the mood) plus mistake tracking. */
 export function stepNeeds(pet: PetState): StepResult {
   const { stats, episodes, history, stage } = pet;
+  const moodDecay = MOOD_DECAY[stage] + POOP.moodDecayPerPoop * pet.poops;
   const h = stepNeed(
     stats.hunger, HUNGER_DECAY[stage], episodes.hungerZeroMin,
     episodes.hungerMistakeTaken, { type: 'hungry' }, 'hunger',
   );
   const m = stepNeed(
-    stats.mood, MOOD_DECAY[stage], episodes.moodZeroMin,
+    stats.mood, moodDecay, episodes.moodZeroMin,
     episodes.moodMistakeTaken, { type: 'unhappy' }, 'mood',
   );
   const events = [...h.events, ...m.events];

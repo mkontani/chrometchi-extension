@@ -30,7 +30,8 @@ export const MOOD_DECAY: Readonly<Record<Stage, number>> = {
 
 export const VITALITY = { zeroNeedLoss: 0.5, sickLoss: 0.5, recover: 0.2, recoverAbove: 50 } as const;
 export const MISTAKE_AFTER_MIN = 15;
-export const POOP = { delayMin: 30, max: 4, sickAfterMin: 120 } as const;
+/** moodDecayPerPoop: extra mood decay per awake minute for each poop left on the floor. */
+export const POOP = { delayMin: 30, max: 4, sickAfterMin: 120, moodDecayPerPoop: 0.1 } as const;
 export const SUGAR = { sickAt: 3, decayEveryMin: 60 } as const;
 export const MEDICINE_DOSES = 2;
 export const PET_ACTION = { cooldownMin: 10, mood: 5 } as const;

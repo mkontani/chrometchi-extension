@@ -17,6 +17,12 @@ describe('stepNeeds', () => {
     expect(r.events).toEqual([]);
   });
 
+  test('each poop on the floor adds 0.1 mood decay per awake minute', () => {
+    const r = stepNeeds(makePet({ stage: 'adult', poops: 3 }));
+    expect(r.pet.stats.mood).toBeCloseTo(100 - 0.3 - 3 * 0.1);
+    expect(r.pet.stats.hunger).toBeCloseTo(99.65);
+  });
+
   test('emits hungry once when hunger reaches 0', () => {
     const r1 = stepNeeds(makePet({ stats: { hunger: 0.5 } }));
     expect(r1.pet.stats.hunger).toBe(0);
