@@ -1,11 +1,10 @@
+import { createTickAlarm, ensureTickAlarm, TICK_ALARM } from '@/background/alarms';
 import { createBadge } from '@/background/badge';
 import { createEngine } from '@/background/engine';
 import { createMessageListener } from '@/background/listener';
 import { createNotifier } from '@/background/notifier';
 import { t } from '@/i18n/t';
 import { createSaveRepository } from '@/storage/repository';
-
-const TICK_ALARM = 'tick';
 
 export default defineBackground(() => {
   const reportError = (err: unknown, context: string): void =>
@@ -21,11 +20,12 @@ export default defineBackground(() => {
     reportError,
   });
 
-  const ensureAlarm = () => {
-    void browser.alarms.create(TICK_ALARM, { periodInMinutes: 1 });
+  ensureTickAlarm(browser.alarms).catch((err: unknown) => reportError(err, 'ensure tick alarm'));
+  const createAlarm = () => {
+    createTickAlarm(browser.alarms).catch((err: unknown) => reportError(err, 'create tick alarm'));
   };
-  browser.runtime.onInstalled.addListener(ensureAlarm);
-  browser.runtime.onStartup.addListener(ensureAlarm);
+  browser.runtime.onInstalled.addListener(createAlarm);
+  browser.runtime.onStartup.addListener(createAlarm);
 
   browser.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name !== TICK_ALARM) return;
