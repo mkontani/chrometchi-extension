@@ -283,5 +283,227 @@
   },
   "game_hint_stop": {
     "message": "Press Space or tap to stop it at the target."
+  },
+  "zukan_title": {
+    "message": "Zukan"
+  },
+  "zukan_unknown": {
+    "message": "???"
+  },
+  "zukan_count": {
+    "message": "$P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "memories_title": {
+    "message": "Memories"
+  },
+  "memory_line": {
+    "message": "Gen $P1$: $P2$ ($P3$, $P4$h)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      },
+      "p4": {
+        "content": "$4"
+      }
+    }
+  },
+  "ending_dead": {
+    "message": "passed away"
+  },
+  "ending_departed": {
+    "message": "departed"
+  },
+  "settings_title": {
+    "message": "Settings"
+  },
+  "settings_notifications": {
+    "message": "Notifications"
+  },
+  "settings_sound": {
+    "message": "Sound"
+  },
+  "settings_sleep_start": {
+    "message": "Bedtime"
+  },
+  "settings_sleep_end": {
+    "message": "Wake-up"
+  },
+  "settings_restart": {
+    "message": "Start over"
+  },
+  "confirm_restart": {
+    "message": "Really start over? Your current pet and zukan will be erased."
+  },
+  "confirm_yes": {
+    "message": "Start over"
+  },
+  "confirm_no": {
+    "message": "Cancel"
+  },
+  "critical_banner": {
+    "message": "Life is in danger! Care for it now!"
+  },
+  "ending_dead_title": {
+    "message": "Your pet has passed away..."
+  },
+  "ending_departed_title": {
+    "message": "It is time to say goodbye"
+  },
+  "ending_summary": {
+    "message": "You spent $P1$ hours together. Journey: $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "new_egg": {
+    "message": "New egg"
+  },
+  "notice_renewal": {
+    "message": "Chrometchi has been renewed. Raise a new egg!"
+  },
+  "notice_data_reset": {
+    "message": "Your data was reset. Start with a new egg."
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "hint_child_kemu": {
+    "message": "What if care gets neglected...?"
+  },
+  "hint_child_dango": {
+    "message": "Growing up hefty...?"
+  },
+  "hint_child_hoshi": {
+    "message": "Careful, attentive care...?"
+  },
+  "hint_child_mochi": {
+    "message": "Just raising it normally...?"
+  },
+  "hint_young_kirari": {
+    "message": "A sparkly one, cared for even better...?"
+  },
+  "hint_young_kage": {
+    "message": "A gloomy one, neglected even more...?"
+  },
+  "hint_young_poyo": {
+    "message": "A plump one, left to grow plump...?"
+  },
+  "hint_young_hinoko": {
+    "message": "A pet that loves meat...?"
+  },
+  "hint_young_shizuku": {
+    "message": "A pet that loves fish...?"
+  },
+  "hint_young_mebuki": {
+    "message": "A pet that loves veggies and grains...?"
+  },
+  "hint_young_fuwari": {
+    "message": "A pet with a sweet tooth...?"
+  },
+  "hint_young_gear": {
+    "message": "If nothing else fits...?"
+  },
+  "hint_adult_dragon": {
+    "message": "A pet that loves catching games...?"
+  },
+  "hint_adult_beast": {
+    "message": "A pet that loves the cups game...?"
+  },
+  "hint_adult_salamander": {
+    "message": "A fiery one, raised plainly...?"
+  },
+  "hint_adult_phoenix": {
+    "message": "A fiery one, cared for flawlessly...? Sometimes..."
+  },
+  "hint_adult_serpent": {
+    "message": "A watery one that loves catching games...?"
+  },
+  "hint_adult_turtle": {
+    "message": "A watery one that loves the cups game...?"
+  },
+  "hint_adult_kraken": {
+    "message": "A watery one, raised plainly...?"
+  },
+  "hint_adult_golem": {
+    "message": "An earthy one that loves catching games...?"
+  },
+  "hint_adult_mole": {
+    "message": "An earthy one that loves the cups game...?"
+  },
+  "hint_adult_tree": {
+    "message": "An earthy one, raised plainly...?"
+  },
+  "hint_adult_griffin": {
+    "message": "A breezy one that loves catching games...?"
+  },
+  "hint_adult_owl": {
+    "message": "A breezy one that loves the cups game...?"
+  },
+  "hint_adult_pegasus": {
+    "message": "A breezy one, raised plainly...?"
+  },
+  "hint_adult_robot": {
+    "message": "A metallic one that loves catching games...?"
+  },
+  "hint_adult_ufo": {
+    "message": "A metallic one that loves the cups game...?"
+  },
+  "hint_adult_cyborg": {
+    "message": "A metallic one, raised plainly...?"
+  },
+  "hint_adult_ghost": {
+    "message": "A shadowy one that loves catching games...?"
+  },
+  "hint_adult_alien": {
+    "message": "A shadowy one that loves the cups game...?"
+  },
+  "hint_adult_bat": {
+    "message": "A shadowy one, raised plainly...?"
+  },
+  "hint_adult_vampire": {
+    "message": "A shadowy one, neglected to the extreme...? At nightfall..."
+  },
+  "hint_adult_unicorn": {
+    "message": "A sparkly one that loves catching games...?"
+  },
+  "hint_adult_comet": {
+    "message": "A sparkly one that loves the cups game...?"
+  },
+  "hint_adult_nexus": {
+    "message": "A sparkly one, raised plainly...?"
+  },
+  "hint_adult_astra": {
+    "message": "Never making a single mistake...?"
+  },
+  "hint_adult_bear": {
+    "message": "A plump one that loves catching games...?"
+  },
+  "hint_adult_hippo": {
+    "message": "A plump one that loves the cups game...?"
+  },
+  "hint_adult_slime": {
+    "message": "A plump one, raised plainly...?"
+  },
+  "hint_adult_kingslime": {
+    "message": "A plump one, grown even plumper...? Very rarely..."
   }
 }

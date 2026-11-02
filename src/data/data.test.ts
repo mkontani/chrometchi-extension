@@ -74,6 +74,15 @@ describe('i18n', () => {
     }
   });
 
+  test('every form except egg and baby has a hint in both locales', () => {
+    const hinted = FORMS.filter((f) => f.stage !== 'egg' && f.stage !== 'baby');
+    expect(hinted).toHaveLength(40);
+    for (const f of hinted) {
+      expect(ja[`hint_${f.id}`]?.message, `ja ${f.id}`).toBeTruthy();
+      expect(en[`hint_${f.id}`]?.message, `en ${f.id}`).toBeTruthy();
+    }
+  });
+
   test('message keys are valid chrome.i18n keys', () => {
     for (const key of Object.keys(ja)) expect(key).toMatch(/^[A-Za-z0-9_]+$/);
   });

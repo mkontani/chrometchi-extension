@@ -283,5 +283,227 @@
   },
   "game_hint_stop": {
     "message": "スペースかタップでターゲットにとめよう。"
+  },
+  "zukan_title": {
+    "message": "ずかん"
+  },
+  "zukan_unknown": {
+    "message": "???"
+  },
+  "zukan_count": {
+    "message": "$P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "memories_title": {
+    "message": "おもいで"
+  },
+  "memory_line": {
+    "message": "第$P1$世代 $P2$（$P3$・$P4$時間）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      },
+      "p4": {
+        "content": "$4"
+      }
+    }
+  },
+  "ending_dead": {
+    "message": "お星さまになった"
+  },
+  "ending_departed": {
+    "message": "旅立った"
+  },
+  "settings_title": {
+    "message": "せってい"
+  },
+  "settings_notifications": {
+    "message": "通知"
+  },
+  "settings_sound": {
+    "message": "サウンド"
+  },
+  "settings_sleep_start": {
+    "message": "ねる時刻"
+  },
+  "settings_sleep_end": {
+    "message": "おきる時刻"
+  },
+  "settings_restart": {
+    "message": "はじめからやり直す"
+  },
+  "confirm_restart": {
+    "message": "本当に最初からやり直しますか？ 今の子とずかんは消えてしまいます。"
+  },
+  "confirm_yes": {
+    "message": "やり直す"
+  },
+  "confirm_no": {
+    "message": "やめる"
+  },
+  "critical_banner": {
+    "message": "いのちが危ない！ すぐにお世話を！"
+  },
+  "ending_dead_title": {
+    "message": "お星さまになりました…"
+  },
+  "ending_departed_title": {
+    "message": "旅立ちの時がきました"
+  },
+  "ending_summary": {
+    "message": "$P1$時間いっしょにいました。ものがたり：$P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "new_egg": {
+    "message": "新しいたまご"
+  },
+  "notice_renewal": {
+    "message": "新しくなりました。新しい卵から育てましょう"
+  },
+  "notice_data_reset": {
+    "message": "データを初期化しました。新しい卵から始めましょう"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "hint_child_kemu": {
+    "message": "お世話をサボりがちだと…？"
+  },
+  "hint_child_dango": {
+    "message": "ずっしり育つと…？"
+  },
+  "hint_child_hoshi": {
+    "message": "ていねいにお世話すると…？"
+  },
+  "hint_child_mochi": {
+    "message": "ふつうに育てると…？"
+  },
+  "hint_young_kirari": {
+    "message": "きらめく子が、さらに頑張ると…？"
+  },
+  "hint_young_kage": {
+    "message": "くらい子が、もっとサボると…？"
+  },
+  "hint_young_poyo": {
+    "message": "ぽっちゃりな子が、そのまま育つと…？"
+  },
+  "hint_young_hinoko": {
+    "message": "おにくが大好きな子は…？"
+  },
+  "hint_young_shizuku": {
+    "message": "おさかなが大好きな子は…？"
+  },
+  "hint_young_mebuki": {
+    "message": "やさいやごはんが大好きな子は…？"
+  },
+  "hint_young_fuwari": {
+    "message": "あまいものが大好きな子は…？"
+  },
+  "hint_young_gear": {
+    "message": "どれにも当てはまらなかったら…？"
+  },
+  "hint_adult_dragon": {
+    "message": "キャッチ遊びが得意な子は…？"
+  },
+  "hint_adult_beast": {
+    "message": "カップ遊びが得意な子は…？"
+  },
+  "hint_adult_salamander": {
+    "message": "炎の子を、ふつうに育てると…？"
+  },
+  "hint_adult_phoenix": {
+    "message": "炎の子を完ぺきに育てたら…？ ときどき…"
+  },
+  "hint_adult_serpent": {
+    "message": "水の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_turtle": {
+    "message": "水の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_kraken": {
+    "message": "水の子を、ふつうに育てると…？"
+  },
+  "hint_adult_golem": {
+    "message": "大地の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_mole": {
+    "message": "大地の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_tree": {
+    "message": "大地の子を、ふつうに育てると…？"
+  },
+  "hint_adult_griffin": {
+    "message": "風の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_owl": {
+    "message": "風の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_pegasus": {
+    "message": "風の子を、ふつうに育てると…？"
+  },
+  "hint_adult_robot": {
+    "message": "はがねの子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_ufo": {
+    "message": "はがねの子がカップ遊びを好むと…？"
+  },
+  "hint_adult_cyborg": {
+    "message": "はがねの子を、ふつうに育てると…？"
+  },
+  "hint_adult_ghost": {
+    "message": "影の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_alien": {
+    "message": "影の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_bat": {
+    "message": "影の子を、ふつうに育てると…？"
+  },
+  "hint_adult_vampire": {
+    "message": "影の子がとことんサボると…？ 夜になると…"
+  },
+  "hint_adult_unicorn": {
+    "message": "きらめく子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_comet": {
+    "message": "きらめく子がカップ遊びを好むと…？"
+  },
+  "hint_adult_nexus": {
+    "message": "きらめく子を、ふつうに育てると…？"
+  },
+  "hint_adult_astra": {
+    "message": "一度もミスせず育てると…？"
+  },
+  "hint_adult_bear": {
+    "message": "ぽっちゃりな子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_hippo": {
+    "message": "ぽっちゃりな子がカップ遊びを好むと…？"
+  },
+  "hint_adult_slime": {
+    "message": "ぽっちゃりな子を、ふつうに育てると…？"
+  },
+  "hint_adult_kingslime": {
+    "message": "ぽっちゃりな子が、もっとぽっちゃりすると…？ ごくまれに…"
   }
 }

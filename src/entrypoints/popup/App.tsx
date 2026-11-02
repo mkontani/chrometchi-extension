@@ -1,13 +1,19 @@
-import { useState } from 'preact/hooks';
+import { useCallback, useState } from 'preact/hooks';
 import type { CareAction, FoodId, GameId } from '@/core/types';
 import { t } from '@/i18n/t';
 import { ActionBar, type ActionKind } from '@/ui/components/ActionBar';
+import { CriticalBanner } from '@/ui/components/CriticalBanner';
+import { EndingView } from '@/ui/components/EndingView';
 import { FoodPanel } from '@/ui/components/FoodPanel';
 import { MiniGameHost } from '@/ui/components/MiniGameHost';
+import { NoticeDialog } from '@/ui/components/NoticeDialog';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
+import { Overlay } from '@/ui/components/Overlay';
 import { PetStage } from '@/ui/components/PetStage';
 import { PlayPanel } from '@/ui/components/PlayPanel';
+import { SettingsView } from '@/ui/components/SettingsView';
 import { StatusBar } from '@/ui/components/StatusBar';
+import { ZukanView } from '@/ui/components/ZukanView';
 import { useGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
 
@@ -28,6 +34,7 @@ export function App() {
   const [panel, setPanel] = useState<Panel | null>(null);
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const { reaction, fromPlay } = useReaction(outcome);
+  const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
 
   if (!save) {
     return (
@@ -58,6 +65,7 @@ export function App() {
   return (
     <main class="app">
       <StatusBar pet={pet} />
+      <CriticalBanner pet={pet} onAck={ackCritical} />
       <PetStage
         pet={pet}
         reaction={reaction}
@@ -69,6 +77,23 @@ export function App() {
       <OutcomeToast outcome={outcome} />
       <ActionBar pet={pet} onSelect={onSelect} />
       {error && <ErrorNote error={error} />}
+      {panel === 'zukan' && (
+        <Overlay title={t('zukan_title')} onClose={close}>
+          <ZukanView zukan={save.zukan} />
+        </Overlay>
+      )}
+      {panel === 'settings' && (
+        <Overlay title={t('settings_title')} onClose={close}>
+          <SettingsView
+            settings={save.settings}
+            onChange={(patch) => void send({ type: 'updateSettings', patch })}
+            onRestart={() => {
+              void send({ type: 'restart' });
+              close();
+            }}
+          />
+        </Overlay>
+      )}
       {activeGame && (
         <MiniGameHost
           game={activeGame}
@@ -79,6 +104,13 @@ export function App() {
           onCancel={() => setActiveGame(null)}
         />
       )}
+      {pet.lifecycle !== 'alive' && (
+        <EndingView pet={pet} onNewEgg={() => void send({ type: 'startNewEgg' })} />
+      )}
+      <NoticeDialog
+        meta={save.meta}
+        onDismiss={(notice) => void send({ type: 'dismissNotice', notice })}
+      />
     </main>
   );
 }

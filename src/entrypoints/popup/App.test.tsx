@@ -16,7 +16,15 @@ const useGame = vi.fn<() => UseGame>();
 vi.mock('@/ui/useGame', () => ({ useGame: () => useGame() }));
 
 const pet = { ...createEgg(), stage: 'child' as const, formId: 'child_kemu' as const, poops: 2, sick: true };
-const save = { game: { pet } } as unknown as NonNullable<UseGame['save']>;
+const fullSave = (petPatch: object = {}, extra: object = {}) =>
+  ({
+    game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
+    zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
+    settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420 },
+    meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
+    ...extra,
+  }) as unknown as NonNullable<UseGame['save']>;
+const save = fullSave();
 
 test('shows loading while save is null', () => {
   useGame.mockReturnValue({ save: null, outcome: null, error: null, send: vi.fn() });
@@ -53,9 +61,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function setup(outcome: CareOutcome | null = null, petPatch: object = {}) {
+function setup(outcome: CareOutcome | null = null, petPatch: object = {}, extra: object = {}) {
   const send = vi.fn().mockResolvedValue(undefined);
-  const s = { game: { pet: { ...pet, ...petPatch } } } as unknown as NonNullable<UseGame['save']>;
+  const s = fullSave(petPatch, extra);
   useGame.mockReturnValue({ save: s, outcome, error: null, send });
   return { send, ui: render(<App />) };
 }
@@ -158,4 +166,45 @@ test('ok feed outcome shows the eat pose for 1s', () => {
   expect(img()).toBe('sprite-eat.png');
   act(() => void vi.advanceTimersByTime(1000));
   expect(img()).not.toBe('sprite-eat.png');
+});
+
+test('zukan opens as an overlay, closing the food panel, and closes again', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  expect(screen.queryByText('panel_food_title')).toBeNull();
+  expect(screen.getByText('zukan_title')).toBeTruthy();
+  fireEvent.click(screen.getByLabelText('close'));
+  expect(screen.queryByText('zukan_title')).toBeNull();
+});
+
+test('settings update sends a patch and restart sends restart then closes', () => {
+  const { send } = setup();
+  fireEvent.click(screen.getByLabelText('action_settings'));
+  fireEvent.click(screen.getByLabelText('settings_sound'));
+  expect(send).toHaveBeenCalledWith({ type: 'updateSettings', patch: { sound: false } });
+  fireEvent.click(screen.getByText('settings_restart'));
+  fireEvent.click(screen.getByText('confirm_yes'));
+  expect(send).toHaveBeenCalledWith({ type: 'restart' });
+  expect(screen.queryByText('settings_title')).toBeNull();
+});
+
+test('critical pet shows the banner and acknowledges once', () => {
+  const { send } = setup(null, { stats: { ...pet.stats, hunger: 0, mood: 0, vitality: 0 }, criticalSeenAt: null });
+  expect(screen.getByText('critical_banner')).toBeTruthy();
+  expect(send.mock.calls.filter(([r]) => r.type === 'ackCritical')).toHaveLength(1);
+});
+
+test('a dead pet shows the ending view and new egg sends startNewEgg', () => {
+  const { send } = setup(null, { lifecycle: 'dead' });
+  expect(screen.getByText('ending_dead_title')).toBeTruthy();
+  fireEvent.click(screen.getByText('new_egg'));
+  expect(send).toHaveBeenCalledWith({ type: 'startNewEgg' });
+});
+
+test('renewal notice shows and dismisses', () => {
+  const { send } = setup(null, {}, { meta: { lastNotified: {}, showRenewal: true, showDataReset: false } });
+  expect(screen.getByText('notice_renewal')).toBeTruthy();
+  fireEvent.click(screen.getByText('ok'));
+  expect(send).toHaveBeenCalledWith({ type: 'dismissNotice', notice: 'renewal' });
 });
