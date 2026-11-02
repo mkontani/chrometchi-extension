@@ -112,3 +112,8 @@ test('effects render nothing when urls are null', () => {
   const { container } = render(<PetStage pet={makePet({ asleep: true })} reaction="happy" fromPlay />);
   expect(container.querySelectorAll('img.effect')).toHaveLength(0);
 });
+
+test('the pet button names the action and the form for screen readers', () => {
+  render(<PetStage pet={makePet()} reaction={null} />);
+  expect(screen.getByRole('button', { name: 'action_pet: form_child_kemu' })).toBeTruthy();
+});

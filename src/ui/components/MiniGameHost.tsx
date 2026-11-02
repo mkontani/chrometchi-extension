@@ -69,7 +69,7 @@ export function MiniGameHost({ game, onFinish, onCancel, onResult }: Props) {
   }, [def]);
 
   return (
-    <div class="minigame" role="dialog">
+    <div class="minigame" role="dialog" aria-modal="true" aria-label={t(`game_${game}`)}>
       <p class="minigame__hint">{t(`game_hint_${game}`)}</p>
       <div class="minigame__frame" data-ready={ready ? 'true' : undefined}>
         <canvas

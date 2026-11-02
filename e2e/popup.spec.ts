@@ -25,6 +25,10 @@ async function seedAndOpen(context: BrowserContext, extensionId: string, save: S
   return openPopup(context, extensionId);
 }
 
+/** The pet button's accessible name includes the current form, e.g. "Pet: Egg". */
+const petButton = (page: Page, msg: (key: string) => string, formKey: string) =>
+  page.getByRole('button', { name: `${msg('action_pet')}: ${msg(formKey)}`, exact: true });
+
 const fullHearts = (page: Page, label: string) =>
   page.getByRole('img', { name: label, exact: true }).locator('.heart--full').count();
 
@@ -36,13 +40,13 @@ const stageBox = async (page: Page) => {
 };
 
 test('fresh install shows an egg', async ({ popup, msg }) => {
-  await expect(popup.getByRole('button', { name: msg('action_pet'), exact: true })).toHaveAttribute('alt', msg('form_egg'));
+  await expect(petButton(popup, msg, 'form_egg')).toHaveAttribute('alt', msg('form_egg'));
 });
 
 test('egg hatches when its last minute elapses', async ({ context, extensionId, msg }) => {
   const save = seed({ formId: 'egg', stage: 'egg', stageMinutes: 29, path: ['egg'] }, -61_000);
   const page = await seedAndOpen(context, extensionId, save);
-  await expect(page.getByRole('button', { name: msg('action_pet'), exact: true })).toHaveAttribute('alt', msg('form_baby_puni'));
+  await expect(petButton(page, msg, 'form_baby_puni')).toHaveAttribute('alt', msg('form_baby_puni'));
 });
 
 test('feeding rice increases hunger hearts', async ({ context, extensionId, msg }) => {
@@ -61,6 +65,7 @@ test('stop mini-game can be played to completion', async ({ context, extensionId
   const page = await seedAndOpen(context, extensionId, seed({}));
   await page.getByRole('button', { name: msg('action_play'), exact: true }).click();
   await page.getByRole('button', { name: new RegExp(msg('game_stop')) }).click();
+  await expect(page.getByRole('dialog', { name: msg('game_stop'), exact: true })).toBeVisible();
   await expect(page.locator('canvas.minigame__canvas')).toBeVisible();
   // Wait until the host has attached its input listeners and loop, then play exactly 5 tries.
   await expect(page.locator('.minigame__frame[data-ready="true"]')).toBeVisible();
@@ -69,7 +74,7 @@ test('stop mini-game can be played to completion', async ({ context, extensionId
     await page.waitForTimeout(800); // clears the 600 ms pause after each try
   }
   await expect(page.locator('.minigame__result')).toBeVisible();
-  await expect(page.getByRole('button', { name: msg('action_pet'), exact: true })).toBeVisible();
+  await expect(petButton(page, msg, 'form_baby_puni')).toBeVisible();
   await expect
     .poll(async () => (await readSave(context)).game.pet.history.gameCounts.stop)
     .toBe(1);

@@ -60,6 +60,7 @@ export function PetStage({ pet, reaction, fromPlay = false, onPetClick }: Props)
   const style = bg ? { backgroundImage: `url(${bg})` } : undefined;
   const pose = choosePose(pet, reaction, frame);
   const dark = pet.asleep && !pet.lightsOn;
+  const formName = t(`form_${pet.formId}`);
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -73,10 +74,10 @@ export function PetStage({ pet, reaction, fromPlay = false, onPetClick }: Props)
         src={spriteUrl(pet.formId, pose)}
         width={128}
         height={128}
-        alt={t(`form_${pet.formId}`)}
+        alt={formName}
         role="button"
         tabIndex={0}
-        aria-label={t('action_pet')}
+        aria-label={`${t('action_pet')}: ${formName}`}
         onClick={onPetClick}
         onKeyDown={onKeyDown}
       />

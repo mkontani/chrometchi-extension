@@ -25,6 +25,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     ...extra,
   }) as unknown as NonNullable<UseGame['save']>;
 const save = fullSave();
+const PET_LABEL = 'action_pet: form_child_kemu';
 
 test('shows loading while save is null', () => {
   useGame.mockReturnValue({ save: null, outcome: null, error: null, send: vi.fn() });
@@ -136,13 +137,13 @@ test('refused outcome shows localized reason', () => {
 
 test('clicking the pet sends pet action', () => {
   const { send } = setup();
-  fireEvent.click(screen.getByRole('button', { name: 'action_pet' }));
+  fireEvent.click(screen.getByRole('button', { name: PET_LABEL }));
   expect(send).toHaveBeenCalledWith({ type: 'care', action: { kind: 'pet' } });
 });
 
 test('Enter on the pet sends the pet action', () => {
   const { send } = setup();
-  fireEvent.keyDown(screen.getByRole('button', { name: 'action_pet' }), { key: 'Enter' });
+  fireEvent.keyDown(screen.getByRole('button', { name: PET_LABEL }), { key: 'Enter' });
   expect(send).toHaveBeenCalledWith({ type: 'care', action: { kind: 'pet' } });
 });
 
@@ -238,7 +239,7 @@ test('notice replaces the ending layer; ending replaces the main screen', () => 
   setup(null, { lifecycle: 'dead' });
   expect(screen.getByText('ending_dead_title')).toBeTruthy();
   expect(screen.queryByLabelText('action_feed')).toBeNull();
-  expect(screen.queryByLabelText('action_pet')).toBeNull();
+  expect(screen.queryByLabelText(PET_LABEL)).toBeNull();
 });
 
 test('main screen is not mounted while zukan or settings is open', () => {
@@ -246,7 +247,7 @@ test('main screen is not mounted while zukan or settings is open', () => {
   fireEvent.click(screen.getByLabelText('action_zukan'));
   expect(screen.getByText('zukan_title')).toBeTruthy();
   expect(screen.queryByLabelText('action_feed')).toBeNull();
-  expect(screen.queryByLabelText('action_pet')).toBeNull();
+  expect(screen.queryByLabelText(PET_LABEL)).toBeNull();
 });
 
 test('mini-game replaces zukan layer and main screen', () => {

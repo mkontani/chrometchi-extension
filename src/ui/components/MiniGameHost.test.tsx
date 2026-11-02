@@ -44,6 +44,12 @@ test('host calls onFinish with won after the result delay', () => {
   expect(onFinish).toHaveBeenCalledTimes(1);
 });
 
+test('host is a modal dialog labelled with the game name', () => {
+  render(<MiniGameHost game="catch" onFinish={vi.fn()} onCancel={vi.fn()} />);
+  const dialog = screen.getByRole('dialog', { name: 'game_catch' });
+  expect(dialog.getAttribute('aria-modal')).toBe('true');
+});
+
 test('host marks the frame ready once the loop and input listeners are attached', () => {
   const { container } = render(<MiniGameHost game="catch" onFinish={vi.fn()} onCancel={vi.fn()} />);
   expect(container.querySelector('.minigame__frame')?.getAttribute('data-ready')).toBe('true');
