@@ -123,3 +123,15 @@ test('auto-repeat keydown does not add edges', () => {
   act(() => void vi.advanceTimersByTime(20));
   expect(lastState().lefts).toBe(1);
 });
+
+test('onResult fires once when the result is shown, before onFinish', () => {
+  const onResult = vi.fn();
+  const onFinish = vi.fn();
+  render(<MiniGameHost game="catch" onFinish={onFinish} onCancel={vi.fn()} onResult={onResult} />);
+  act(() => void vi.advanceTimersByTime(1200));
+  expect(onResult).toHaveBeenCalledTimes(1);
+  expect(onResult).toHaveBeenCalledWith(true);
+  expect(onFinish).not.toHaveBeenCalled();
+  act(() => void vi.advanceTimersByTime(3000));
+  expect(onResult).toHaveBeenCalledTimes(1);
+});

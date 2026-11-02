@@ -12,6 +12,8 @@ interface Props {
   game: GameId;
   onFinish(won: boolean): void;
   onCancel(): void;
+  /** Called once when the win/lose result is shown (before the result delay). */
+  onResult?(won: boolean): void;
 }
 
 /** Runs the RAF loop; returns a cleanup. `onOver` fires once when the game ends. */
@@ -37,11 +39,13 @@ function startLoop(
   return () => cancelAnimationFrame(raf);
 }
 
-export function MiniGameHost({ game, onFinish, onCancel }: Props) {
+export function MiniGameHost({ game, onFinish, onCancel, onResult }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [result, setResult] = useState<boolean | null>(null);
   const finishRef = useRef(onFinish);
   finishRef.current = onFinish;
+  const resultRef = useRef(onResult);
+  resultRef.current = onResult;
   const def = MINI_GAMES[game];
   const take = useGameInput(canvasRef, def.pickFromPointer);
   const takeRef = useRef(take);
@@ -53,6 +57,7 @@ export function MiniGameHost({ game, onFinish, onCancel }: Props) {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const stop = startLoop(def, ctx, () => takeRef.current(), (won) => {
       setResult(won);
+      resultRef.current?.(won);
       timer = setTimeout(() => finishRef.current(won), RESULT_MS);
     });
     return () => {

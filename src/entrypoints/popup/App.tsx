@@ -15,8 +15,22 @@ import { PlayPanel } from '@/ui/components/PlayPanel';
 import { SettingsView } from '@/ui/components/SettingsView';
 import { StatusBar } from '@/ui/components/StatusBar';
 import { ZukanView } from '@/ui/components/ZukanView';
+import { useSfx, type SfxName } from '@/ui/sound';
 import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
+
+function sfxFor(outcome: CareOutcome): SfxName {
+  if (outcome.result === 'refused') return 'alert';
+  switch (outcome.action) {
+    case 'feed':
+      return 'eat';
+    case 'play':
+    case 'pet':
+      return 'happy';
+    default:
+      return 'select';
+  }
+}
 
 type Panel = 'feed' | 'play' | 'zukan' | 'settings';
 const PANELS: readonly ActionKind[] = ['feed', 'play', 'zukan', 'settings'];
@@ -102,6 +116,11 @@ export function App() {
   const [panel, setPanel] = useState<Panel | null>(null);
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const alive = save?.game.pet.lifecycle === 'alive';
+  const sfx = useSfx(save?.settings.sound ?? false);
+
+  useEffect(() => {
+    if (outcome) sfx.play(sfxFor(outcome));
+  }, [outcome, sfx]);
 
   useEffect(() => {
     if (save && !alive) {
@@ -143,7 +162,14 @@ export function App() {
   } else if (!alive) {
     layer = <EndingView pet={pet} onNewEgg={() => void send({ type: 'startNewEgg' })} />;
   } else if (activeGame) {
-    layer = <MiniGameHost game={activeGame} onFinish={onFinish} onCancel={endGame} />;
+    layer = (
+      <MiniGameHost
+        game={activeGame}
+        onFinish={onFinish}
+        onCancel={endGame}
+        onResult={(won) => sfx.play(won ? 'win' : 'lose')}
+      />
+    );
   } else if (panel === 'zukan' || panel === 'settings') {
     layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
   } else {

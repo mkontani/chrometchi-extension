@@ -296,3 +296,55 @@ test('Escape in the restart dialog cancels only the dialog', () => {
   expect(screen.queryByRole('alertdialog')).toBeNull();
   expect(screen.getByText('settings_title')).toBeTruthy();
 });
+
+function stubAudio() {
+  const freqs: number[] = [];
+  class FakeAudioContext {
+    currentTime = 0;
+    state = 'running';
+    destination = {};
+    resume = vi.fn().mockResolvedValue(undefined);
+    createGain() {
+      return { gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, connect: vi.fn() };
+    }
+    createOscillator() {
+      const osc = {
+        type: '',
+        connect: vi.fn(),
+        start: vi.fn(),
+        stop: vi.fn(),
+        frequency: {
+          set value(v: number) {
+            freqs.push(v);
+          },
+        },
+      };
+      return osc;
+    }
+  }
+  vi.stubGlobal('AudioContext', FakeAudioContext);
+  return freqs;
+}
+
+test('an ok feed outcome plays the eat sound when sound is on', () => {
+  const freqs = stubAudio();
+  const send = vi.fn().mockResolvedValue(undefined);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  const ui = render(<App />);
+  useGame.mockReturnValue({ save, outcome: { action: 'feed', result: 'ok' }, error: null, send });
+  ui.rerender(<App />);
+  expect(freqs).toEqual([523, 659]);
+  vi.unstubAllGlobals();
+});
+
+test('no sound plays when the sound setting is off', () => {
+  const freqs = stubAudio();
+  const quiet = fullSave({}, { settings: { notifications: true, sound: false, sleepStartMin: 0, sleepEndMin: 0 } });
+  const send = vi.fn().mockResolvedValue(undefined);
+  useGame.mockReturnValue({ save: quiet, outcome: null, error: null, send });
+  const ui = render(<App />);
+  useGame.mockReturnValue({ save: quiet, outcome: { action: 'feed', result: 'ok' }, error: null, send });
+  ui.rerender(<App />);
+  expect(freqs).toEqual([]);
+  vi.unstubAllGlobals();
+});
