@@ -84,13 +84,38 @@ test('only one panel is open at a time', () => {
   expect(screen.getByText('panel_play_title')).toBeTruthy();
 });
 
-test('picking a game closes the panel, stores it and sends nothing', () => {
-  const { send, ui } = setup();
+test('picking a game closes the panel and shows the mini-game host', () => {
+  const { send } = setup();
   fireEvent.click(screen.getByLabelText('action_play'));
-  fireEvent.click(screen.getByText('game_cups'));
+  fireEvent.click(screen.getByText('game_catch'));
   expect(screen.queryByText('panel_play_title')).toBeNull();
+  expect(screen.getByText('game_hint_catch')).toBeTruthy();
   expect(send).not.toHaveBeenCalled();
-  expect(ui.container.querySelector('main')?.getAttribute('data-active-game')).toBe('cups');
+});
+
+test('quitting the host sends nothing', () => {
+  const { send } = setup();
+  fireEvent.click(screen.getByLabelText('action_play'));
+  fireEvent.click(screen.getByText('game_catch'));
+  fireEvent.click(screen.getByText('game_quit'));
+  expect(screen.queryByText('game_hint_catch')).toBeNull();
+  expect(send).not.toHaveBeenCalled();
+});
+
+test('finishing a game sends the play care request', () => {
+  vi.useFakeTimers({
+    toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+  });
+  HTMLCanvasElement.prototype.getContext = vi.fn(() => ({ fillRect: vi.fn(), fillText: vi.fn() })) as never;
+  const { send } = setup();
+  fireEvent.click(screen.getByLabelText('action_play'));
+  fireEvent.click(screen.getByText('game_catch'));
+  // dt is clamped to 100ms per frame, so 30s of game needs >300 frames (~16ms each).
+  act(() => void vi.advanceTimersByTime(60_000));
+  act(() => void vi.advanceTimersByTime(1500));
+  expect(send).toHaveBeenCalledTimes(1);
+  expect(send.mock.calls[0]?.[0]).toMatchObject({ type: 'care', action: { kind: 'play', game: 'catch' } });
+  expect(screen.queryByText('game_hint_catch')).toBeNull();
 });
 
 test('refused outcome shows localized reason', () => {

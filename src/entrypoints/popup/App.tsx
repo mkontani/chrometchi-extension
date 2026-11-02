@@ -3,6 +3,7 @@ import type { CareAction, FoodId, GameId } from '@/core/types';
 import { t } from '@/i18n/t';
 import { ActionBar, type ActionKind } from '@/ui/components/ActionBar';
 import { FoodPanel } from '@/ui/components/FoodPanel';
+import { MiniGameHost } from '@/ui/components/MiniGameHost';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { PetStage } from '@/ui/components/PetStage';
 import { PlayPanel } from '@/ui/components/PlayPanel';
@@ -25,7 +26,6 @@ function ErrorNote({ error }: { error: string }) {
 export function App() {
   const { save, outcome, error, send } = useGame();
   const [panel, setPanel] = useState<Panel | null>(null);
-  // The mini-game host arrives in a later task; the pick is stored for now.
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const { reaction, fromPlay } = useReaction(outcome);
 
@@ -56,7 +56,7 @@ export function App() {
   const close = () => setPanel(null);
 
   return (
-    <main class="app" data-active-game={activeGame ?? undefined}>
+    <main class="app">
       <StatusBar pet={pet} />
       <PetStage
         pet={pet}
@@ -69,6 +69,16 @@ export function App() {
       <OutcomeToast outcome={outcome} />
       <ActionBar pet={pet} onSelect={onSelect} />
       {error && <ErrorNote error={error} />}
+      {activeGame && (
+        <MiniGameHost
+          game={activeGame}
+          onFinish={(won) => {
+            care({ kind: 'play', game: activeGame, won });
+            setActiveGame(null);
+          }}
+          onCancel={() => setActiveGame(null)}
+        />
+      )}
     </main>
   );
 }

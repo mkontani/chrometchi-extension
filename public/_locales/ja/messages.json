@@ -265,5 +265,23 @@
   },
   "action_pet": {
     "message": "なでる"
+  },
+  "game_win": {
+    "message": "かち!"
+  },
+  "game_lose": {
+    "message": "ざんねん…"
+  },
+  "game_quit": {
+    "message": "やめる"
+  },
+  "game_hint_catch": {
+    "message": "← →かタップでいどう。よいものをキャッチ!"
+  },
+  "game_hint_cups": {
+    "message": "ボールをめでおって、あたりのカップをタップ。"
+  },
+  "game_hint_stop": {
+    "message": "スペースかタップでターゲットにとめよう。"
   }
 }
