@@ -53,14 +53,13 @@ test('stop mini-game can be played to completion', async ({ context, extensionId
   await page.getByRole('button', { name: msg('action_play'), exact: true }).click();
   await page.getByRole('button', { name: new RegExp(msg('game_stop')) }).click();
   await expect(page.locator('canvas.minigame__canvas')).toBeVisible();
-  // 5 tries; each hit/miss pauses 600 ms. Press until the result shows (tolerates a lost first key).
-  const result = page.locator('.minigame__result');
-  for (let i = 0; i < 8 && !(await result.isVisible()); i++) {
+  // Wait until the host has attached its input listeners and loop, then play exactly 5 tries.
+  await expect(page.locator('.minigame__frame[data-ready="true"]')).toBeVisible();
+  for (let i = 0; i < 5; i++) {
     await page.keyboard.press('Space');
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(800); // clears the 600 ms pause after each try
   }
-  await expect(result).toBeVisible();
-  await page.waitForTimeout(1_500);
+  await expect(page.locator('.minigame__result')).toBeVisible();
   await expect(page.getByRole('button', { name: msg('action_pet'), exact: true })).toBeVisible();
   await expect
     .poll(async () => (await readSave(context)).game.pet.history.gameCounts.stop)

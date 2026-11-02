@@ -42,6 +42,7 @@ function startLoop(
 export function MiniGameHost({ game, onFinish, onCancel, onResult }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [result, setResult] = useState<boolean | null>(null);
+  const [ready, setReady] = useState(false);
   const finishRef = useRef(onFinish);
   finishRef.current = onFinish;
   const resultRef = useRef(onResult);
@@ -55,6 +56,7 @@ export function MiniGameHost({ game, onFinish, onCancel, onResult }: Props) {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    setReady(true);
     const stop = startLoop(def, ctx, () => takeRef.current(), (won) => {
       setResult(won);
       resultRef.current?.(won);
@@ -69,7 +71,7 @@ export function MiniGameHost({ game, onFinish, onCancel, onResult }: Props) {
   return (
     <div class="minigame" role="dialog">
       <p class="minigame__hint">{t(`game_hint_${game}`)}</p>
-      <div class="minigame__frame">
+      <div class="minigame__frame" data-ready={ready ? 'true' : undefined}>
         <canvas
           ref={canvasRef}
           class="minigame__canvas"

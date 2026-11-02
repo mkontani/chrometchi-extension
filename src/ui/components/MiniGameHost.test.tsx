@@ -44,6 +44,11 @@ test('host calls onFinish with won after the result delay', () => {
   expect(onFinish).toHaveBeenCalledTimes(1);
 });
 
+test('host marks the frame ready once the loop and input listeners are attached', () => {
+  const { container } = render(<MiniGameHost game="catch" onFinish={vi.fn()} onCancel={vi.fn()} />);
+  expect(container.querySelector('.minigame__frame')?.getAttribute('data-ready')).toBe('true');
+});
+
 test('quit calls onCancel and never onFinish', () => {
   const onFinish = vi.fn();
   const onCancel = vi.fn();
