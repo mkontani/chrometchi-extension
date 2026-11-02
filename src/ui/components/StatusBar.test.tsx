@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/preact';
 import { afterEach, expect, test, vi } from 'vitest';
-import { makePet } from './fixtures';
+import { makePet } from './__fixtures__/pet';
 import { StatusBar } from './StatusBar';
 
 vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));

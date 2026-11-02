@@ -8,7 +8,7 @@ vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
 const useGame = vi.fn<() => UseGame>();
 vi.mock('@/ui/useGame', () => ({ useGame: () => useGame() }));
 
-const pet = { ...createEgg(), stage: 'child' as const, formId: 'child_kemu' as const, poops: 2 };
+const pet = { ...createEgg(), stage: 'child' as const, formId: 'child_kemu' as const, poops: 2, sick: true };
 const save = { game: { pet } } as unknown as NonNullable<UseGame['save']>;
 
 test('shows loading while save is null', () => {
@@ -30,6 +30,14 @@ test('clicking clean sends the care request', () => {
   render(<App />);
   fireEvent.click(screen.getByLabelText('action_clean'));
   expect(send).toHaveBeenCalledWith({ type: 'care', action: { kind: 'clean' } });
+});
+
+test('clicking medicine sends the care request', () => {
+  const send = vi.fn().mockResolvedValue(undefined);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_medicine'));
+  expect(send).toHaveBeenCalledWith({ type: 'care', action: { kind: 'medicine' } });
 });
 
 afterEach(cleanup);

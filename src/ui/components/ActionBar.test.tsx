@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, expect, test, vi } from 'vitest';
 import { ActionBar } from './ActionBar';
-import { makePet } from './fixtures';
+import { makePet } from './__fixtures__/pet';
 
 vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
 
@@ -32,6 +32,12 @@ test('feed and play are disabled while asleep', () => {
   render(<ActionBar pet={makePet({ asleep: true })} onSelect={() => {}} />);
   expect(isDisabled('action_feed')).toBe(true);
   expect(isDisabled('action_play')).toBe(true);
+});
+
+test('zukan and settings are always enabled', () => {
+  render(<ActionBar pet={makePet({ stage: 'egg', asleep: true })} onSelect={() => {}} />);
+  expect(isDisabled('action_zukan')).toBe(false);
+  expect(isDisabled('action_settings')).toBe(false);
 });
 
 test('clicking calls onSelect with the kind', () => {
