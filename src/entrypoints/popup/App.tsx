@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { CareAction, CareOutcome, FoodId, GameId } from '@/core/types';
+import type { CareOutcome, FoodId, GameId } from '@/core/types';
 import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
 import { spriteUrl } from '@/ui/assets';
@@ -20,17 +20,19 @@ import { requestRoamAccess } from '@/ui/roamPermission';
 import { useSfx, type SfxName } from '@/ui/sound';
 import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
+import { useCare } from '@/ui/useCare';
+import { useCareEffect } from '@/ui/useCareEffect';
+import { useReducedMotion } from '@/ui/useReducedMotion';
 
-function sfxFor(outcome: CareOutcome): SfxName {
+/** The sound for an outcome; null for care whose effect plays its own sounds as it goes. */
+function sfxFor(outcome: CareOutcome): SfxName | null {
   if (outcome.result === 'refused') return 'alert';
   switch (outcome.action) {
-    case 'feed':
-      return 'eat';
     case 'play':
     case 'pet':
       return 'happy';
     default:
-      return 'select';
+      return null;
   }
 }
 
@@ -57,13 +59,15 @@ interface MainProps {
   panel: Panel | null;
   setPanel(next: Panel | null | ((cur: Panel | null) => Panel | null)): void;
   onPlay(game: GameId): void;
+  playSfx(name: SfxName): void;
 }
 
-function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay }: MainProps) {
+function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, playSfx }: MainProps) {
   const { reaction, fromPlay } = useReaction(outcome);
+  const effects = useCareEffect({ reduced: useReducedMotion(), onCue: playSfx });
   const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
   const pet = save.game.pet;
-  const care = (action: CareAction) => void send({ type: 'care', action });
+  const { stagePet, care } = useCare(pet, send, effects.play);
   const onSelect = (kind: ActionKind) => {
     if (kind === 'clean' || kind === 'medicine') care({ kind });
     else if (kind === 'lights') care({ kind, on: !pet.lightsOn });
@@ -84,10 +88,11 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay }: Mai
       {/* The banner and panels overlay the stage so its size never changes. */}
       <div class="stage-area">
         <PetStage
-          pet={pet}
+          pet={stagePet}
           generation={save.game.generation}
           reaction={reaction}
           fromPlay={fromPlay}
+          effect={effects.frame}
           onPetClick={() => care({ kind: 'pet' })}
         />
         <div class="stage-area__overlay stage-area__overlay--top">
@@ -141,7 +146,8 @@ export function App() {
   const sfx = useSfx(save?.settings.sound ?? false);
 
   useEffect(() => {
-    if (outcome) sfx.play(sfxFor(outcome));
+    const name = outcome && sfxFor(outcome);
+    if (name) sfx.play(name);
   }, [outcome, sfx]);
 
   useEffect(() => {
@@ -205,6 +211,7 @@ export function App() {
         panel={panel}
         setPanel={setPanel}
         onPlay={onPlay}
+        playSfx={sfx.play}
       />
     );
   }

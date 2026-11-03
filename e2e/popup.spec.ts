@@ -61,6 +61,14 @@ test('feeding rice increases hunger hearts', async ({ context, extensionId, msg 
   await expect.poll(() => fullHearts(page, msg('stat_hunger'))).toBeGreaterThan(before);
 });
 
+test('feeding shows the food being eaten on the stage', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, seed({ stats: { hunger: 20 } }));
+  await page.getByRole('button', { name: msg('action_feed'), exact: true }).click();
+  await page.locator('.panel__item').first().click();
+  await expect(page.locator('.fx-prop--food')).toBeVisible();
+  await expect(page.locator('.fx-prop--food')).toHaveCount(0, { timeout: 4000 });
+});
+
 test('stop mini-game can be played to completion', async ({ context, extensionId, msg }) => {
   const page = await seedAndOpen(context, extensionId, seed({}));
   await page.getByRole('button', { name: msg('action_play'), exact: true }).click();

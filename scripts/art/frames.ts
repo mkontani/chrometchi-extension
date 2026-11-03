@@ -74,3 +74,102 @@ export function squash(png: PngData): PngData {
 export function nudge(png: PngData): PngData {
   return remap(png, (x, y) => [x - 1, y]);
 }
+
+type Box = { x0: number; x1: number; y0: number; y1: number };
+
+/** The smallest box around every visible pixel, or null for an empty image. */
+function visibleBox(png: PngData): Box | null {
+  let box: Box | null = null;
+  for (let y = 0; y < png.height; y++) {
+    for (let x = 0; x < png.width; x++) {
+      if ((png.data[(y * png.width + x) * 4 + 3] ?? 0) === 0) continue;
+      box = box
+        ? { x0: Math.min(box.x0, x), x1: Math.max(box.x1, x), y0: Math.min(box.y0, y), y1: Math.max(box.y1, y) }
+        : { x0: x, x1: x, y0: y, y1: y };
+    }
+  }
+  return box;
+}
+
+/** Whether (x, y) falls inside the bite circles: one on the right edge, and a second deeper one for bite 2. */
+function inBite(box: Box, bites: 1 | 2, x: number, y: number): boolean {
+  const w = box.x1 - box.x0 + 1;
+  const h = box.y1 - box.y0 + 1;
+  const r = Math.ceil(w / 3);
+  const circles: [number, number][] = [[box.x1, box.y0 + h / 3]];
+  if (bites === 2) circles.push([box.x1 - r / 2, box.y0 + (2 * h) / 3]);
+  return circles.some(([cx, cy]) => (x - cx) ** 2 + (y - cy) ** 2 <= r * r);
+}
+
+const NEIGHBOURS: readonly [number, number][] = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
+const isVisible = (png: PngData, i: number) => png.data[i * 4 + 3] === 255;
+
+/** 1 for each visible pixel inside the bite circles. */
+function biteMask(png: PngData, box: Box, bites: 1 | 2): Uint8Array {
+  const mask = new Uint8Array(png.width * png.height);
+  for (let i = 0; i < mask.length; i++) {
+    if (isVisible(png, i) && inBite(box, bites, i % png.width, Math.floor(i / png.width))) mask[i] = 1;
+  }
+  return mask;
+}
+
+/** The 4-connected pieces of the pixels that are visible and not removed: a piece id per pixel (-1 = none). */
+function pieces(png: PngData, removed: Uint8Array): { id: Int32Array; sizes: number[] } {
+  const id = new Int32Array(removed.length).fill(-1);
+  const sizes: number[] = [];
+  const keep = (i: number) => isVisible(png, i) && !removed[i] && id[i] === -1;
+  for (let start = 0; start < id.length; start++) {
+    if (!keep(start)) continue;
+    const piece = sizes.length;
+    const stack = [start];
+    id[start] = piece;
+    sizes.push(0);
+    while (stack.length > 0) {
+      const i = stack.pop() as number;
+      sizes[piece] = (sizes[piece] ?? 0) + 1;
+      for (const n of neighboursOf(png, i)) {
+        if (keep(n)) {
+          id[n] = piece;
+          stack.push(n);
+        }
+      }
+    }
+  }
+  return { id, sizes };
+}
+
+function neighboursOf(png: PngData, i: number): number[] {
+  const x = i % png.width;
+  const y = Math.floor(i / png.width);
+  return NEIGHBOURS.filter(([dx, dy]) => x + dx >= 0 && y + dy >= 0 && x + dx < png.width && y + dy < png.height).map(
+    ([dx, dy]) => (y + dy) * png.width + x + dx,
+  );
+}
+
+/** Adds to `removed` every piece the bite cut off from the body (a piece touching the bite, other than the largest). */
+function withCutOffPieces(png: PngData, removed: Uint8Array): Uint8Array {
+  const { id, sizes } = pieces(png, removed);
+  const body = sizes.indexOf(Math.max(...sizes));
+  const touched = new Set<number>();
+  removed.forEach((r, i) => {
+    if (r) for (const n of neighboursOf(png, i)) if (id[n] !== undefined && id[n] >= 0) touched.add(id[n]);
+  });
+  return removed.map((r, i) => (r || (id[i] !== body && touched.has(id[i] ?? -1)) ? 1 : 0));
+}
+
+/**
+ * A bitten copy of a food picture: round bites are cut from its right side, pieces left floating are dropped,
+ * and the new edge gets the outline color so the whole silhouette stays outlined (style guide).
+ */
+export function bite(png: PngData, bites: 1 | 2, outline: readonly [number, number, number]): PngData {
+  const data = png.data.slice();
+  const box = visibleBox(png);
+  if (!box) return { width: png.width, height: png.height, data };
+  const removed = withCutOffPieces(png, biteMask(png, box, bites));
+  removed.forEach((r, i) => {
+    if (r) data.fill(0, i * 4, i * 4 + 4);
+    else if (isVisible(png, i) && neighboursOf(png, i).some((n) => removed[n])) data.set(outline, i * 4);
+  });
+  return { width: png.width, height: png.height, data };
+}

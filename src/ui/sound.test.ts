@@ -81,3 +81,13 @@ test('a throwing context factory is reported, not thrown', () => {
   expect(() => sfx.play('eat')).not.toThrow();
   expect(warn).toHaveBeenCalledWith('[chrometchi] sfx', err);
 });
+
+test.each([
+  ['sweep', [330, 262]],
+  ['gulp', [392, 262]],
+  ['click', [1318]],
+] as const)('%s plays its notes', (name, notes) => {
+  const { ctx, oscillators } = fakeContext();
+  createSfx(() => true, () => asCtx(ctx)).play(name);
+  expect(oscillators.map((o) => o.frequency.value)).toEqual(notes);
+});

@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { checkImage, requiredSpritePaths } from '../../scripts/art/lib';
+import { FOODS } from '@/data/foods';
 import { FORMS } from '@/data/forms';
 import { BACKGROUND_IDS, EFFECT_IDS, GAME_ART_IDS, ICON_IDS } from '@/ui/assets';
 import palette from './palette.json';
@@ -14,6 +15,8 @@ const SMALL_ICONS = new Set<string>([
 ]);
 const GAME_ART_SIZE: Record<string, number> = { rock: 16, cup: 32, treat: 16 };
 const TOOLBAR_ICONS = [16, 48, 128] as const;
+/** Foods with bites taken out (scripts/art/bite.ts), shown while the pet eats. */
+const BITTEN_FOODS = FOODS.flatMap((f) => [1, 2].map((n) => `src/assets/ui/food/${f.id}_bite${n}.png`));
 
 /** Every PNG the popup bundles (assets.ts globs all of src/assets). */
 function shippedPngs(dir = 'src/assets'): string[] {
@@ -31,6 +34,7 @@ function checkedPngs(): Set<string> {
     ...EFFECT_IDS.map((id) => `src/assets/ui/effects/${id}.png`),
     ...GAME_ART_IDS.map((id) => `src/assets/ui/game/${id}.png`),
     ...BACKGROUND_IDS.map((id) => `src/assets/ui/bg/${id}.png`),
+    ...BITTEN_FOODS,
     'src/assets/ui/frame.png',
   ]);
 }
@@ -44,6 +48,9 @@ describe('shipped art is complete and on-palette', () => {
   });
   test.each(EFFECT_IDS)('effect %s', (id) => {
     expect(checkImage(`src/assets/ui/effects/${id}.png`, sized(16))).toEqual([]);
+  });
+  test.each(BITTEN_FOODS)('bitten food %s', (p) => {
+    expect(checkImage(p, sprite)).toEqual([]);
   });
   test.each(GAME_ART_IDS)('game art %s', (id) => {
     expect(checkImage(`src/assets/ui/game/${id}.png`, sized(GAME_ART_SIZE[id] ?? 0))).toEqual([]);
