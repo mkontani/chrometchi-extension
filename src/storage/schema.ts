@@ -1,6 +1,9 @@
 import { z } from 'zod';
-import type { GameState, PetState, Settings, Zukan } from '@/core/types';
-import { DEFAULT_SETTINGS, MAX_HIDDEN_SITES } from '@/core/constants';
+import type { GameState, Kitchen, Pantry, PetState, Settings, Zukan } from '@/core/types';
+import { DEFAULT_SETTINGS, MAX_HIDDEN_SITES, PANTRY_MAX } from '@/core/constants';
+import { EMPTY_KITCHEN } from '@/core/kitchen';
+import { FOOD_IDS } from '@/data/foods';
+import { OUTING_KINDS } from '@/data/outings';
 
 /** The single list of notification kinds; the type and the save schema both derive from it. */
 export const NOTIFY_KINDS = [
@@ -28,6 +31,7 @@ export interface SaveV1 {
   version: 1;
   game: GameState;
   zukan: Zukan;
+  kitchen: Kitchen;
   settings: Settings;
   meta: SaveMeta;
 }
@@ -118,6 +122,36 @@ const zukanSchema: z.ZodType<Zukan> = z.object({
   memories: z.array(memorySchema),
 });
 
+const KNOWN_FOODS = new Set<string>(FOOD_IDS);
+
+/** A food this build does not know is dropped rather than failing (and resetting) the save. */
+const pantrySchema = z
+  .record(z.string(), z.number().int().min(0).max(PANTRY_MAX))
+  .transform((counts): Pantry => Object.fromEntries(Object.entries(counts).filter(([f]) => KNOWN_FOODS.has(f))));
+
+const outingCount = z.number().int().min(0);
+
+const kitchenSchema: z.ZodType<Kitchen> = z.object({
+  pantry: pantrySchema,
+  outings: z.object({
+    day: z.string(),
+    used: z.object(
+      Object.fromEntries(OUTING_KINDS.map((k) => [k, outingCount])) as Record<
+        (typeof OUTING_KINDS)[number],
+        typeof outingCount
+      >,
+    ),
+  }),
+  farm: z.object({
+    crop: z.enum(['veggie', 'fruit']).nullable(),
+    growMinLeft: z.number().int().min(0),
+    watered: z.boolean(),
+  }),
+});
+
+/** Saves written before the kitchen existed get an empty one instead of failing (and resetting). */
+const withEmptyKitchen = (raw: unknown): unknown => raw ?? EMPTY_KITCHEN;
+
 /** A bare, lowercase hostname such as `example.com` (no scheme, port or path). */
 export const hostnameSchema = z.string().max(253).regex(/^[a-z0-9-]+(\.[a-z0-9-]+)*$/);
 
@@ -160,6 +194,7 @@ export const saveSchema: z.ZodType<SaveV1> = z.object({
   version: z.literal(1),
   game: gameSchema,
   zukan: zukanSchema,
+  kitchen: z.preprocess(withEmptyKitchen, kitchenSchema),
   settings: z.preprocess(withDefaultSettings, settingsSchema),
   meta: metaSchema,
 });

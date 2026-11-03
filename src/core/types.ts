@@ -107,6 +107,28 @@ export interface Memory {
   endedAt: number;
 }
 
+export type OutingKind = 'fishing' | 'hunting' | 'gathering';
+export type Crop = 'veggie' | 'fruit';
+
+/** Outings played on one local day; a new day starts the counts over. */
+export interface OutingLog {
+  day: string;
+  used: Record<OutingKind, number>;
+}
+
+export interface Farm {
+  crop: Crop | null;
+  growMinLeft: number;
+  watered: boolean;
+}
+
+/** What the pet has gathered and grown; lives beside the game so a new egg keeps it. */
+export interface Kitchen {
+  pantry: Pantry;
+  outings: OutingLog;
+  farm: Farm;
+}
+
 export interface Zukan {
   discovered: FormId[];
   memories: Memory[];

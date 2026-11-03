@@ -39,7 +39,7 @@ function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0, over: Overrides
     reportError: (err, context) => void errors.push([err, context]),
   });
   const stored = () => area.data.get(SAVE_KEY) as SaveV1;
-  return { engine, clock, stored, notifyCalls, badgeLevels, errors };
+  return { engine, clock, stored, area, notifyCalls, badgeLevels, errors };
 }
 
 describe('engine', () => {
@@ -111,6 +111,19 @@ describe('engine', () => {
     expect(res.ok).toBe(true);
     expect(stored().game.generation).toBe(2);
     expect(stored().zukan.memories).toHaveLength(0);
+  });
+
+  test('a new egg (restart) keeps the kitchen', async () => {
+    const { engine, stored, area } = setup();
+    const kitchen = {
+      pantry: { fish: 4 },
+      outings: { day: '2026-01-01', used: { fishing: 2, hunting: 0, gathering: 1 } },
+      farm: { crop: 'veggie' as const, growMinLeft: 5, watered: true },
+    };
+    area.data.set(SAVE_KEY, { ...stored(), kitchen });
+    await engine.handle({ type: 'restart' });
+    expect(stored().game.generation).toBe(2);
+    expect(stored().kitchen).toEqual(kitchen);
   });
 
   test('dismissNotice clears the flag', async () => {

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { DEFAULT_SETTINGS } from '@/core/constants';
 import { createGame, createZukan } from '@/core/factory';
+import { EMPTY_KITCHEN } from '@/core/kitchen';
 import type { SaveV1 } from '@/storage/schema';
 import { SAVE_KEY } from '@/storage/schema';
 import { requestEngine } from '@/ui/api';
@@ -15,6 +16,7 @@ const save: SaveV1 = {
   version: 1,
   game: createGame(1_000),
   zukan: createZukan(),
+  kitchen: EMPTY_KITCHEN,
   settings: { ...DEFAULT_SETTINGS },
   meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
 };

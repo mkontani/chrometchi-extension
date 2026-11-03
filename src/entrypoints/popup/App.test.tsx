@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/preact
 import { afterEach, expect, test, vi } from 'vitest';
 import type { CareOutcome } from '@/core/types';
 import { createEgg } from '@/core/factory';
+import { EMPTY_KITCHEN } from '@/core/kitchen';
 import type { UseGame } from '@/ui/useGame';
 import { App } from './App';
 
@@ -24,6 +25,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
   ({
     game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
+    kitchen: EMPTY_KITCHEN,
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
