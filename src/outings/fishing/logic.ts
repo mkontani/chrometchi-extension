@@ -44,7 +44,8 @@ export const fishingGame: OutingGame<FishingState> = {
   kind: 'fishing',
   init: (rng) => ({ elapsed: 0, phase: 'wait', phaseMs: 0, waitMs: drawWait(rng), catches: 0 }),
   step(s, dtMs, input: GameInput, rng) {
-    const acted = input.action ? applyAction(s, rng) : s;
+    // A key press (action) and a tap (pick) are the same gesture.
+    const acted = input.action || input.pick !== null ? applyAction(s, rng) : s;
     const timed = { ...acted, elapsed: s.elapsed + dtMs };
     // A tap that changed the phase starts it at 0; otherwise the current phase keeps running.
     return advancePhase(acted === s ? { ...timed, phaseMs: s.phaseMs + dtMs } : timed, rng);
@@ -52,4 +53,6 @@ export const fishingGame: OutingGame<FishingState> = {
   isOver: (s) => s.elapsed >= OUTING_GAME_MS,
   score: (s) => Math.min(MAX_SCORE, s.catches * POINTS_PER_CATCH),
   render: renderFishing,
+  /** Any tap on the canvas is the tap that sets the hook. */
+  pickFromPointer: () => 0,
 };

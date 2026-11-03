@@ -22,6 +22,24 @@ describe('fishing', () => {
     expect(next.catches).toBe(1);
   });
 
+  test('a pick acts like the action key: it catches during a bite', () => {
+    const caught = fishingGame.step(toBite(), 10, { ...NO_INPUT, pick: 0 }, rng);
+    expect(caught.phase).toBe('reel');
+    expect(caught.catches).toBe(1);
+  });
+
+  test('a pick in the wait phase resets the wait exactly like the action key', () => {
+    const viaAction = fishingGame.step(fishingGame.init(rng), 100, act, rng);
+    const viaPick = fishingGame.step(fishingGame.init(rng), 100, { ...NO_INPUT, pick: 0 }, rng);
+    expect(viaPick).toEqual(viaAction);
+    expect(viaPick.catches).toBe(0);
+  });
+
+  test('every tap position picks 0, so a click anywhere on the canvas counts', () => {
+    expect(fishingGame.pickFromPointer?.(3, 170)).toBe(0);
+    expect(fishingGame.pickFromPointer?.(170, 3)).toBe(0);
+  });
+
   test('reel ignores input', () => {
     const caught = fishingGame.step(toBite(), 10, act, rng);
     const again = fishingGame.step(caught, 10, act, rng);
