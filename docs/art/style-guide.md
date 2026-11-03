@@ -74,6 +74,21 @@ Effects play on the popup stage after feed, clean, medicine and lights (`src/ui/
   - The prompt `cute pixel … effect` gave even crumbs and dust a face on 9 of 9 tries.
   - The dust puffs are unions of circles, with a 1px black outline, a white highlight on the upper left and `#8d9191` shade on the lower right.
 
+## Pantry and outings
+
+Art for the pantry, the outing games and the farm row (`src/assets/ui/outing/`, shown at 2x or more; the owner reviews it at Gate F).
+
+- **No faces on food or props.** `create_image_pixen` gave the round bush a face on 3 of 3 tries, so the bush is drawn by hand (below). The fruit icon's face was removed by hand, and the egg food was hand-drawn (Task 1).
+- **Settings for every piece:** `no_background true`, `outline 'single color black outline'`, `detail 'low detail'`, 3 candidates each. Snap the pick with `reduce_colors` and `docs/art/palette.png`, then run `npx tsx scripts/art/check.ts --palette --size <WxH> <files>`.
+- **Pieces, sizes and prompts:**
+  - `float` (16x16): `a red and white fishing float, cute pixel icon, thick black outline, no face`
+  - `grass` (32x32): `a tuft of tall green grass, cute pixel art, thick black outline, no face`
+  - `bush` (32x32): prompt `a round green bush, cute pixel art, thick black outline, no face`; all 3 results had faces or were trees, so the final art is a hand-drawn pixel map on the palette (union of circles, 1px black outline, `#86e7b0` light upper left, `#317352` shade lower right).
+  - `sprout` (16x16): `a small green sprout in soil, cute pixel icon, thick black outline, no face`
+  - `can` (16x16): `a small blue watering can, cute pixel icon, thick black outline, no face`
+- **Hunting pop is the food icon itself.** Nothing is hurt and no creature is drawn: the meat or egg icon pops out of the grass tuft.
+- **Where they show:** `float`, `grass` and `bush` in the games (`src/outings/*/render.ts`); `sprout` while a crop grows and `can` on the water button in `OutingPanel`.
+
 ## Eggs
 
 - **Eggs never have a face** (no eyes, mouth or cheeks). This is owner feedback from Gate A.

@@ -3,6 +3,7 @@ import type { FarmOp } from '@/core/farm';
 import type { Farm, Kitchen, OutingKind } from '@/core/types';
 import { OUTING_KINDS } from '@/data/outings';
 import { t } from '@/i18n/t';
+import { assetUrl } from '@/ui/assets';
 import { Panel } from './Panel';
 
 interface Props {
@@ -36,11 +37,15 @@ function FarmControls({ farm, onFarm }: { farm: Farm; onFarm(action: FarmOp): vo
     );
   }
   if (farm.growMinLeft > 0) {
+    const sprout = assetUrl('ui/outing/sprout');
+    const can = assetUrl('ui/outing/can');
     return (
       <>
+        {sprout ? <img src={sprout} width={32} height={32} alt="" /> : null}
         <span class="panel__note">{growingText(farm.growMinLeft)}</span>
         {!farm.watered && (
           <button type="button" class="panel__item" onClick={() => onFarm({ op: 'water' })}>
+            {can ? <img src={can} width={32} height={32} alt="" /> : null}
             {t('farm_water')}
           </button>
         )}

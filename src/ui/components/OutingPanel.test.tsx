@@ -5,7 +5,12 @@ import type { Kitchen } from '@/core/types';
 import { OutingPanel } from './OutingPanel';
 
 vi.mock('@/i18n/t', () => ({ t: (k: string, s?: string | string[]) => (s === undefined ? k : `${k}:${s}`) }));
-afterEach(cleanup);
+const art = vi.hoisted(() => ({ missing: new Set<string>() }));
+vi.mock('@/ui/assets', () => ({ assetUrl: (p: string) => (art.missing.has(p) ? null : `${p}.png`) }));
+afterEach(() => {
+  cleanup();
+  art.missing.clear();
+});
 
 const NOW = new Date(2026, 10, 4, 12).getTime();
 const kitchen = (patch: Partial<Kitchen> = {}): Kitchen => ({ ...EMPTY_KITCHEN, ...patch });
@@ -53,4 +58,22 @@ test('a ready field offers harvest', () => {
   render(<OutingPanel {...props} kitchen={kitchen({ farm })} onFarm={onFarm} />);
   fireEvent.click(btn('farm_harvest'));
   expect(onFarm).toHaveBeenCalledWith({ op: 'harvest' });
+});
+
+const growing = { crop: 'veggie' as const, growMinLeft: 90, watered: false };
+
+test('a growing crop shows the sprout picture', () => {
+  const { container } = render(<OutingPanel {...props} kitchen={kitchen({ farm: growing })} />);
+  expect(container.querySelector('img[src="ui/outing/sprout.png"]')).toBeTruthy();
+});
+
+test('the water button shows the can picture', () => {
+  render(<OutingPanel {...props} kitchen={kitchen({ farm: growing })} />);
+  expect(btn('farm_water').querySelector('img[src="ui/outing/can.png"]')).toBeTruthy();
+});
+
+test('missing sprout and can art render no image', () => {
+  art.missing.add('ui/outing/sprout').add('ui/outing/can');
+  const { container } = render(<OutingPanel {...props} kitchen={kitchen({ farm: growing })} />);
+  expect(container.querySelector('img')).toBeNull();
 });

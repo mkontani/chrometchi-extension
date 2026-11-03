@@ -1,6 +1,7 @@
 import { eggPattern } from '@/data/eggs';
 import { FOODS } from '@/data/foods';
 import { GAMES } from '@/data/games';
+import type { OutingArtId } from '@/outings/types';
 import type { FoodId, FormId, GameId, Pose } from '@/core/types';
 
 const FILES = import.meta.glob('/src/assets/**/*.png', {
@@ -30,6 +31,11 @@ export const EFFECT_IDS: readonly EffectId[] = [
   'poop', 'zzz', 'sweat', 'sparkle', 'note', 'skull', 'pill',
   'crumb', 'dust0', 'dust1', 'dust2', 'star',
 ];
+/** Art the outing games and the farm row draw (`src/assets/ui/outing/<id>.png`). */
+export const OUTING_ART_IDS: readonly OutingArtId[] = ['float', 'grass', 'bush', 'sprout', 'can'];
+export const OUTING_ART_SIZE: Readonly<Record<OutingArtId, number>> = {
+  float: 16, grass: 32, bush: 32, sprout: 16, can: 16,
+};
 export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
 export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];
 
