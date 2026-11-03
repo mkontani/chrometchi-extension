@@ -24,11 +24,11 @@ test('egg sprites follow the generation pattern, other forms ignore it', () => {
   expect(spriteUrl('baby_puni', 'idle0', 3)).toContain('/sprites/baby_puni/idle0');
 });
 
-test('iconUrl returns null when the icon file does not exist', () => {
-  expect(iconUrl('feed')).toBeNull();
-  expect(effectUrl('poop')).toBeNull();
-  expect(backgroundUrl('room_day')).toBeNull();
-  expect(gameArtUrl('rock')).toBeNull();
+test('every UI id resolves to a shipped file', () => {
+  for (const id of ICON_IDS) expect(iconUrl(id), id).toBeTruthy();
+  for (const id of EFFECT_IDS) expect(effectUrl(id), id).toBeTruthy();
+  for (const id of BACKGROUND_IDS) expect(backgroundUrl(id), id).toBeTruthy();
+  for (const id of GAME_ART_IDS) expect(gameArtUrl(id), id).toBeTruthy();
 });
 
 test('id lists are complete', () => {

@@ -16,10 +16,17 @@ export function FoodPanel({ onPick, onClose }: Props) {
         {FOODS.map((f) => {
           const url = iconUrl(`food_${f.id}`);
           return (
-            <button key={f.id} type="button" class="panel__item" onClick={() => onPick(f.id)}>
+            <button
+              key={f.id}
+              type="button"
+              class="panel__item panel__item--row"
+              onClick={() => onPick(f.id)}
+            >
               {url ? <img src={url} width={32} height={32} alt="" /> : null}
-              <span>{t(`food_${f.id}`)}</span>
-              <small class={`panel__tag panel__tag--${f.kind}`}>{t(`food_kind_${f.kind}`)}</small>
+              <span class="panel__text">
+                <span>{t(`food_${f.id}`)}</span>
+                <small class={`panel__tag panel__tag--${f.kind}`}>{t(`food_kind_${f.kind}`)}</small>
+              </span>
             </button>
           );
         })}
