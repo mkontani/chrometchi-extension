@@ -69,11 +69,7 @@ export function squash(png: PngData): PngData {
   });
 }
 
-/** Egg wobble frame: the upper half of the shell leans 1px to the right. */
-export function lean(png: PngData): PngData {
-  const rows = bodyRows(png);
-  if (!rows) return remap(png, (x, y) => [x, y]);
-  const [top, bottom] = rows;
-  const mid = top + Math.floor((bottom - top + 1) / 2);
-  return remap(png, (x, y) => (y < mid ? [x - 1, y] : [x, y]));
+/** Egg wobble frame: the whole shell moves 1px right (a partial shift would kink the outline). */
+export function nudge(png: PngData): PngData {
+  return remap(png, (x, y) => [x - 1, y]);
 }

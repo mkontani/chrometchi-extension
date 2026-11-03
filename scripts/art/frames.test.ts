@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { lean, squash } from './frames';
+import { nudge, squash } from './frames';
 import type { PngData } from './lib';
 
 /** Builds a PngData from ASCII rows: '.' transparent, any other char an opaque color. */
@@ -60,14 +60,14 @@ describe('squash', () => {
   });
 });
 
-describe('lean', () => {
-  test('shifts the upper half of the body 1px to the right', () => {
-    const src = fromRows(['.a..', '.b..', '.c..', '.d..']);
-    expect(toRows(lean(src))).toEqual(['..a.', '..b.', '.c..', '.d..']);
+describe('nudge', () => {
+  test('moves the whole sprite 1px to the right so the outline stays intact', () => {
+    const src = fromRows(['.a..', '.bc.', '.d..']);
+    expect(toRows(nudge(src))).toEqual(['..a.', '..bc', '..d.']);
   });
 
   test('clips pixels pushed past the right edge', () => {
-    const src = fromRows(['..a', '..b', '..c', '..d']);
-    expect(toRows(lean(src))).toEqual(['...', '...', '..c', '..d']);
+    const src = fromRows(['..a', '.bc']);
+    expect(toRows(nudge(src))).toEqual(['...', '..b']);
   });
 });

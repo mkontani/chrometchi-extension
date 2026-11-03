@@ -1,13 +1,13 @@
 import { writeFileSync } from 'node:fs';
 import { PNG } from 'pngjs';
-import { lean, squash } from './frames';
+import { nudge, squash } from './frames';
 import { readPng } from './lib';
 
-const USAGE = 'usage: tsx scripts/art/idle1.ts <squash|lean> <idle0.png> <out.png>\n';
+const USAGE = 'usage: tsx scripts/art/idle1.ts <squash|nudge> <idle0.png> <out.png>\n';
 
 function main(argv: string[]): number {
   const [mode, input, out] = argv;
-  const transform = mode === 'squash' ? squash : mode === 'lean' ? lean : null;
+  const transform = mode === 'squash' ? squash : mode === 'nudge' ? nudge : null;
   const png = input ? readPng(input) : null;
   if (!transform || !png || !out) {
     process.stdout.write(USAGE);
