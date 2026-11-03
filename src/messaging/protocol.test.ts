@@ -16,6 +16,7 @@ describe('parseEngineRequest', () => {
       { type: 'restart' },
       { type: 'startNewEgg' },
       { type: 'dismissNotice', notice: 'renewal' },
+      { type: 'hideRoamSite', host: 'news.example.com' },
     ];
     for (const raw of valid) expect(parseEngineRequest(raw)).toEqual(raw);
   });
@@ -35,6 +36,8 @@ describe('parseEngineRequest', () => {
       { type: 'updateSettings', patch: { sleepStartMin: 1440 } },
       { type: 'updateSettings', patch: { sleepStartMin: 1.5 } },
       { type: 'dismissNotice', notice: 'other' },
+      { type: 'hideRoamSite', host: 'https://a.com' },
+      { type: 'hideRoamSite' },
     ];
     for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
   });

@@ -12,6 +12,7 @@ import type {
   WarningLevel,
 } from '@/core/types';
 import { parseEngineRequest, type EngineRequest, type EngineResponse } from '@/messaging/protocol';
+import { addHiddenSite } from '@/roam/sites';
 import { settingsSchema, type SaveMeta, type SaveV1 } from '@/storage/schema';
 import type { SaveRepository } from '@/storage/repository';
 import { createSerialQueue } from './queue';
@@ -95,6 +96,11 @@ function mutatorFor(req: EngineRequest): Mutator {
       return (save) => {
         const key = req.notice === 'renewal' ? 'showRenewal' : 'showDataReset';
         return { save: { ...save, meta: { ...save.meta, [key]: false } }, events: [] };
+      };
+    case 'hideRoamSite':
+      return (save) => {
+        const roamHiddenSites = addHiddenSite(save.settings.roamHiddenSites, req.host);
+        return { save: { ...save, settings: { ...save.settings, roamHiddenSites } }, events: [] };
       };
   }
 }

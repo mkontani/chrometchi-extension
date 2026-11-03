@@ -136,6 +136,13 @@ describe('engine', () => {
     expect(stored().settings).toMatchObject({ sound: true, roam: true, roamHiddenSites: ['a.com'] });
   });
 
+  test('hideRoamSite adds the host once', async () => {
+    const { engine, stored } = setup();
+    await engine.handle({ type: 'hideRoamSite', host: 'a.com' });
+    await engine.handle({ type: 'hideRoamSite', host: 'a.com' });
+    expect(stored().settings.roamHiddenSites).toEqual(['a.com']);
+  });
+
   test('invalid settings patch is rejected and save unchanged', async () => {
     const { engine, stored } = setup();
     const before = stored();

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { CareAction, CareOutcome, Settings } from '@/core/types';
-import { settingsSchema, type SaveV1 } from '@/storage/schema';
+import { hostnameSchema, settingsSchema, type SaveV1 } from '@/storage/schema';
 
 export type EngineRequest =
   | { type: 'sync' }
@@ -9,7 +9,9 @@ export type EngineRequest =
   | { type: 'updateSettings'; patch: Partial<Settings> }
   | { type: 'restart' }
   | { type: 'startNewEgg' }
-  | { type: 'dismissNotice'; notice: 'renewal' | 'dataReset' };
+  | { type: 'dismissNotice'; notice: 'renewal' | 'dataReset' }
+  /** The only request a content script may send: hide the roaming pet on its site. */
+  | { type: 'hideRoamSite'; host: string };
 
 export type EngineResponse =
   | { ok: true; save: SaveV1; outcome?: CareOutcome }
@@ -42,6 +44,7 @@ const requestSchema = z.discriminatedUnion('type', [
     type: z.literal('dismissNotice'),
     notice: z.enum(['renewal', 'dataReset']),
   }),
+  z.object({ type: z.literal('hideRoamSite'), host: hostnameSchema }),
 ]);
 
 export function parseEngineRequest(raw: unknown): EngineRequest | null {
