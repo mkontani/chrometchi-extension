@@ -27,11 +27,12 @@ Prompt template (fill `{motif}` from `FORMS`):
 cute {motif}, chibi virtual pet creature, round simple body, big sparkly eyes, rosy cheeks, front view, full body, centered, thick black outline
 ```
 
-Poses come from `edit_image_pixen` on the approved `idle0`. Snap all 7 frames of a character to the palette together in one `reduce_colors` call.
+Poses come from `edit_image_pixen` on the approved `idle0` (seed 1, retry with 2 and 3). Snap the character's `idle0` and its 5 poses to the palette together in one `reduce_colors` call.
+
+`idle1` is made in code, not by AI (Gate C): `npx tsx scripts/art/idle1.ts squash <idle0> <idle1>`. It removes the most redundant row in the lower body, so the top sinks 1px while the feet stay put. AI-made `idle1` frames came out either the same as `idle0` or with a different silhouette, which flickers when the frames alternate every 500ms.
 
 | pose | description |
 |---|---|
-| idle1 | same character mid-bounce, body squashed 1-2px shorter and wider, same colors |
 | happy | same character overjoyed, eyes closed as happy arcs, mouth open smiling, arms up |
 | eat | same character eating, mouth wide open chewing |
 | sick | same character sick, pale tint, swirly dizzy eyes, sweat drop |
@@ -42,7 +43,7 @@ Poses come from `edit_image_pixen` on the approved `idle0`. Snap all 7 frames of
 
 - **Eggs never have a face** (no eyes, mouth or cheeks). This is owner feedback from Gate A.
 - Do not use the character template for eggs, because it adds eyes and cheeks. Even with "no face" in the prompt, `create_image_pixen` still drew a face on 4 out of 4 tries. Make egg variants with `edit_image_pixen` starting from `egg/plain/idle0.png`, with instructions like "add …, keep the same egg shape, … No face."
-- `idle1` (the wobble frame) for each pattern: "same egg tilted slightly to the right".
+- `idle1` (the wobble frame) is also made in code: `npx tsx scripts/art/idle1.ts nudge <idle0> <idle1>` moves the whole shell 1px right. Shifting only part of the shell leaves a kink in the outline.
 
 ## Do / don't
 
