@@ -6,7 +6,7 @@ export const BURST_MS = 300;
 export const CANVAS = 180;
 export const TUFT_SIZE = 28;
 export const TUFT_Y = 112;
-export const POP_Y = 88;
+export const POP_Y = 92;
 /** Taps between a little above the pop and the HUD strip pick a tuft. */
 export const PICK_TOP = POP_Y - 4;
 export const PICK_BOTTOM = ART_HUD_TOP;

@@ -5,7 +5,8 @@ import { BURST_MS, POP_Y, TUFT_SIZE, TUFT_Y, TUFTS, tuftX } from './constants';
 import type { HuntingState } from './logic';
 
 const SIZE = 180;
-const POP_SIZE = 20;
+/** The animals are 24x24 art drawn at native size. */
+export const POP_SIZE = 24;
 const PET = { x: 6, y: 20, w: 40, h: 48 };
 const SKY = '#cfe8f5';
 const GROUND = '#a5d66b';
@@ -34,7 +35,7 @@ function drawTuft(ctx: CanvasRenderingContext2D, i: number, view: OutingView): v
 
 function drawPop(ctx: CanvasRenderingContext2D, tuft: number, egg: boolean, view: OutingView): void {
   const box = { x: tuftX(tuft) + (TUFT_SIZE - POP_SIZE) / 2, y: POP_Y, w: POP_SIZE, h: POP_SIZE };
-  const art = view.art(egg ? 'food_egg' : 'food_meat');
+  const art = view.art(egg ? 'chicken' : 'boar');
   if (art) return drawSprite(ctx, art, box, INK);
   ctx.fillStyle = egg ? EGG : MEAT;
   ctx.fillRect(box.x, box.y, box.w, box.h);
@@ -57,7 +58,7 @@ function drawCursor(ctx: CanvasRenderingContext2D, i: number): void {
   ctx.fillRect(x, TUFT_Y + TUFT_SIZE + 2, TUFT_SIZE, 3);
 }
 
-/** Pixel-crisp scene: the pet watches five grass tufts while something pops up from one of them. */
+/** Pixel-crisp scene: the pet watches five grass tufts while a boar (or sometimes a chicken) pops up from one of them. */
 export function renderHunting(ctx: CanvasRenderingContext2D, s: HuntingState, view: OutingView): void {
   ctx.fillStyle = SKY;
   ctx.fillRect(0, 0, SIZE, SIZE);
