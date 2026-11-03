@@ -121,6 +121,9 @@ describe('balance', () => {
   });
 });
 
+// Deliberate and conservative: the whole run, egg to the end of the child stage (510 awake
+// minutes), stays inside ONE local calendar day, so a single day's haul (3 trips per kind)
+// plus the farm must carry each route. Real play spans more days, which only adds stock.
 type Route = 'meat' | 'fish' | 'sweet';
 
 const MIDNIGHT = new Date(2026, 10, 4).getTime();
@@ -155,18 +158,22 @@ function mealOrder(kitchen: Kitchen, route: Route | null): FoodId[] {
 function eat(start: PetState, startKitchen: Kitchen, route: Route | null): { pet: PetState; kitchen: Kitchen } {
   let pet = start;
   let kitchen = startKitchen;
-  const foods: FoodId[] = [];
-  for (let i = 0; i < MAX_MEALS; i++) foods.push(mealOrder(kitchen, route)[0] ?? 'rice');
-  if (route === 'sweet') foods.push('candy');
-  for (const food of foods) {
+  const feedOne = (food: FoodId): boolean => {
     const fed = feedFromPantry(pet, kitchen.pantry, { kind: 'feed', food });
-    if (fed.result.outcome.result !== 'ok') {
-      if (food === 'candy' || food === 'rice') break;
-      continue;
+    const { outcome } = fed.result;
+    if (outcome.result === 'refused' && outcome.reason !== 'full') {
+      throw new Error(`unexpected refusal ${outcome.reason} feeding ${food}`);
     }
+    if (outcome.result !== 'ok') return false;
     pet = fed.result.pet;
     kitchen = { ...kitchen, pantry: fed.pantry };
+    return true;
+  };
+  for (let i = 0; i < MAX_MEALS; i++) {
+    // Re-pick from the updated pantry so a spent stock falls back to the next food, then rice.
+    if (!feedOne(mealOrder(kitchen, route)[0] ?? 'rice')) break;
   }
+  if (route === 'sweet') feedOne('candy');
   return { pet, kitchen };
 }
 
@@ -237,7 +244,8 @@ describe('evolution routes under outing limits (spec 7.1)', () => {
 
   test('a meat-loving player can still end the baby stage heavy', () => {
     // The sparse cadence never meets a hungry baby (the 30-minute visit finds it full), so
-    // this player looks in once more just before the stage ends.
+    // this player looks in once more just before the stage ends. The heavy baby depends on
+    // stock left over from the first haul (the 30-minute visit gathers but cannot feed).
     const { lastBaby } = simulateRoute('meat', [BABY_EXTRA_VISIT]);
     expect(lastBaby.stage).toBe('baby');
     expect(weightClass(lastBaby)).toBe('heavy');
