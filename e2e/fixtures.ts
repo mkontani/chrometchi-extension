@@ -6,7 +6,7 @@ import { SAVE_KEY, type SaveV1 } from '../src/storage/schema';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 /** E2E_EXTENSION_PATH lets `npm run screenshots` load a single-language copy of the build. */
-const EXTENSION_PATH = process.env.E2E_EXTENSION_PATH ?? path.join(ROOT, '.output/chrome-mv3');
+const EXTENSION_PATH = process.env.E2E_EXTENSION_PATH ?? path.join(ROOT, '.output/chrome-mv3-e2e');
 
 type Msg = (key: string) => string;
 

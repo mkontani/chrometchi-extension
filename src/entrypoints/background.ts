@@ -3,6 +3,7 @@ import { createBadge } from '@/background/badge';
 import { createEngine } from '@/background/engine';
 import { createMessageListener } from '@/background/listener';
 import { createNotifier } from '@/background/notifier';
+import { createRoamManager, roamHandlers } from '@/background/roam';
 import { t } from '@/i18n/t';
 import { createSaveRepository } from '@/storage/repository';
 
@@ -32,5 +33,30 @@ export default defineBackground(() => {
     engine.tick().catch((err: unknown) => reportError(err, 'tick'));
   });
 
-  browser.runtime.onMessage.addListener(createMessageListener(engine, browser.runtime.id));
+  const roam = roamHandlers(
+    createRoamManager({
+      scripting: {
+        getRegisteredContentScripts: (filter) => browser.scripting.getRegisteredContentScripts(filter),
+        registerContentScripts: (scripts) => browser.scripting.registerContentScripts(scripts),
+        unregisterContentScripts: (filter) => browser.scripting.unregisterContentScripts(filter),
+        // WXT types `files` as its generated PublicPath union; ROAM_SCRIPT_FILE is one of them at runtime.
+        executeScript: (injection) =>
+          browser.scripting.executeScript(injection as Parameters<typeof browser.scripting.executeScript>[0]),
+      },
+      permissions: browser.permissions,
+      tabs: browser.tabs,
+      reportError,
+    }),
+    engine,
+    reportError,
+  );
+  browser.permissions.onAdded.addListener(roam.onPermissionAdded);
+  browser.permissions.onRemoved.addListener(roam.onPermissionRemoved);
+  // Re-check the registration whenever the worker starts (settings may have changed while asleep).
+  engine
+    .handle({ type: 'sync' })
+    .then(roam.afterHandle)
+    .catch((err: unknown) => reportError(err, 'startup roam sync'));
+
+  browser.runtime.onMessage.addListener(createMessageListener(engine, browser.runtime.id, roam.afterHandle));
 });
