@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback, useRef, useState } from 'preact/hooks';
 import type { FarmOp } from '@/core/farm';
 import type { Gained, OutingKind } from '@/core/types';
 import type { EngineResponse } from '@/messaging/protocol';
@@ -22,17 +22,39 @@ function gainedOf(r: EngineResponse): Gained | null {
 export function useOutings(send: UseGame['send']): UseOutings {
   const [active, setActive] = useState<OutingKind | null>(null);
   const [gained, setGained] = useState<Gained | null>(null);
+  // A request in flight: further taps are ignored until its reply arrives.
+  const forageBusy = useRef(false);
+  const farmBusy = useRef(false);
+
+  /** Shows a new haul; a reply with nothing to show (refused, failed, empty) keeps the note already showing. */
+  const showHaul = (r: EngineResponse): void => {
+    const next = gainedOf(r);
+    if (next) setGained(next);
+  };
 
   const finish = useCallback(
     async (score: number) => {
-      if (active === null) return;
+      if (active === null || forageBusy.current) return;
+      forageBusy.current = true;
       setActive(null);
-      setGained(gainedOf(await send({ type: 'forage', kind: active, score })));
+      try {
+        showHaul(await send({ type: 'forage', kind: active, score }));
+      } finally {
+        forageBusy.current = false;
+      }
     },
     [active, send],
   );
   const farm = useCallback(
-    async (action: FarmOp) => setGained(gainedOf(await send({ type: 'farm', action }))),
+    async (action: FarmOp) => {
+      if (farmBusy.current) return;
+      farmBusy.current = true;
+      try {
+        showHaul(await send({ type: 'farm', action }));
+      } finally {
+        farmBusy.current = false;
+      }
+    },
     [send],
   );
   const cancel = useCallback(() => setActive(null), []);
