@@ -1,5 +1,6 @@
+import { applyCare } from './care';
 import { PANTRY_MAX } from './constants';
-import type { FoodId, Gained, Pantry } from './types';
+import type { CareAction, CareResult, FoodId, Gained, Pantry, PetState } from './types';
 import { ALWAYS_FOODS } from '@/data/foods';
 
 export function stockOf(pantry: Pantry, food: FoodId): number {
@@ -25,4 +26,19 @@ export function takeOne(pantry: Pantry, food: FoodId): Pantry | null {
   if (ALWAYS_FOODS.has(food)) return pantry;
   const have = pantry[food] ?? 0;
   return have > 0 ? { ...pantry, [food]: have - 1 } : null;
+}
+
+/** Feeds from the pantry: refuses without stock, and takes one only when the feed worked. */
+export function feedFromPantry(
+  pet: PetState,
+  pantry: Pantry,
+  action: Extract<CareAction, { kind: 'feed' }>,
+): { result: CareResult; pantry: Pantry } {
+  if (stockOf(pantry, action.food) <= 0) {
+    const outcome = { action: 'feed', result: 'refused', reason: 'noStock' } as const;
+    return { result: { pet, events: [], outcome }, pantry };
+  }
+  const result = applyCare(pet, action);
+  if (result.outcome.result !== 'ok') return { result, pantry };
+  return { result, pantry: takeOne(pantry, action.food) ?? pantry };
 }

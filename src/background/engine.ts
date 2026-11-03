@@ -1,6 +1,7 @@
 import { advanceTime } from '@/core/advance';
 import { applyCare } from '@/core/care';
 import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/lifecycle';
+import { feedFromPantry } from '@/core/pantry';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
@@ -71,7 +72,13 @@ function mutatorFor(req: EngineRequest): Mutator {
       return noMutation;
     case 'care':
       return (save) => {
-        const r = applyCare(save.game.pet, req.action);
+        const { action } = req;
+        if (action.kind === 'feed') {
+          const fed = feedFromPantry(save.game.pet, save.kitchen.pantry, action);
+          const next = { ...withPet(save, fed.result.pet), kitchen: { ...save.kitchen, pantry: fed.pantry } };
+          return { save: next, events: fed.result.events, outcome: fed.result.outcome };
+        }
+        const r = applyCare(save.game.pet, action);
         return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome };
       };
     case 'ackCritical':

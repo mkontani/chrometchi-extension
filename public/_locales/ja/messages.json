@@ -269,6 +269,9 @@
   "refuse_noPoop": {
     "message": "きれいだよ"
   },
+  "refuse_noStock": {
+    "message": "もっていないよ"
+  },
   "food_kind_meal": {
     "message": "ごはん"
   },

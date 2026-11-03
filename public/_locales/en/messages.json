@@ -269,6 +269,9 @@
   "refuse_noPoop": {
     "message": "Already clean"
   },
+  "refuse_noStock": {
+    "message": "You don't have any."
+  },
   "food_kind_meal": {
     "message": "Meal"
   },

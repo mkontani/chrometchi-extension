@@ -201,7 +201,8 @@ export type RefuseReason =
   | 'notAlive'
   | 'egg'
   | 'cooldown'
-  | 'noPoop';
+  | 'noPoop'
+  | 'noStock';
 
 export interface CareOutcome {
   action: CareAction['kind'];

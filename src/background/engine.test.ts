@@ -62,6 +62,17 @@ describe('engine', () => {
     expect(stored().game.pet.stats.hunger).toBeGreaterThan(40);
   });
 
+  test('a care feed uses the pantry in the save', async () => {
+    const { engine, stored, area } = setup({ pet: makePet({ stats: { hunger: 40 } }) });
+    const seeded = stored();
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, pantry: { fish: 1 } } });
+    const first = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'fish' } });
+    expect(first).toMatchObject({ ok: true, outcome: { result: 'ok' } });
+    expect(stored().kitchen.pantry).toEqual({ fish: 0 });
+    const second = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'fish' } });
+    expect(second).toMatchObject({ ok: true, outcome: { result: 'refused', reason: 'noStock' } });
+  });
+
   test('ackCritical stamps criticalSeenAt', async () => {
     const { engine, stored } = setup({ pet: makePet({ stats: { vitality: 10 } }) });
     const res = await engine.handle({ type: 'ackCritical' });
