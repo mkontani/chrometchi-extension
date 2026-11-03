@@ -15,6 +15,8 @@ interface Props {
 }
 
 const MIN_PER_HOUR = 60;
+/** Farm pictures stay small so the farm row fits the fixed-height panel. */
+const FARM_ICON_PX = 16;
 
 /** Whole hours, rounded up, from an hour on; minutes below that. */
 function growingText(minLeft: number): string {
@@ -41,11 +43,11 @@ function FarmControls({ farm, onFarm }: { farm: Farm; onFarm(action: FarmOp): vo
     const can = assetUrl('ui/outing/can');
     return (
       <>
-        {sprout ? <img src={sprout} width={32} height={32} alt="" /> : null}
+        {sprout ? <img src={sprout} width={FARM_ICON_PX} height={FARM_ICON_PX} alt="" /> : null}
         <span class="panel__note">{growingText(farm.growMinLeft)}</span>
         {!farm.watered && (
-          <button type="button" class="panel__item" onClick={() => onFarm({ op: 'water' })}>
-            {can ? <img src={can} width={32} height={32} alt="" /> : null}
+          <button type="button" class="panel__item panel__item--row" onClick={() => onFarm({ op: 'water' })}>
+            {can ? <img src={can} width={FARM_ICON_PX} height={FARM_ICON_PX} alt="" /> : null}
             {t('farm_water')}
           </button>
         )}
