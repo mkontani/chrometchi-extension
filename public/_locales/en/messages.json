@@ -511,5 +511,35 @@
   },
   "hint_adult_grandpudding": {
     "message": "A plump one, grown even plumper...? Very rarely..."
+  },
+  "roam_say_egg": {
+    "message": "…(wobble)"
+  },
+  "roam_say_sleep": {
+    "message": "Zzz…"
+  },
+  "roam_say_critical": {
+    "message": "Help me…"
+  },
+  "roam_say_weak": {
+    "message": "I feel weak…"
+  },
+  "roam_say_sick": {
+    "message": "I don't feel well…"
+  },
+  "roam_say_poop": {
+    "message": "Oops, I pooped."
+  },
+  "roam_say_hungry": {
+    "message": "I'm hungry…"
+  },
+  "roam_say_bored": {
+    "message": "Play with me!"
+  },
+  "roam_say_happy": {
+    "message": "I'm happy!"
+  },
+  "roam_hide_here": {
+    "message": "Hide on this site"
   }
 }

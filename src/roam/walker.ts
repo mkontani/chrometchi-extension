@@ -52,3 +52,9 @@ export function frameIndex(w: Walker, count: number): number {
 export function dragWalker(w: Walker, x: number, width: number): Walker {
   return { ...w, x: clampX(x, width), mode: 'rest', modeLeftMs: REST_MS[0], clockMs: 0 };
 }
+
+/** Standing still (egg, asleep, reduced motion): no movement, but the idle frames keep cycling. */
+export function restWalker(w: Walker, dtMs: number, width: number): Walker {
+  const dt = Math.min(Math.max(dtMs, 0), MAX_DT_MS);
+  return { ...w, mode: 'rest', x: clampX(w.x, width), clockMs: w.clockMs + dt };
+}

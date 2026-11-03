@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { createRng } from '@/core/rng';
 import { PET_PX, REST_MS, WALK_MS } from './constants';
-import { createWalker, dragWalker, frameIndex, stepWalker, type Walker } from './walker';
+import { createWalker, dragWalker, frameIndex, restWalker, stepWalker, type Walker } from './walker';
 
 const walking = (over: Partial<Walker> = {}): Walker => ({
   x: 100, dir: 1, mode: 'walk', modeLeftMs: 5000, clockMs: 0, ...over,
@@ -76,6 +76,12 @@ describe('walker', () => {
     expect(frameIndex(walking({ clockMs: 880 }), 8)).toBe(0);
     expect(frameIndex(walking({ mode: 'rest', clockMs: 500 }), 2)).toBe(1);
     expect(frameIndex(walking({ mode: 'rest', clockMs: 1000 }), 2)).toBe(0);
+  });
+
+  test('restWalker stays put, keeps the idle clock running and stays on screen', () => {
+    const w = restWalker(walking({ x: 700, clockMs: 100 }), 50, 600);
+    expect(w).toMatchObject({ mode: 'rest', x: 600 - PET_PX, clockMs: 150 });
+    expect(restWalker(walking(), 600_000, 800).clockMs).toBe(100);
   });
 
   test('drag clamps and rests', () => {
