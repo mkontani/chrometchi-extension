@@ -14,7 +14,9 @@ export type IconId =
   | 'heart_full' | 'heart_half' | 'heart_empty' | 'back'
   | `food_${FoodId}`
   | `game_${GameId}`;
-export type EffectId = 'poop' | 'zzz' | 'sweat' | 'sparkle' | 'note' | 'skull' | 'pill';
+export type EffectId =
+  | 'poop' | 'zzz' | 'sweat' | 'sparkle' | 'note' | 'skull' | 'pill'
+  | 'crumb' | 'dust0' | 'dust1' | 'dust2' | 'star';
 export type BackgroundId = 'room_day' | 'room_night';
 export type GameArtId = 'rock' | 'cup' | 'treat';
 
@@ -26,6 +28,7 @@ export const ICON_IDS: readonly IconId[] = [
 ];
 export const EFFECT_IDS: readonly EffectId[] = [
   'poop', 'zzz', 'sweat', 'sparkle', 'note', 'skull', 'pill',
+  'crumb', 'dust0', 'dust1', 'dust2', 'star',
 ];
 export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
 export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];

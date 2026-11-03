@@ -66,6 +66,9 @@ Effects play on the popup stage after feed, clean, medicine and lights (`src/ui/
   - It cuts round bites from the right side and drops any piece the bite leaves floating.
   - It outlines the new edge in `#000000`.
   - A new food only needs the script run twice.
+- **Crumbs, dust and star** (`crumb`, `dust0`–`dust2`, `star`, 16×16) are drawn as exact pixel maps on the palette, not by AI.
+  - The prompt `cute pixel … effect` gave even crumbs and dust a face on 9 of 9 tries.
+  - The dust puffs are unions of circles, with a 1px black outline, a white highlight on the upper left and `#8d9191` shade on the lower right.
 
 ## Eggs
 

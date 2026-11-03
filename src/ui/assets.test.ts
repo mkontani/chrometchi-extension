@@ -35,7 +35,8 @@ test('id lists are complete', () => {
   expect(ICON_IDS).toContain('food_rice');
   expect(ICON_IDS).toContain('game_stop');
   expect(ICON_IDS).toHaveLength(11 + 6 + 3);
-  expect(EFFECT_IDS).toHaveLength(7);
+  expect(EFFECT_IDS).toHaveLength(12);
+  expect(EFFECT_IDS).toEqual(expect.arrayContaining(['crumb', 'dust0', 'dust1', 'dust2', 'star']));
   expect(BACKGROUND_IDS).toEqual(['room_day', 'room_night']);
   expect(GAME_ART_IDS).toEqual(['rock', 'cup', 'treat']);
 });
