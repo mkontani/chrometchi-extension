@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { CareAction, CareOutcome, FoodId, GameId } from '@/core/types';
+import type { CareOutcome, FoodId, GameId } from '@/core/types';
 import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
 import { spriteUrl } from '@/ui/assets';
@@ -20,7 +20,7 @@ import { requestRoamAccess } from '@/ui/roamPermission';
 import { useSfx, type SfxName } from '@/ui/sound';
 import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
-import { effectFor } from '@/ui/effects/effectFor';
+import { useCare } from '@/ui/useCare';
 import { useCareEffect } from '@/ui/useCareEffect';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
@@ -67,13 +67,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, playS
   const effects = useCareEffect({ reduced: useReducedMotion(), onCue: playSfx });
   const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
   const pet = save.game.pet;
-  // An accepted care replays as an effect; a new one replaces the running one, a refusal leaves it be.
-  const care = (action: CareAction) => {
-    const before = pet;
-    void send({ type: 'care', action }).then((r) => {
-      if (r.ok && r.outcome?.result === 'ok') effects.play(effectFor(action, before, r.save.game.pet));
-    });
-  };
+  const { stagePet, care } = useCare(pet, send, effects.play);
   const onSelect = (kind: ActionKind) => {
     if (kind === 'clean' || kind === 'medicine') care({ kind });
     else if (kind === 'lights') care({ kind, on: !pet.lightsOn });
@@ -94,7 +88,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, playS
       {/* The banner and panels overlay the stage so its size never changes. */}
       <div class="stage-area">
         <PetStage
-          pet={pet}
+          pet={stagePet}
           generation={save.game.generation}
           reaction={reaction}
           fromPlay={fromPlay}

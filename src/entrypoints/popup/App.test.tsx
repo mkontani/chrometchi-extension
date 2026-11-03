@@ -210,6 +210,52 @@ test('an ok clean sweeps the poops that were there', async () => {
   expect(ui.container.querySelectorAll('.poops > *')).toHaveLength(0);
 });
 
+/** A `send` answer the test releases by hand, to deliver the new save before the reply. */
+function later() {
+  let release: (r: unknown) => void = () => {};
+  const reply = new Promise((resolve) => (release = resolve));
+  return { reply, release };
+}
+
+// The background saves (storage.onChanged reaches the popup) before it replies.
+test('the stage keeps the poops until the clean reply, even when the new save comes first', async () => {
+  vi.useFakeTimers();
+  const { send, ui } = setup(null, { poops: 2, sick: false });
+  const clean = later();
+  send.mockReturnValueOnce(clean.reply);
+  fireEvent.click(screen.getByLabelText('action_clean'));
+  useGame.mockReturnValue({ save: fullSave({ poops: 0, sick: false }), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  await flush();
+  expect(ui.container.querySelectorAll('.poops > *')).toHaveLength(2);
+  clean.release(answered({ action: 'clean', result: 'ok' }, { poops: 0, sick: false }));
+  await flush();
+  expect(ui.container.querySelectorAll('.poops > *')).toHaveLength(2);
+  advance(2200);
+  expect(ui.container.querySelectorAll('.poops > *')).toHaveLength(0);
+});
+
+test('two cares in flight hold the stage until both have replied', async () => {
+  vi.useFakeTimers();
+  const night = { poops: 2, sick: false, asleep: true, lightsOn: true };
+  const { send, ui } = setup(null, night);
+  const clean = later();
+  const lights = later();
+  send.mockReturnValueOnce(clean.reply).mockReturnValueOnce(lights.reply);
+  fireEvent.click(screen.getByLabelText('action_clean'));
+  fireEvent.click(screen.getByLabelText('action_lights'));
+  const dark = { ...night, poops: 0, lightsOn: false };
+  useGame.mockReturnValue({ save: fullSave(dark), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  clean.release(answered({ action: 'clean', result: 'ok' }, { ...night, poops: 0 }));
+  await flush();
+  expect(ui.container.querySelector('.stage--dark')).toBeNull();
+  lights.release(answered({ action: 'lights', result: 'ok' }, dark));
+  await flush();
+  advance(1000);
+  expect(ui.container.querySelector('.stage--dark')).not.toBeNull();
+});
+
 test('a refused care keeps the running effect and only shows the toast', async () => {
   vi.useFakeTimers();
   const { send, ui } = setup();
