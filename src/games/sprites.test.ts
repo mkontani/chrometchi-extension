@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { createSpriteCache, drawSprite, type LoadableImage } from './sprites';
+import { createSpriteCache, drawSprite, loadSprite, type LoadableImage } from './sprites';
 
 function fakeImage(): LoadableImage & { src: string } {
   return { src: '', complete: false, naturalWidth: 0 };
@@ -37,6 +37,22 @@ test('sprite cache treats a broken image (complete, zero width) as missing', () 
     () => ({ src: '', complete: true, naturalWidth: 0 }),
   );
   expect(cache.get('cup')).toBeNull();
+});
+
+test('loadSprite starts loading at once and returns the image only after it has loaded', () => {
+  const img = fakeImage();
+  const get = loadSprite('/sprites/puni/idle0.png', () => img);
+  expect(img.src).toBe('/sprites/puni/idle0.png');
+  expect(get()).toBeNull();
+  Object.assign(img, { complete: true, naturalWidth: 32 });
+  expect(get()).toBe(img);
+});
+
+test('loadSprite without a url never creates an image', () => {
+  const make = vi.fn(fakeImage);
+  const get = loadSprite(null, make);
+  expect(get()).toBeNull();
+  expect(make).not.toHaveBeenCalled();
 });
 
 function fakeCtx() {

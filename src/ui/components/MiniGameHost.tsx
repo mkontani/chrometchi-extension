@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { GameId } from '@/core/types';
 import { MINI_GAMES, type AnyMiniGame } from '@/games/registry';
-import type { GameInput } from '@/games/types';
+import { loadSprite } from '@/games/sprites';
+import type { GameInput, GameView } from '@/games/types';
 import { t } from '@/i18n/t';
 import { LOGICAL_SIZE, useGameInput } from '@/ui/useGameInput';
 
@@ -10,6 +11,8 @@ const RESULT_MS = 1500;
 
 interface Props {
   game: GameId;
+  /** The pet's own sprite, drawn as the player where a game has one. */
+  playerUrl?: string;
   onFinish(won: boolean): void;
   onCancel(): void;
   /** Called once when the win/lose result is shown (before the result delay). */
@@ -21,6 +24,7 @@ function startLoop(
   def: AnyMiniGame,
   ctx: CanvasRenderingContext2D,
   take: () => GameInput,
+  view: () => GameView,
   onOver: (won: boolean) => void,
 ): () => void {
   const rng = Math.random;
@@ -31,7 +35,7 @@ function startLoop(
     const dt = last === null ? 0 : Math.min(MAX_DT_MS, now - last);
     last = now;
     state = def.step(state, dt, take(), rng);
-    def.render(ctx, state);
+    def.render(ctx, state, view());
     if (def.isOver(state)) onOver(def.won(state));
     else raf = requestAnimationFrame(frame);
   };
@@ -39,7 +43,7 @@ function startLoop(
   return () => cancelAnimationFrame(raf);
 }
 
-export function MiniGameHost({ game, onFinish, onCancel, onResult }: Props) {
+export function MiniGameHost({ game, playerUrl, onFinish, onCancel, onResult }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [result, setResult] = useState<boolean | null>(null);
   const [ready, setReady] = useState(false);
@@ -51,13 +55,17 @@ export function MiniGameHost({ game, onFinish, onCancel, onResult }: Props) {
   const take = useGameInput(canvasRef, def.pickFromPointer);
   const takeRef = useRef(take);
   takeRef.current = take;
+  const player = useMemo(() => loadSprite(playerUrl ?? null), [playerUrl]);
+  const playerRef = useRef(player);
+  playerRef.current = player;
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     setReady(true);
-    const stop = startLoop(def, ctx, () => takeRef.current(), (won) => {
+    const view = (): GameView => ({ player: playerRef.current() });
+    const stop = startLoop(def, ctx, () => takeRef.current(), view, (won) => {
       setResult(won);
       resultRef.current?.(won);
       timer = setTimeout(() => finishRef.current(won), RESULT_MS);

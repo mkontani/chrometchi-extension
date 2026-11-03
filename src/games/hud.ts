@@ -6,6 +6,8 @@ const GAP = 3;
 const INK = '#2b2233';
 const TRACK = '#d8c9b0';
 const FONT = '10px monospace';
+/** Top of the HUD strip along the bottom edge; play areas end above it. */
+export const HUD_TOP = BASELINE - 12;
 
 /** A small colored square followed by a number-only label such as "3/5" or "×2". */
 export function drawCounter(ctx: CanvasRenderingContext2D, x: number, color: string, label: string): void {

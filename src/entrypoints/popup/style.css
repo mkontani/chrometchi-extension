@@ -4,6 +4,8 @@
   --pink: #ffd6e0;
   --navy: #1d2152;
   --accent: #ff7aa2;
+  /* Status bar + stage + two button rows, with no slack between them. */
+  --popup-h: 462px;
 }
 
 * { box-sizing: border-box; }
@@ -11,7 +13,7 @@
 body {
   margin: 0;
   width: 360px;
-  height: 560px;
+  height: var(--popup-h);
   overflow: hidden;
   background: var(--cream);
   color: var(--ink);
@@ -19,8 +21,8 @@ body {
   image-rendering: pixelated;
 }
 
-.app { width: 360px; height: 560px; padding: 4px 1px; display: flex; flex-direction: column; gap: 4px; }
-.message { text-align: center; margin-top: 200px; }
+.app { width: 360px; height: var(--popup-h); padding: 4px 1px; display: flex; flex-direction: column; gap: 4px; }
+.message { text-align: center; margin-top: 160px; }
 .error { border: 3px solid var(--ink); background: var(--pink); padding: 4px 8px; }
 .error p { margin: 0; }
 
@@ -109,7 +111,7 @@ body {
 
 .app { position: relative; }
 .minigame {
-  position: absolute; inset: 0; width: 360px; height: 560px; background: var(--cream);
+  position: absolute; inset: 0; width: 360px; height: var(--popup-h); background: var(--cream);
   display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 10;
 }
 .minigame__hint { margin: 8px 0 0; font-size: 12px; text-align: center; }
@@ -126,7 +128,7 @@ body {
 
 /* Zukan, settings, dialogs, life events */
 .overlay {
-  position: absolute; inset: 0; width: 360px; height: 560px; background: var(--cream);
+  position: absolute; inset: 0; width: 360px; height: var(--popup-h); background: var(--cream);
   display: flex; flex-direction: column; gap: 8px; padding: 8px; z-index: 20;
 }
 .minigame { z-index: 30; }
@@ -147,7 +149,7 @@ body {
   font-family: inherit; padding: 6px; cursor: pointer;
 }
 .dialog-backdrop {
-  position: absolute; inset: 0; width: 360px; height: 560px; background: rgba(8, 8, 32, 0.55);
+  position: absolute; inset: 0; width: 360px; height: var(--popup-h); background: rgba(8, 8, 32, 0.55);
   display: flex; align-items: center; justify-content: center; z-index: 50;
 }
 .dialog { width: 280px; padding: 12px; font-size: 13px; }

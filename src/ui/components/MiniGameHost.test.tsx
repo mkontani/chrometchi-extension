@@ -44,6 +44,14 @@ test('host calls onFinish with won after the result delay', () => {
   expect(onFinish).toHaveBeenCalledTimes(1);
 });
 
+test('host passes no player sprite to the game until one has loaded', () => {
+  stub.render.mockClear();
+  render(<MiniGameHost game="catch" playerUrl="/sprites/puni/idle0.png" onFinish={vi.fn()} onCancel={vi.fn()} />);
+  act(() => void vi.advanceTimersByTime(50));
+  expect(stub.render).toHaveBeenCalled();
+  expect(stub.render.mock.calls.at(-1)?.[2]).toEqual({ player: null });
+});
+
 test('host is a modal dialog labelled with the game name', () => {
   render(<MiniGameHost game="catch" onFinish={vi.fn()} onCancel={vi.fn()} />);
   const dialog = screen.getByRole('dialog', { name: 'game_catch' });

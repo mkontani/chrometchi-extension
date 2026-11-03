@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'preact/hooks';
 import type { CareAction, CareOutcome, FoodId, GameId } from '@/core/types';
 import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
+import { spriteUrl } from '@/ui/assets';
 import { ActionBar, type ActionKind } from '@/ui/components/ActionBar';
 import { CriticalBanner } from '@/ui/components/CriticalBanner';
 import { EndingView } from '@/ui/components/EndingView';
@@ -177,6 +178,7 @@ export function App() {
     layer = (
       <MiniGameHost
         game={activeGame}
+        playerUrl={spriteUrl(pet.formId, 'idle0', save.game.generation)}
         onFinish={onFinish}
         onCancel={endGame}
         onResult={(won) => sfx.play(won ? 'win' : 'lose')}

@@ -12,23 +12,32 @@ export interface SpriteCache {
   get(id: GameArtId): CanvasImageSource | null;
 }
 
+const isLoaded = (img: LoadableImage | null): img is LoadableImage =>
+  img !== null && img.complete && img.naturalWidth > 0;
+
+/** Starts loading `url` now; the getter returns the image once it has loaded, else null. */
+export function loadSprite(
+  url: string | null,
+  makeImage: () => LoadableImage = () => new Image(),
+): () => CanvasImageSource | null {
+  if (!url) return () => null;
+  const img = makeImage();
+  img.src = url;
+  return () => (isLoaded(img) ? (img as unknown as CanvasImageSource) : null);
+}
+
 export function createSpriteCache(
   urlOf: (id: GameArtId) => string | null,
   makeImage: () => LoadableImage = () => new Image(),
 ): SpriteCache {
-  const images = new Map<GameArtId, LoadableImage | null>();
-  const load = (id: GameArtId): LoadableImage | null => {
-    const url = urlOf(id);
-    if (!url) return null;
-    const img = makeImage();
-    img.src = url;
-    return img;
-  };
+  const sprites = new Map<GameArtId, () => CanvasImageSource | null>();
   return {
     get(id) {
-      if (!images.has(id)) images.set(id, load(id));
-      const img = images.get(id);
-      return img && img.complete && img.naturalWidth > 0 ? (img as unknown as CanvasImageSource) : null;
+      const cached = sprites.get(id);
+      if (cached) return cached();
+      const loaded = loadSprite(urlOf(id), makeImage);
+      sprites.set(id, loaded);
+      return loaded();
     },
   };
 }
