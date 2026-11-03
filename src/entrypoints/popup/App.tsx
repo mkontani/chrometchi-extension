@@ -16,6 +16,7 @@ import { PlayPanel } from '@/ui/components/PlayPanel';
 import { SettingsView } from '@/ui/components/SettingsView';
 import { StatusBar } from '@/ui/components/StatusBar';
 import { ZukanView } from '@/ui/components/ZukanView';
+import { requestRoamAccess } from '@/ui/roamPermission';
 import { useSfx, type SfxName } from '@/ui/sound';
 import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
@@ -101,6 +102,13 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay }: Mai
   );
 }
 
+/** Roaming needs site access first; if the popup closes during Chrome's prompt, the background
+ * notices the grant (permissions.onAdded) and turns roaming on by itself. */
+async function toggleRoam(next: boolean, send: UseGame['send']): Promise<void> {
+  if (next && !(await requestRoamAccess(browser.permissions))) return;
+  await send({ type: 'updateSettings', patch: { roam: next } });
+}
+
 function InfoOverlay(props: { kind: 'zukan' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
   const { kind, save, send, onClose } = props;
   if (kind === 'zukan') {
@@ -115,6 +123,7 @@ function InfoOverlay(props: { kind: 'zukan' | 'settings'; save: SaveV1; send: Us
       <SettingsView
         settings={save.settings}
         onChange={(patch) => void send({ type: 'updateSettings', patch })}
+        onRoamToggle={(next) => void toggleRoam(next, send)}
         onRestart={() => {
           void send({ type: 'restart' });
           onClose();

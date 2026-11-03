@@ -15,13 +15,15 @@ vi.mock('@/ui/assets', () => ({
 }));
 const useGame = vi.fn<() => UseGame>();
 vi.mock('@/ui/useGame', () => ({ useGame: () => useGame() }));
+const requestRoamAccess = vi.fn<() => Promise<boolean>>();
+vi.mock('@/ui/roamPermission', () => ({ requestRoamAccess: () => requestRoamAccess() }));
 
 const pet = { ...createEgg(), stage: 'child' as const, formId: 'child_kemu' as const, poops: 2, sick: true };
 const fullSave = (petPatch: object = {}, extra: object = {}) =>
   ({
     game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
-    settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420 },
+    settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
   }) as unknown as NonNullable<UseGame['save']>;
@@ -181,6 +183,33 @@ test('zukan opens as an overlay, closing the food panel, and closes again', () =
   expect(screen.getByText('zukan_title')).toBeTruthy();
   fireEvent.click(screen.getByLabelText('close'));
   expect(screen.queryByText('zukan_title')).toBeNull();
+});
+
+test('roam stays off when site access is refused', async () => {
+  requestRoamAccess.mockResolvedValueOnce(false);
+  const { send } = setup();
+  fireEvent.click(screen.getByLabelText('action_settings'));
+  fireEvent.click(screen.getByLabelText('settings_roam'));
+  await vi.waitFor(() => expect(requestRoamAccess).toHaveBeenCalled());
+  await Promise.resolve();
+  expect(send).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'updateSettings' }));
+});
+
+test('roam turns on after site access is granted', async () => {
+  requestRoamAccess.mockResolvedValueOnce(true);
+  const { send } = setup();
+  fireEvent.click(screen.getByLabelText('action_settings'));
+  fireEvent.click(screen.getByLabelText('settings_roam'));
+  await vi.waitFor(() => expect(send).toHaveBeenCalledWith({ type: 'updateSettings', patch: { roam: true } }));
+});
+
+test('turning roam off needs no permission prompt', async () => {
+  const { send } = setup(null, {}, { settings: { ...save.settings, roam: true } });
+  requestRoamAccess.mockClear();
+  fireEvent.click(screen.getByLabelText('action_settings'));
+  fireEvent.click(screen.getByLabelText('settings_roam'));
+  await vi.waitFor(() => expect(send).toHaveBeenCalledWith({ type: 'updateSettings', patch: { roam: false } }));
+  expect(requestRoamAccess).not.toHaveBeenCalled();
 });
 
 test('settings update sends a patch and restart sends restart then closes', () => {

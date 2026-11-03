@@ -10,11 +10,14 @@ const settings: Settings = {
   notifications: true, sound: false, sleepStartMin: 22 * 60, sleepEndMin: 7 * 60, roam: false, roamHiddenSites: [],
 };
 
-function setup() {
+function setup(over: Partial<Settings> = {}) {
   const onChange = vi.fn();
   const onRestart = vi.fn();
-  render(<SettingsView settings={settings} onChange={onChange} onRestart={onRestart} />);
-  return { onChange, onRestart };
+  const onRoamToggle = vi.fn();
+  render(
+    <SettingsView settings={{ ...settings, ...over }} onChange={onChange} onRestart={onRestart} onRoamToggle={onRoamToggle} />,
+  );
+  return { onChange, onRestart, onRoamToggle };
 }
 
 test('toggles send a single-field patch', () => {
@@ -53,4 +56,25 @@ test('cancelling the dialog does not restart', () => {
   fireEvent.click(screen.getByText('confirm_no'));
   expect(onRestart).not.toHaveBeenCalled();
   expect(screen.queryByRole('alertdialog')).toBeNull();
+});
+
+test('toggling roam calls onRoamToggle, not onChange', () => {
+  const { onChange, onRoamToggle } = setup();
+  expect(screen.getByText('settings_roam_note')).toBeTruthy();
+  fireEvent.click(screen.getByLabelText('settings_roam'));
+  expect(onRoamToggle).toHaveBeenCalledWith(true);
+  expect(onChange).not.toHaveBeenCalled();
+});
+
+test('hidden sites are listed and can be shown again', () => {
+  const { onChange } = setup({ roam: true, roamHiddenSites: ['a.com', 'b.com'] });
+  expect(screen.getByText('settings_roam_hidden')).toBeTruthy();
+  expect(screen.getByText('a.com')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'settings_roam_unhide: a.com' }));
+  expect(onChange).toHaveBeenCalledWith({ roamHiddenSites: ['b.com'] });
+});
+
+test('no hidden-sites section when the list is empty', () => {
+  setup({ roam: true });
+  expect(screen.queryByText('settings_roam_hidden')).toBeNull();
 });

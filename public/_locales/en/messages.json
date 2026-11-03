@@ -541,5 +541,17 @@
   },
   "roam_hide_here": {
     "message": "Hide on this site"
+  },
+  "settings_roam": {
+    "message": "Walk on web pages"
+  },
+  "settings_roam_note": {
+    "message": "Your pet walks along the bottom of pages. Turning this on asks for access to websites."
+  },
+  "settings_roam_hidden": {
+    "message": "Hidden on"
+  },
+  "settings_roam_unhide": {
+    "message": "Show"
   }
 }
