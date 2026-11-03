@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import type { FarmOp } from '@/core/farm';
-import type { CareOutcome, FoodId, GameId, OutingKind } from '@/core/types';
+import type { CareOutcome, Gained, FoodId, GameId, OutingKind } from '@/core/types';
 import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
 import { spriteUrl } from '@/ui/assets';
@@ -8,8 +8,10 @@ import { ActionBar, type ActionKind } from '@/ui/components/ActionBar';
 import { CriticalBanner } from '@/ui/components/CriticalBanner';
 import { EndingView } from '@/ui/components/EndingView';
 import { FoodPanel } from '@/ui/components/FoodPanel';
+import { GainedNote } from '@/ui/components/GainedNote';
 import { MiniGameHost } from '@/ui/components/MiniGameHost';
 import { NoticeDialog } from '@/ui/components/NoticeDialog';
+import { OutingHost } from '@/ui/components/OutingHost';
 import { OutingPanel } from '@/ui/components/OutingPanel';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
@@ -88,10 +90,12 @@ interface MainProps {
   onPlay(game: GameId): void;
   onGo(kind: OutingKind): void;
   onFarm(action: FarmOp): void;
+  gained: Gained | null;
+  onGainedDone(): void;
   playSfx(name: SfxName): void;
 }
 
-function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo, onFarm, playSfx }: MainProps) {
+function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo, onFarm, gained, onGainedDone, playSfx }: MainProps) {
   const { reaction, fromPlay } = useReaction(outcome);
   const effects = useCareEffect({ reduced: useReducedMotion(), onCue: playSfx });
   const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
@@ -120,6 +124,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
         />
         <div class="stage-area__overlay stage-area__overlay--top">
           <CriticalBanner pet={pet} onAck={ackCritical} />
+          <GainedNote gained={gained} onDone={onGainedDone} />
         </div>
         {panel && <div class="stage-area__overlay stage-area__overlay--bottom">{choice}</div>}
       </div>
@@ -174,12 +179,19 @@ export function App() {
     if (name) sfx.play(name);
   }, [outcome, sfx]);
 
+  const hasHaul = Object.values(outings.gained ?? {}).some((n) => (n ?? 0) > 0);
+  useEffect(() => {
+    if (hasHaul) sfx.play('get');
+  }, [outings.gained, hasHaul, sfx]);
+
+  const { cancel: cancelOuting } = outings;
   useEffect(() => {
     if (save && !alive) {
+      cancelOuting();
       setActiveGame(null);
       setPanel(null);
     }
-  }, [save, alive]);
+  }, [save, alive, cancelOuting]);
 
   if (!save) {
     return (
@@ -227,6 +239,15 @@ export function App() {
         onResult={(won) => sfx.play(won ? 'win' : 'lose')}
       />
     );
+  } else if (outings.active) {
+    layer = (
+      <OutingHost
+        kind={outings.active}
+        playerUrl={spriteUrl(pet.formId, 'idle0', save.game.generation)}
+        onFinish={outings.finish}
+        onCancel={outings.cancel}
+      />
+    );
   } else if (panel === 'zukan' || panel === 'settings') {
     layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
   } else {
@@ -241,6 +262,8 @@ export function App() {
         onPlay={onPlay}
         onGo={onGo}
         onFarm={outings.farm}
+        gained={outings.gained}
+        onGainedDone={outings.clearGained}
         playSfx={sfx.play}
       />
     );

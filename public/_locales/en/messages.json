@@ -631,5 +631,20 @@
   },
   "farm_harvest": {
     "message": "Harvest"
+  },
+  "outing_done": {
+    "message": "Done!"
+  },
+  "gained_title": {
+    "message": "You got:"
+  },
+  "outing_hint_fishing": {
+    "message": "Tap when the float dips!"
+  },
+  "outing_hint_hunting": {
+    "message": "Tap what pops out!"
+  },
+  "outing_hint_gathering": {
+    "message": "Find the bushes that shake."
   }
 }

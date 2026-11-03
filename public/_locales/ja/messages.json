@@ -631,5 +631,20 @@
   },
   "farm_harvest": {
     "message": "しゅうかく"
+  },
+  "outing_done": {
+    "message": "おしまい！"
+  },
+  "gained_title": {
+    "message": "てにいれた！"
+  },
+  "outing_hint_fishing": {
+    "message": "うきがしずんだらタップ！"
+  },
+  "outing_hint_hunting": {
+    "message": "とびだしたらタップ！"
+  },
+  "outing_hint_gathering": {
+    "message": "ゆれているしげみをさがそう"
   }
 }
