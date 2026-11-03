@@ -1,0 +1,191 @@
+:root {
+  --ink: #2b2233;
+  --cream: #fff4e0;
+  --pink: #ffd6e0;
+  --navy: #1d2152;
+  --accent: #ff7aa2;
+  /* Status bar + stage + two button rows, with no slack between them. */
+  --popup-h: 462px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  width: 360px;
+  height: var(--popup-h);
+  overflow: hidden;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'DotGothic16', sans-serif;
+  image-rendering: pixelated;
+}
+
+.app { width: 360px; height: var(--popup-h); padding: 4px 1px; display: flex; flex-direction: column; gap: 4px; }
+.message { text-align: center; margin-top: 160px; }
+/* Out of the flow, just above the action bar: the main screen has no spare height for it. */
+.error {
+  position: absolute; left: 8px; right: 8px; bottom: 128px; z-index: 11; pointer-events: none;
+  border: 3px solid var(--ink); background: var(--pink); padding: 4px 8px;
+}
+.error p { margin: 0; }
+
+.status-bar {
+  height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 8px; border: 3px solid var(--ink); background: #fff;
+}
+.status-rows { display: flex; gap: 8px; }
+.stat-row { display: flex; flex-direction: column; align-items: center; font-size: 10px; }
+.hearts { display: flex; gap: 1px; }
+.status-weight { font-size: 14px; }
+
+.heart { display: inline-block; width: 16px; height: 16px; image-rendering: pixelated; }
+.heart:not(img) {
+  background: var(--accent);
+  clip-path: polygon(0 25%, 25% 0, 50% 25%, 75% 0, 100% 25%, 100% 60%, 50% 100%, 0 60%);
+}
+.heart--half:not(img) { background: linear-gradient(90deg, var(--accent) 50%, #d9cfe0 50%); }
+.heart--empty:not(img) { background: #d9cfe0; }
+
+.stage-area { position: relative; flex-shrink: 0; }
+.stage-area__overlay { position: absolute; left: 3px; right: 3px; z-index: 5; }
+.stage-area__overlay--top { top: 3px; }
+.stage-area__overlay--bottom { bottom: 3px; }
+.stage {
+  flex-shrink: 0;
+  position: relative; box-sizing: content-box; width: 352px; height: 272px; border: 3px solid var(--ink);
+  background-size: 352px 272px; background-repeat: no-repeat; image-rendering: pixelated;
+}
+.stage--day { background-color: var(--cream); background-image: linear-gradient(var(--pink), var(--cream)); }
+.stage--night { background-color: var(--navy); background-image: linear-gradient(#0e1033, var(--navy)); }
+.stage[style] { background-color: transparent; }
+.pet { position: absolute; left: 112px; top: 100px; image-rendering: pixelated; }
+.pet--bounce { animation: bounce 1s steps(2) infinite; }
+@keyframes bounce { 50% { transform: translateY(-2px); } }
+.poops { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 4px; }
+.poop { image-rendering: pixelated; }
+.poop--placeholder {
+  width: 28px; height: 24px; background: #8a5a2b; border: 3px solid var(--ink);
+}
+.effect { position: absolute; width: 32px; height: 32px; image-rendering: pixelated; }
+.effect--zzz { left: 230px; top: 70px; }
+.effect--sweat { left: 110px; top: 90px; }
+.effect--sparkle { left: 230px; top: 90px; }
+.effect--note { left: 100px; top: 70px; }
+
+.action-bar { margin-top: auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.icon-button {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 56px; border: 3px solid var(--ink); background: #fff; color: var(--ink);
+  font-family: inherit; font-size: 11px; cursor: pointer; padding: 2px;
+}
+.icon-button:hover:not(:disabled) { background: var(--pink); }
+.icon-button:active:not(:disabled) { transform: translateY(2px); }
+.icon-button:disabled { opacity: 0.4; cursor: default; }
+
+.stage__dim { position: absolute; inset: 0; background: rgba(8, 8, 32, 0.55); pointer-events: none; }
+.pet[role='button'] { cursor: pointer; }
+
+.panel { padding: 4px 6px; height: 144px; }
+.panel__header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 4px; }
+.panel__close {
+  border: 3px solid var(--ink); background: var(--pink); font-family: inherit;
+  width: 24px; height: 24px; line-height: 1; padding: 0; cursor: pointer;
+}
+.panel__grid { display: grid; gap: 4px; }
+.panel__grid--food { grid-template-columns: repeat(3, 1fr); }
+.panel__grid--play { grid-template-columns: repeat(3, 1fr); }
+.panel__item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  min-height: 50px; border: 3px solid var(--ink); background: var(--cream); color: var(--ink);
+  font-family: inherit; font-size: 11px; cursor: pointer; padding: 2px;
+}
+.panel__item:hover { background: var(--pink); }
+/* Two rows of food must fit the fixed-height panel: icon on the left, name and tag stacked. */
+.panel__item--row { flex-direction: row; justify-content: flex-start; gap: 4px; min-height: 0; padding: 4px; }
+.panel__text { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.panel__tag { font-size: 9px; padding: 0 3px; background: var(--ink); color: #fff; }
+.panel__tag--snack { background: var(--accent); }
+
+/* Below the critical banner and above a bottom panel; z-index keeps it over both overlays. */
+.toast {
+  position: absolute; left: 50%; top: 92px; transform: translateX(-50%); z-index: 10;
+  border: 3px solid var(--ink); background: #fff; padding: 4px 10px; font-size: 12px;
+}
+
+.app { position: relative; }
+.minigame {
+  position: absolute; inset: 0; width: 360px; height: var(--popup-h); background: var(--cream);
+  display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 10;
+}
+.minigame__hint { margin: 8px 0 0; font-size: 12px; text-align: center; }
+.minigame__frame { border: 3px solid var(--ink); line-height: 0; }
+.minigame__canvas { display: block; box-sizing: content-box; touch-action: none; }
+.minigame__result {
+  position: absolute; top: 240px; left: 0; right: 0; text-align: center; font-size: 28px;
+  margin: 0 40px; padding: 8px;
+}
+.minigame__quit {
+  border: 3px solid var(--ink); background: var(--pink); font-family: inherit;
+  padding: 4px 16px; cursor: pointer;
+}
+
+/* Zukan, settings, dialogs, life events */
+.overlay {
+  position: absolute; inset: 0; width: 360px; height: var(--popup-h); background: var(--cream);
+  display: flex; flex-direction: column; gap: 8px; padding: 8px; z-index: 20;
+}
+.minigame { z-index: 30; }
+.overlay__body { flex: 1; overflow-y: auto; }
+.zukan__count { margin: 0 0 4px; font-size: 12px; text-align: right; }
+.zukan__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
+.zukan__cell { display: flex; flex-direction: column; align-items: center; font-size: 9px; text-align: center; min-width: 0; }
+.zukan__cell img { width: 48px; height: 48px; image-rendering: pixelated; }
+.zukan__hint { font-size: 8px; color: #6b5d78; }
+.silhouette { filter: brightness(0); }
+.memories h3 { font-size: 12px; margin: 8px 0 4px; }
+.memories ul { margin: 0; padding-left: 16px; font-size: 11px; }
+.settings { display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+.settings__row { display: flex; justify-content: space-between; align-items: center; }
+.settings select { font-family: inherit; border: 3px solid var(--ink); background: #fff; }
+.settings__roam { display: flex; flex-direction: column; gap: 4px; }
+.settings__note { margin: 0; font-size: 10px; color: #6b5d78; }
+.settings__hidden h3 { margin: 6px 0 4px; font-size: 12px; font-weight: normal; }
+.settings__hidden ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.settings__hidden li { display: flex; justify-content: space-between; align-items: center; font-size: 11px; gap: 8px; }
+.settings__hidden li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.settings__hidden button {
+  border: 2px solid var(--ink); background: #fff; font-family: inherit; font-size: 10px; padding: 1px 6px; cursor: pointer;
+}
+.settings__restart {
+  margin-top: 24px; border: 3px solid var(--ink); background: #fff; color: #b3261e;
+  font-family: inherit; padding: 6px; cursor: pointer;
+}
+.dialog-backdrop {
+  position: absolute; inset: 0; width: 360px; height: var(--popup-h); background: rgba(8, 8, 32, 0.55);
+  display: flex; align-items: center; justify-content: center; z-index: 50;
+}
+.dialog { width: 280px; padding: 12px; font-size: 13px; }
+.dialog p { margin: 0 0 12px; }
+.dialog__buttons { display: flex; justify-content: flex-end; gap: 8px; }
+.dialog__btn {
+  border: 3px solid var(--ink); background: var(--pink); font-family: inherit; padding: 4px 14px; cursor: pointer;
+}
+.dialog__btn--danger { background: var(--accent); }
+.critical-banner {
+  border: 3px solid var(--ink); background: #b3261e; color: #fff; text-align: center;
+  font-size: 12px; padding: 2px 6px;
+}
+.ending { align-items: center; justify-content: center; text-align: center; z-index: 40; }
+.ending h2 { margin: 0; font-size: 18px; }
+.ending p { margin: 0; font-size: 12px; padding: 0 12px; }
+.ending__img { image-rendering: pixelated; }
+.grave--placeholder { width: 64px; height: 80px; background: #9a93a3; border: 3px solid var(--ink); border-radius: 32px 32px 0 0; }
+
+/* Pixel panel frame: src/assets/ui/frame.png is a 24px 9-slice with 8px corners, drawn at 3x.
+   The 3px border keeps the old layout; the frame image overlaps into the padding. */
+.panel, .dialog, .minigame__result {
+  border: 3px solid transparent;
+  border-image: url('../../assets/ui/frame.png') 8 fill / 24px;
+  image-rendering: pixelated;
+}

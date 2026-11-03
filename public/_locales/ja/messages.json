@@ -1,0 +1,557 @@
+{
+  "appName": {
+    "message": "Chrometchi"
+  },
+  "appDescription": {
+    "message": "ブラウザで育てるドット絵のバーチャルペット"
+  },
+  "form_egg": {
+    "message": "タマゴ"
+  },
+  "form_baby_puni": {
+    "message": "プニ"
+  },
+  "form_child_kemu": {
+    "message": "ケム"
+  },
+  "form_child_dango": {
+    "message": "ダンゴ"
+  },
+  "form_child_hoshi": {
+    "message": "ホシ"
+  },
+  "form_child_mochi": {
+    "message": "モチ"
+  },
+  "form_young_kirari": {
+    "message": "キラリ"
+  },
+  "form_young_kage": {
+    "message": "カゲ"
+  },
+  "form_young_poyo": {
+    "message": "ポヨ"
+  },
+  "form_young_hinoko": {
+    "message": "ヒノコ"
+  },
+  "form_young_shizuku": {
+    "message": "シズク"
+  },
+  "form_young_mebuki": {
+    "message": "メブキ"
+  },
+  "form_young_fuwari": {
+    "message": "フワリ"
+  },
+  "form_young_gear": {
+    "message": "ギア"
+  },
+  "form_adult_dragon": {
+    "message": "ドラゴ"
+  },
+  "form_adult_beast": {
+    "message": "ガルム"
+  },
+  "form_adult_salamander": {
+    "message": "サラマ"
+  },
+  "form_adult_phoenix": {
+    "message": "フェニア"
+  },
+  "form_adult_serpent": {
+    "message": "ミズチ"
+  },
+  "form_adult_turtle": {
+    "message": "ゲンブ"
+  },
+  "form_adult_kraken": {
+    "message": "クラーケル"
+  },
+  "form_adult_golem": {
+    "message": "ガンゴ"
+  },
+  "form_adult_mole": {
+    "message": "ホリモ"
+  },
+  "form_adult_tree": {
+    "message": "ジュモク"
+  },
+  "form_adult_griffin": {
+    "message": "グリフォ"
+  },
+  "form_adult_owl": {
+    "message": "フクロー"
+  },
+  "form_adult_pegasus": {
+    "message": "ペガロ"
+  },
+  "form_adult_robot": {
+    "message": "ロボッタ"
+  },
+  "form_adult_ufo": {
+    "message": "ユーフォン"
+  },
+  "form_adult_cyborg": {
+    "message": "サイボロ"
+  },
+  "form_adult_ghost": {
+    "message": "ユーレ"
+  },
+  "form_adult_alien": {
+    "message": "エイリー"
+  },
+  "form_adult_bat": {
+    "message": "コウモ"
+  },
+  "form_adult_vampire": {
+    "message": "ヴァミル"
+  },
+  "form_adult_unicorn": {
+    "message": "ユニア"
+  },
+  "form_adult_comet": {
+    "message": "スイセイ"
+  },
+  "form_adult_nexus": {
+    "message": "ネクサ"
+  },
+  "form_adult_astra": {
+    "message": "アストラ"
+  },
+  "form_adult_bear": {
+    "message": "クマロ"
+  },
+  "form_adult_hippo": {
+    "message": "アクビバ"
+  },
+  "form_adult_pudding": {
+    "message": "カスタ"
+  },
+  "form_adult_grandpudding": {
+    "message": "グランカスタ"
+  },
+  "food_rice": {
+    "message": "ごはん"
+  },
+  "food_meat": {
+    "message": "おにく"
+  },
+  "food_fish": {
+    "message": "おさかな"
+  },
+  "food_veggie": {
+    "message": "やさい"
+  },
+  "food_cake": {
+    "message": "ケーキ"
+  },
+  "food_candy": {
+    "message": "キャンディ"
+  },
+  "game_catch": {
+    "message": "キャッチ"
+  },
+  "game_cups": {
+    "message": "カップあて"
+  },
+  "game_stop": {
+    "message": "ストップ"
+  },
+  "notify_hungry": {
+    "message": "おなかがすいたみたい…"
+  },
+  "notify_unhappy": {
+    "message": "さみしそう…あそんであげて！"
+  },
+  "notify_pooped": {
+    "message": "うんちをしたよ！そうじしてあげて"
+  },
+  "notify_sick": {
+    "message": "具合がわるそう…看病してあげて"
+  },
+  "notify_danger": {
+    "message": "元気がなくなってきたよ…！"
+  },
+  "notify_critical": {
+    "message": "このままだと危ない！すぐにお世話して！"
+  },
+  "notify_hatched": {
+    "message": "たまごがかえったよ！"
+  },
+  "notify_evolved": {
+    "message": "しんかしたよ！見に来てね"
+  },
+  "notify_died": {
+    "message": "お星さまになってしまいました…"
+  },
+  "notify_departed": {
+    "message": "旅立っていきました。ありがとう！"
+  },
+  "notify_fellAsleep": {
+    "message": "ねむっちゃった。電気を消してあげてね"
+  },
+  "stat_hunger": {
+    "message": "おなか"
+  },
+  "stat_mood": {
+    "message": "ごきげん"
+  },
+  "stat_vitality": {
+    "message": "げんき"
+  },
+  "stat_weight": {
+    "message": "たいじゅう"
+  },
+  "action_feed": {
+    "message": "ごはん"
+  },
+  "action_play": {
+    "message": "あそぶ"
+  },
+  "action_clean": {
+    "message": "そうじ"
+  },
+  "action_medicine": {
+    "message": "くすり"
+  },
+  "action_lights": {
+    "message": "でんき"
+  },
+  "action_zukan": {
+    "message": "ずかん"
+  },
+  "action_settings": {
+    "message": "せってい"
+  },
+  "loading": {
+    "message": "よみこみちゅう…"
+  },
+  "error_generic": {
+    "message": "エラーがおきました"
+  },
+  "refuse_full": {
+    "message": "おなかいっぱい"
+  },
+  "refuse_notSick": {
+    "message": "びょうきじゃないよ"
+  },
+  "refuse_asleep": {
+    "message": "ねているよ"
+  },
+  "refuse_awake": {
+    "message": "まだ起きてるよ"
+  },
+  "refuse_notAlive": {
+    "message": "もういないよ"
+  },
+  "refuse_egg": {
+    "message": "まだたまごだよ"
+  },
+  "refuse_cooldown": {
+    "message": "ちょっとまってね"
+  },
+  "refuse_noPoop": {
+    "message": "きれいだよ"
+  },
+  "food_kind_meal": {
+    "message": "ごはん"
+  },
+  "food_kind_snack": {
+    "message": "おやつ"
+  },
+  "panel_food_title": {
+    "message": "なにをたべる？"
+  },
+  "panel_play_title": {
+    "message": "なにしてあそぶ？"
+  },
+  "close": {
+    "message": "とじる"
+  },
+  "action_pet": {
+    "message": "なでる"
+  },
+  "game_win": {
+    "message": "かち!"
+  },
+  "game_lose": {
+    "message": "ざんねん…"
+  },
+  "game_quit": {
+    "message": "やめる"
+  },
+  "game_hint_catch": {
+    "message": "← →かタップでいどう。よいものをキャッチ!"
+  },
+  "game_hint_cups": {
+    "message": "おやつをめでおって、あたりのカップをタップ。"
+  },
+  "game_hint_stop": {
+    "message": "スペースかタップでターゲットにとめよう。"
+  },
+  "zukan_title": {
+    "message": "ずかん"
+  },
+  "zukan_unknown": {
+    "message": "???"
+  },
+  "zukan_count": {
+    "message": "$P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "memories_title": {
+    "message": "おもいで"
+  },
+  "memory_line": {
+    "message": "第$P1$世代 $P2$（$P3$・$P4$時間）",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      },
+      "p4": {
+        "content": "$4"
+      }
+    }
+  },
+  "ending_dead": {
+    "message": "お星さまになった"
+  },
+  "ending_departed": {
+    "message": "旅立った"
+  },
+  "settings_title": {
+    "message": "せってい"
+  },
+  "settings_notifications": {
+    "message": "通知"
+  },
+  "settings_sound": {
+    "message": "サウンド"
+  },
+  "settings_sleep_start": {
+    "message": "ねる時刻"
+  },
+  "settings_sleep_end": {
+    "message": "おきる時刻"
+  },
+  "settings_restart": {
+    "message": "はじめからやり直す"
+  },
+  "confirm_restart": {
+    "message": "本当に最初からやり直しますか？ 今の子とはお別れして、新しいたまごから始めます。ずかんはそのまま残ります。"
+  },
+  "confirm_yes": {
+    "message": "やり直す"
+  },
+  "confirm_no": {
+    "message": "やめる"
+  },
+  "critical_banner": {
+    "message": "いのちが危ない！ すぐにお世話を！"
+  },
+  "ending_dead_title": {
+    "message": "お星さまになりました…"
+  },
+  "ending_departed_title": {
+    "message": "旅立ちの時がきました"
+  },
+  "ending_summary": {
+    "message": "$P1$時間いっしょにいました。ものがたり：$P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "new_egg": {
+    "message": "新しいたまご"
+  },
+  "notice_renewal": {
+    "message": "新しくなりました。新しい卵から育てましょう"
+  },
+  "notice_data_reset": {
+    "message": "データを初期化しました。新しい卵から始めましょう"
+  },
+  "ok": {
+    "message": "OK"
+  },
+  "hint_child_kemu": {
+    "message": "お世話をサボりがちだと…？"
+  },
+  "hint_child_dango": {
+    "message": "ずっしり育つと…？"
+  },
+  "hint_child_hoshi": {
+    "message": "ていねいにお世話すると…？"
+  },
+  "hint_child_mochi": {
+    "message": "ふつうに育てると…？"
+  },
+  "hint_young_kirari": {
+    "message": "きらめく子が、さらに頑張ると…？ ときどき…"
+  },
+  "hint_young_kage": {
+    "message": "くらい子が、もっとサボると…？"
+  },
+  "hint_young_poyo": {
+    "message": "ぽっちゃりな子が、そのまま育つと…？"
+  },
+  "hint_young_hinoko": {
+    "message": "おにくが大好きな子は…？"
+  },
+  "hint_young_shizuku": {
+    "message": "おさかなが大好きな子は…？"
+  },
+  "hint_young_mebuki": {
+    "message": "やさいやごはんが大好きな子は…？"
+  },
+  "hint_young_fuwari": {
+    "message": "あまいものが大好きな子は…？"
+  },
+  "hint_young_gear": {
+    "message": "どれにも当てはまらなかったら…？"
+  },
+  "hint_adult_dragon": {
+    "message": "キャッチ遊びが得意な子は…？"
+  },
+  "hint_adult_beast": {
+    "message": "カップ遊びが得意な子は…？"
+  },
+  "hint_adult_salamander": {
+    "message": "炎の子を、ふつうに育てると…？"
+  },
+  "hint_adult_phoenix": {
+    "message": "炎の子を完ぺきに育てたら…？ ときどき…"
+  },
+  "hint_adult_serpent": {
+    "message": "水の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_turtle": {
+    "message": "水の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_kraken": {
+    "message": "水の子を、ふつうに育てると…？"
+  },
+  "hint_adult_golem": {
+    "message": "大地の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_mole": {
+    "message": "大地の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_tree": {
+    "message": "大地の子を、ふつうに育てると…？"
+  },
+  "hint_adult_griffin": {
+    "message": "風の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_owl": {
+    "message": "風の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_pegasus": {
+    "message": "風の子を、ふつうに育てると…？"
+  },
+  "hint_adult_robot": {
+    "message": "はがねの子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_ufo": {
+    "message": "はがねの子がカップ遊びを好むと…？"
+  },
+  "hint_adult_cyborg": {
+    "message": "はがねの子を、ふつうに育てると…？"
+  },
+  "hint_adult_ghost": {
+    "message": "影の子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_alien": {
+    "message": "影の子がカップ遊びを好むと…？"
+  },
+  "hint_adult_bat": {
+    "message": "影の子を、ふつうに育てると…？"
+  },
+  "hint_adult_vampire": {
+    "message": "影の子がとことんサボると…？ 夜になると…"
+  },
+  "hint_adult_unicorn": {
+    "message": "きらめく子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_comet": {
+    "message": "きらめく子がカップ遊びを好むと…？"
+  },
+  "hint_adult_nexus": {
+    "message": "きらめく子を、ふつうに育てると…？"
+  },
+  "hint_adult_astra": {
+    "message": "一度もミスせず育てると…？ ときどき…"
+  },
+  "hint_adult_bear": {
+    "message": "ぽっちゃりな子がキャッチ遊びを好むと…？"
+  },
+  "hint_adult_hippo": {
+    "message": "ぽっちゃりな子がカップ遊びを好むと…？"
+  },
+  "hint_adult_pudding": {
+    "message": "ぽっちゃりな子を、ふつうに育てると…？"
+  },
+  "hint_adult_grandpudding": {
+    "message": "ぽっちゃりな子が、もっとぽっちゃりすると…？ ごくまれに…"
+  },
+  "roam_say_egg": {
+    "message": "…(ごろごろ)"
+  },
+  "roam_say_sleep": {
+    "message": "Zzz…"
+  },
+  "roam_say_critical": {
+    "message": "たすけて…"
+  },
+  "roam_say_weak": {
+    "message": "げんきがでない…"
+  },
+  "roam_say_sick": {
+    "message": "ぐあいがわるいよ…"
+  },
+  "roam_say_poop": {
+    "message": "うんちしちゃった"
+  },
+  "roam_say_hungry": {
+    "message": "おなかすいた…"
+  },
+  "roam_say_bored": {
+    "message": "あそんでほしいな"
+  },
+  "roam_say_happy": {
+    "message": "ごきげんだよ!"
+  },
+  "roam_hide_here": {
+    "message": "このサイトでは隠れる"
+  },
+  "settings_roam": {
+    "message": "ページの上をおさんぽ"
+  },
+  "settings_roam_note": {
+    "message": "ペットが見ているページの下を歩きます。オンにするとサイトへのアクセス許可を求めます。"
+  },
+  "settings_roam_hidden": {
+    "message": "隠れているサイト"
+  },
+  "settings_roam_unhide": {
+    "message": "表示する"
+  }
+}

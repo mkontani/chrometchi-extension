@@ -8,18 +8,25 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-    - name: Zip extension
-      run: |
-        zip -r chrometchi-extension.zip . -x "*.git*" -x ".github/*" -x "src/test/*" -x ".DS_Store" -x "screenshots/*" -x "node_modules/*" -x "package.json" -x "package-lock.json" -x ".eslintrc.json" -x ".gitignore"
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
 
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: chrometchi-extension.zip
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Zip extension
+        run: npm run zip
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: .output/*-chrome.zip
