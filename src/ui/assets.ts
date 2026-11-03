@@ -10,7 +10,7 @@ const FILES = import.meta.glob('/src/assets/**/*.png', {
 }) as Record<string, string>;
 
 export type IconId =
-  | 'feed' | 'play' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'settings'
+  | 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'settings'
   | 'heart_full' | 'heart_half' | 'heart_empty' | 'back'
   | `food_${FoodId}`
   | `game_${GameId}`;
@@ -21,7 +21,7 @@ export type BackgroundId = 'room_day' | 'room_night';
 export type GameArtId = 'rock' | 'cup' | 'treat';
 
 export const ICON_IDS: readonly IconId[] = [
-  'feed', 'play', 'clean', 'medicine', 'lights', 'zukan', 'settings',
+  'feed', 'play', 'outing', 'clean', 'medicine', 'lights', 'zukan', 'settings',
   'heart_full', 'heart_half', 'heart_empty', 'back',
   ...FOODS.map((f) => `food_${f.id}` as const),
   ...GAMES.map((g) => `game_${g}` as const),

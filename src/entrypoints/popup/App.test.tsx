@@ -527,3 +527,23 @@ test('no sound plays when the sound setting is off', () => {
   expect(freqs).toEqual([]);
   vi.unstubAllGlobals();
 });
+
+test('the outing button opens the outing panel', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_outing'));
+  expect(screen.getByText('panel_outing_title')).toBeTruthy();
+});
+
+test('choosing fishing closes the panel and starts the fishing outing', () => {
+  const { send } = setup();
+  fireEvent.click(screen.getByLabelText('action_outing'));
+  fireEvent.click(screen.getByText('outing_fishing'));
+  expect(screen.queryByText('panel_outing_title')).toBeNull();
+  expect(send).not.toHaveBeenCalled();
+});
+
+test('the food panel shows the pantry counts', () => {
+  setup(null, {}, { kitchen: { ...EMPTY_KITCHEN, pantry: { fish: 5 } } });
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  expect(screen.getByText('×5')).toBeTruthy();
+});

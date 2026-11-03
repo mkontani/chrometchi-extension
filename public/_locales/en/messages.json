@@ -577,5 +577,59 @@
   },
   "settings_roam_unhide": {
     "message": "Show"
+  },
+  "action_outing": {
+    "message": "Go out"
+  },
+  "panel_outing_title": {
+    "message": "Where to?"
+  },
+  "outing_fishing": {
+    "message": "Fishing"
+  },
+  "outing_hunting": {
+    "message": "Hunting"
+  },
+  "outing_gathering": {
+    "message": "Gathering"
+  },
+  "outing_farm": {
+    "message": "Farm"
+  },
+  "outing_left": {
+    "message": "$P1$ left today",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_plant_veggie": {
+    "message": "Plant veggies"
+  },
+  "farm_plant_fruit": {
+    "message": "Plant fruit"
+  },
+  "farm_growing_hours": {
+    "message": "Growing, $P1$ h left",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_growing_minutes": {
+    "message": "Growing, $P1$ min left",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_water": {
+    "message": "Water"
+  },
+  "farm_harvest": {
+    "message": "Harvest"
   }
 }

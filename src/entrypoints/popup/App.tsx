@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { CareOutcome, FoodId, GameId } from '@/core/types';
+import type { FarmOp } from '@/core/farm';
+import type { CareOutcome, FoodId, GameId, OutingKind } from '@/core/types';
 import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
 import { spriteUrl } from '@/ui/assets';
@@ -9,6 +10,7 @@ import { EndingView } from '@/ui/components/EndingView';
 import { FoodPanel } from '@/ui/components/FoodPanel';
 import { MiniGameHost } from '@/ui/components/MiniGameHost';
 import { NoticeDialog } from '@/ui/components/NoticeDialog';
+import { OutingPanel } from '@/ui/components/OutingPanel';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
 import { PetStage } from '@/ui/components/PetStage';
@@ -22,6 +24,7 @@ import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
 import { useCare } from '@/ui/useCare';
 import { useCareEffect } from '@/ui/useCareEffect';
+import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
 /** The sound for an outcome; null for care whose effect plays its own sounds as it goes. */
@@ -36,8 +39,8 @@ function sfxFor(outcome: CareOutcome): SfxName | null {
   }
 }
 
-type Panel = 'feed' | 'play' | 'zukan' | 'settings';
-const PANELS: readonly ActionKind[] = ['feed', 'play', 'zukan', 'settings'];
+type Panel = 'feed' | 'play' | 'outing' | 'zukan' | 'settings';
+const PANELS: readonly ActionKind[] = ['feed', 'play', 'outing', 'zukan', 'settings'];
 
 /** Raw engine/Chrome errors are not localized, so the UI shows only a generic message. */
 function ErrorNote({ error }: { error: string }) {
@@ -51,6 +54,30 @@ function ErrorNote({ error }: { error: string }) {
   );
 }
 
+interface ChoiceProps {
+  save: SaveV1;
+  panel: Panel | null;
+  care: ReturnType<typeof useCare>['care'];
+  close(): void;
+  onPlay(game: GameId): void;
+  onGo(kind: OutingKind): void;
+  onFarm(action: FarmOp): void;
+}
+
+/** The feed, play or outing panel for the open one; nothing for the others. */
+function PanelChoice({ save, panel, care, close, onPlay, onGo, onFarm }: ChoiceProps) {
+  const pickFood = (food: FoodId) => {
+    care({ kind: 'feed', food });
+    close();
+  };
+  if (panel === 'feed') return <FoodPanel pantry={save.kitchen.pantry} onPick={pickFood} onClose={close} />;
+  if (panel === 'play') return <PlayPanel onPick={onPlay} onClose={close} />;
+  if (panel === 'outing') {
+    return <OutingPanel kitchen={save.kitchen} now={Date.now()} onGo={onGo} onFarm={onFarm} onClose={close} />;
+  }
+  return null;
+}
+
 interface MainProps {
   save: SaveV1;
   outcome: CareOutcome | null;
@@ -59,10 +86,12 @@ interface MainProps {
   panel: Panel | null;
   setPanel(next: Panel | null | ((cur: Panel | null) => Panel | null)): void;
   onPlay(game: GameId): void;
+  onGo(kind: OutingKind): void;
+  onFarm(action: FarmOp): void;
   playSfx(name: SfxName): void;
 }
 
-function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, playSfx }: MainProps) {
+function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo, onFarm, playSfx }: MainProps) {
   const { reaction, fromPlay } = useReaction(outcome);
   const effects = useCareEffect({ reduced: useReducedMotion(), onCue: playSfx });
   const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
@@ -73,15 +102,9 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, playS
     else if (kind === 'lights') care({ kind, on: !pet.lightsOn });
     else if (PANELS.includes(kind)) setPanel((cur) => (cur === kind ? null : (kind as Panel)));
   };
-  const pickFood = (food: FoodId) => {
-    care({ kind: 'feed', food });
-    setPanel(null);
-  };
-  const close = () => setPanel(null);
-  const choice =
-    panel === 'feed' ? <FoodPanel onPick={pickFood} onClose={close} />
-    : panel === 'play' ? <PlayPanel onPick={onPlay} onClose={close} />
-    : null;
+  const choice = (
+    <PanelChoice {...{ save, panel, onPlay, onGo, onFarm }} care={care} close={() => setPanel(null)} />
+  );
   return (
     <>
       <StatusBar pet={pet} />
@@ -98,7 +121,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, playS
         <div class="stage-area__overlay stage-area__overlay--top">
           <CriticalBanner pet={pet} onAck={ackCritical} />
         </div>
-        {choice && <div class="stage-area__overlay stage-area__overlay--bottom">{choice}</div>}
+        {panel && <div class="stage-area__overlay stage-area__overlay--bottom">{choice}</div>}
       </div>
       <OutcomeToast outcome={outcome} />
       <ActionBar pet={pet} onSelect={onSelect} />
@@ -143,6 +166,7 @@ export function App() {
   const [panel, setPanel] = useState<Panel | null>(null);
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const alive = save?.game.pet.lifecycle === 'alive';
+  const outings = useOutings(send);
   const sfx = useSfx(save?.settings.sound ?? false);
 
   useEffect(() => {
@@ -172,6 +196,10 @@ export function App() {
   const onPlay = (game: GameId) => {
     setActiveGame(game);
     setPanel(null);
+  };
+  const onGo = (kind: OutingKind) => {
+    setPanel(null);
+    outings.start(kind);
   };
   const onFinish = (won: boolean) => {
     if (activeGame) void send({ type: 'care', action: { kind: 'play', game: activeGame, won } });
@@ -211,6 +239,8 @@ export function App() {
         panel={panel}
         setPanel={setPanel}
         onPlay={onPlay}
+        onGo={onGo}
+        onFarm={outings.farm}
         playSfx={sfx.play}
       />
     );
