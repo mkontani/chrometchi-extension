@@ -9,4 +9,5 @@ declare const chrome: {
   };
   i18n: { getMessage(key: string): string };
   runtime: { sendMessage(message: unknown): Promise<unknown> };
+  scripting: { getRegisteredContentScripts(): Promise<Array<{ id: string }>> };
 };
