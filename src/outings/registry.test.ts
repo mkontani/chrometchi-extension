@@ -20,8 +20,9 @@ test('a game ends at OUTING_GAME_MS', () => {
 });
 
 test('render runs on a stub 2D context', () => {
-  const ctx = { fillRect: vi.fn(), fillStyle: '' } as unknown as CanvasRenderingContext2D;
+  const fillRect = vi.fn();
+  const ctx = new Proxy({}, { get: (_t, key) => (key === 'fillRect' ? fillRect : () => undefined), set: () => true }) as unknown as CanvasRenderingContext2D;
   const game = OUTING_GAMES.hunting;
   game.render(ctx, game.init(Math.random), { player: null, art: () => null });
-  expect(ctx.fillRect).toHaveBeenCalled();
+  expect(fillRect).toHaveBeenCalled();
 });

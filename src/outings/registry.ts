@@ -1,6 +1,7 @@
 import type { OutingKind } from '@/core/types';
 import { LOGICAL_SIZE } from '@/ui/useGameInput';
 import { fishingGame } from './fishing/logic';
+import { huntingGame } from './hunting/logic';
 import { OUTING_GAME_MS, type OutingGame } from './types';
 
 /** Outing games are heterogeneous in state type; the host only touches them via this interface. */
@@ -28,6 +29,6 @@ function stubGame(kind: OutingKind): OutingGame<StubState> {
 
 export const OUTING_GAMES: Record<OutingKind, AnyOutingGame> = {
   fishing: fishingGame,
-  hunting: stubGame('hunting'),
+  hunting: huntingGame,
   gathering: stubGame('gathering'),
 };
