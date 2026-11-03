@@ -39,6 +39,25 @@ Poses come from `edit_image_pixen` on the approved `idle0` (seed 1, retry with 2
 | sleep | same character asleep, eyes closed lines, relaxed, slightly slumped |
 | sad | same character sad, teary eyes, frowning, drooping |
 
+## Roaming (Plan 3)
+
+Every form except the egg has `side.png` (right-facing profile) and `walk0`–`walk7` (an 8-frame loop). The roaming view mirrors them when the pet heads left, and turns the pet to face front (`idle0`/`idle1`) when it stops.
+
+- **Move the way the body works** (owner feedback at the walk gate). Each form has a gait in `src/roam/gait.ts`, and its loop is drawn in that gait:
+  - walk: on two feet;
+  - trot: on all fours (forms whose hands touch the ground);
+  - hop: round bodies;
+  - crawl: legless forms on the ground;
+  - float: legless or winged forms.
+- **Loops stay in place.** The code moves the sprite across the page and adds float lift, bob and hop height. Art that travels inside its frame drifts off the edge and gets cut.
+- Side view: `edit_image_pixen` on `idle0` (seed 1, retry with 2 and 3), posed for the gait (on all fours, wings spread with legs tucked, no legs and low on the ground…). Name the signature parts (horns, crown, shell, halo) so they survive.
+- Loop: `animate_image_pixminimax(frame_count 8, direction 'east', view 'side')` from the side view. Describe the body's motion only, never travel: "slithering forward" and "oozing forward" drifted out of the frame on two seeds, while "undulating in place … no forward movement" stayed put. For winged flyers, "the body stays level and upright … no turning, no spinning" stopped them tumbling.
+- Snap `idle0`, `side` and the 8 frames to the palette together in one `reduce_colors` call. Never write `idle0` back.
+- Other tested loop wording:
+  - trot: `trotting in place on all four legs, legs moving in a diagonal walking gait, … staying centered in the frame like on a treadmill`;
+  - hop: `squashing and stretching in place as if hopping … staying on the ground in the center of the frame`;
+  - float, legless: `floating in place, hovering with a gentle up and down bob …, no legs, no walking`.
+
 ## Eggs
 
 - **Eggs never have a face** (no eyes, mouth or cheeks). This is owner feedback from Gate A.

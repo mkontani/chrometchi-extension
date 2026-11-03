@@ -24,6 +24,8 @@ export type CheckOptions = {
 const MAX_OFF_PALETTE_LISTED = 8;
 const ALL_POSES: readonly Pose[] = ['idle0', 'idle1', 'happy', 'eat', 'sick', 'sleep', 'sad'];
 const EGG_POSES: readonly Pose[] = ['idle0', 'idle1'];
+/** Roaming art (Plan 3): a right-facing side view and an 8-frame loop of the form's gait. The egg never roams. */
+const ROAM_SPRITES: readonly string[] = ['side', ...Array.from({ length: 8 }, (_, i) => `walk${i}`)];
 
 export function readPng(file: string): PngData | null {
   if (!existsSync(file)) return null;
@@ -91,7 +93,7 @@ const spriteDirs = (f: FormDef): string[] =>
 export function requiredSpritePaths(forms: readonly FormDef[]): string[] {
   return forms.flatMap((f) =>
     spriteDirs(f).flatMap((dir) =>
-      (f.id === 'egg' ? EGG_POSES : ALL_POSES).map((p) => `src/assets/sprites/${dir}/${p}.png`),
+      (f.id === 'egg' ? EGG_POSES : [...ALL_POSES, ...ROAM_SPRITES]).map((p) => `src/assets/sprites/${dir}/${p}.png`),
     ),
   );
 }
