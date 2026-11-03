@@ -38,6 +38,8 @@ export const MISTAKE_AFTER_MIN = 15;
 export const POOP = { delayMin: 30, max: 4, sickAfterMin: 180, moodDecayPerPoop: 0.1 } as const;
 export const SUGAR = { sickAt: 3, decayEveryMin: 60 } as const;
 export const MEDICINE_DOSES = 2;
+/** Most of one food the pantry can hold. */
+export const PANTRY_MAX = 99;
 export const PET_ACTION = { cooldownMin: 10, mood: 5 } as const;
 export const PLAY = { winMood: 30, loseMood: 10, weightLoss: 1 } as const;
 export const EVOLVE_MOOD_BONUS = 20;

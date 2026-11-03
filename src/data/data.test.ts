@@ -63,6 +63,17 @@ describe('form data', () => {
   });
 });
 
+describe('new ingredients', () => {
+  test('the new ingredients count as fish, meat, grain, veggie and sweet', () => {
+    const expected = { shrimp: 'fish', egg: 'meat', nuts: 'grain', mushroom: 'veggie', fruit: 'sweet' };
+    for (const [id, tag] of Object.entries(expected)) {
+      const def = FOODS.find((f) => f.id === id);
+      expect(def?.tag, id).toBe(tag);
+      expect(def?.kind, id).toBe('meal');
+    }
+  });
+});
+
 describe('i18n', () => {
   test('ja and en messages have identical key sets', () => {
     expect(Object.keys(ja).sort()).toEqual(Object.keys(en).sort());
@@ -74,7 +85,7 @@ describe('i18n', () => {
       ...FOODS.map((f) => `food_${f.id}`),
       ...GAMES.map((g) => `game_${g}`),
     ];
-    expect(keys).toHaveLength(42 + 6 + 3);
+    expect(keys).toHaveLength(42 + 11 + 3);
     for (const key of keys) {
       expect(ja[key]?.message, `ja ${key}`).toBeTruthy();
       expect(en[key]?.message, `en ${key}`).toBeTruthy();

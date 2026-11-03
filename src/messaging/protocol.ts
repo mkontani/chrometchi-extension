@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { CareAction, CareOutcome, Settings } from '@/core/types';
+import { FOOD_IDS } from '@/data/foods';
 import type { RoamFrames } from '@/roam/frames';
 import { hostnameSchema, settingsSchema, type SaveV1 } from '@/storage/schema';
 
@@ -26,7 +27,7 @@ export type EngineResponse =
 const careActionSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('feed'),
-    food: z.enum(['rice', 'meat', 'fish', 'veggie', 'cake', 'candy']),
+    food: z.enum(FOOD_IDS),
   }),
   z.object({
     kind: z.literal('play'),

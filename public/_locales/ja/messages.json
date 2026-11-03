@@ -149,6 +149,21 @@
   "food_candy": {
     "message": "キャンディ"
   },
+  "food_shrimp": {
+    "message": "えび"
+  },
+  "food_egg": {
+    "message": "たまご"
+  },
+  "food_nuts": {
+    "message": "きのみ"
+  },
+  "food_mushroom": {
+    "message": "きのこ"
+  },
+  "food_fruit": {
+    "message": "くだもの"
+  },
   "game_catch": {
     "message": "キャッチ"
   },

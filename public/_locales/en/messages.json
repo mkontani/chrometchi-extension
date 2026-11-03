@@ -149,6 +149,21 @@
   "food_candy": {
     "message": "Candy"
   },
+  "food_shrimp": {
+    "message": "Shrimp"
+  },
+  "food_egg": {
+    "message": "Egg"
+  },
+  "food_nuts": {
+    "message": "Nuts"
+  },
+  "food_mushroom": {
+    "message": "Mushroom"
+  },
+  "food_fruit": {
+    "message": "Fruit"
+  },
   "game_catch": {
     "message": "Catch"
   },

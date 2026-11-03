@@ -1,6 +1,17 @@
 export type Stage = 'egg' | 'baby' | 'child' | 'young' | 'adult';
 export type FormId = string;
-export type FoodId = 'rice' | 'meat' | 'fish' | 'veggie' | 'cake' | 'candy';
+export type IngredientId =
+  | 'fish'
+  | 'shrimp'
+  | 'meat'
+  | 'egg'
+  | 'nuts'
+  | 'mushroom'
+  | 'veggie'
+  | 'fruit';
+export type FoodId = 'rice' | 'candy' | 'cake' | IngredientId;
+export type Pantry = Partial<Record<FoodId, number>>;
+export type Gained = Pantry;
 export type FoodTag = 'grain' | 'meat' | 'fish' | 'veggie' | 'sweet';
 export type GameId = 'catch' | 'cups' | 'stop';
 export type Family =
