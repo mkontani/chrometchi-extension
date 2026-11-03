@@ -160,3 +160,55 @@ test('a failed request shows its error inside the popup without squashing the la
   expect(box!.y + box!.height).toBeLessThanOrEqual(popupSize.height);
   expect((await page.locator('.status-bar').boundingBox())?.height).toBe(statusBefore?.height);
 });
+
+/** A food button in the open food panel, found by its localized name. */
+const foodButton = (page: Page, msg: (key: string) => string, foodKey: string) =>
+  page.locator('.panel__item').filter({ hasText: msg(foodKey) });
+
+const STOCK_COUNT = /×(\d+)/;
+const countOf = async (button: ReturnType<typeof foodButton>) =>
+  Number(STOCK_COUNT.exec((await button.locator('.panel__count').textContent()) ?? '')?.[1]);
+
+test('fishing to the end puts fish in the pantry', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, seed({ stats: { hunger: 20 } }));
+  await page.getByRole('button', { name: msg('action_outing'), exact: true }).click();
+  await page.getByRole('button', { name: new RegExp(msg('outing_fishing')) }).click();
+  // Wait out the whole game without input; the haul note then appears.
+  const note = page.getByRole('status').filter({ hasText: msg('gained_title') });
+  await expect(note).toBeVisible({ timeout: 25_000 });
+  await expect(note).toContainText(msg('food_fish'));
+  await note.click();
+
+  await page.getByRole('button', { name: msg('action_feed'), exact: true }).click();
+  const fish = foodButton(page, msg, 'food_fish');
+  await expect(fish).toBeEnabled();
+  const before = await countOf(fish);
+  expect(before).toBeGreaterThanOrEqual(1);
+  expect((await readSave(context)).kitchen.pantry.fish).toBe(before);
+
+  await fish.click();
+  await expect.poll(async () => (await readSave(context)).kitchen.pantry.fish ?? 0).toBe(before - 1);
+});
+
+test('a ready farm can be harvested', async ({ context, extensionId, msg }) => {
+  const base = seed({});
+  const save: SaveV1 = {
+    ...base,
+    kitchen: { ...base.kitchen, farm: { crop: 'veggie', growMinLeft: 0, watered: false } },
+  };
+  const page = await seedAndOpen(context, extensionId, save);
+  await page.getByRole('button', { name: msg('action_outing'), exact: true }).click();
+  await page.getByRole('button', { name: msg('farm_harvest'), exact: true }).click();
+  await expect.poll(async () => (await readSave(context)).kitchen.pantry.veggie).toBe(2);
+
+  await page.getByRole('button', { name: msg('action_feed'), exact: true }).click();
+  await expect(foodButton(page, msg, 'food_veggie').locator('.panel__count')).toHaveText('×2');
+});
+
+test('fish is disabled in the food panel with an empty pantry', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, seed({ stats: { hunger: 20 } }));
+  await page.getByRole('button', { name: msg('action_feed'), exact: true }).click();
+  const fish = foodButton(page, msg, 'food_fish');
+  await expect(fish).toBeDisabled();
+  await expect(fish.locator('.panel__count')).toHaveText('×0');
+});
