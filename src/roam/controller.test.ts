@@ -16,7 +16,7 @@ function saveWith(pet: PetOverrides = {}, roam = true): SaveV1 {
 
 type Listener = (changes: Record<string, { newValue?: unknown }>, area: string) => void;
 
-function setup(initial: unknown = saveWith(), href = 'https://a.com/page') {
+function setup(initial: unknown = saveWith(), href = 'https://a.com/page', extra: Partial<RoamControllerDeps> = {}) {
   const listeners = new Set<Listener>();
   const media = { matches: false, listeners: new Set<() => void>() };
   let viewDeps: RoamViewDeps | null = null;
@@ -46,7 +46,7 @@ function setup(initial: unknown = saveWith(), href = 'https://a.com/page') {
       return view;
     },
   };
-  const stop = startRoam(deps);
+  const stop = startRoam({ ...deps, ...extra });
   const change = (value: unknown, area = 'local') => listeners.forEach((l) => l({ [SAVE_KEY]: { newValue: value } }, area));
   const lastRender = () => (view.render as ReturnType<typeof vi.fn>).mock.calls.at(-1);
   const frameRequests = () => sendMessage.mock.calls.filter(([m]) => m.type === 'roamFrames').length;
@@ -125,5 +125,33 @@ describe('roam controller', () => {
     expect(view.destroy).toHaveBeenCalled();
     expect(listeners.size).toBe(0);
     expect(media.listeners.size).toBe(0);
+  });
+
+  test('once the extension is gone (disabled, removed or updated), the next frame removes the pet', () => {
+    let alive = true;
+    const queued: FrameRequestCallback[] = [];
+    const raf = vi.fn((cb: FrameRequestCallback) => queued.push(cb));
+    const { view, viewDeps, listeners } = setup(saveWith(), 'https://a.com/page', { raf, isAlive: () => alive });
+    const tick = vi.fn();
+    viewDeps().raf?.(tick);
+    queued.shift()?.(16);
+    expect(tick).toHaveBeenCalledTimes(1);
+    alive = false;
+    viewDeps().raf?.(tick);
+    queued.shift()?.(32);
+    expect(tick).toHaveBeenCalledTimes(1);
+    expect(view.destroy).toHaveBeenCalled();
+    expect(listeners.size).toBe(0);
+  });
+
+  test('stop removes the view once, even when a dead context throws on removing listeners', () => {
+    const dead = () => {
+      throw new Error('Extension context invalidated.');
+    };
+    const storage = { get: async () => ({}), onChanged: { addListener: () => undefined, removeListener: dead } };
+    const { stop, view } = setup(saveWith(), 'https://a.com/page', { storage });
+    expect(() => stop()).not.toThrow();
+    stop();
+    expect(view.destroy).toHaveBeenCalledTimes(1);
   });
 });

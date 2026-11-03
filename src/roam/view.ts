@@ -21,6 +21,8 @@ export interface RoamViewDeps {
   t(key: string): string;
   onHide(): void;
   rng: Rng;
+  /** Only real user input moves the pet or hides it, never page scripts (the shadow root is open). */
+  trusted?: (e: Event) => boolean;
   raf?: (cb: FrameRequestCallback) => number;
   cancelRaf?: (id: number) => void;
 }
@@ -58,6 +60,8 @@ interface State {
   now: number;
   last: number | null;
   happyUntil: number;
+  /** Pressed or dragged: the pet stays under the pointer. */
+  held: boolean;
 }
 
 /** The current form's gait; the egg (which never walks) gets the default. */
@@ -79,7 +83,8 @@ function pickFrame(s: State): { src: string; mirrored: boolean } {
 function paint(dom: Dom, s: State, width: number): void {
   const { src, mirrored } = pickFrame(s);
   if (dom.img.getAttribute('src') !== src) dom.img.src = src;
-  const bounce = bounceOffset(gaitFor(s), { walkMs: isWalking(s) ? s.walker.clockMs : null, nowMs: s.now });
+  const moving = s.display?.motion === 'walk';
+  const bounce = moving ? bounceOffset(gaitFor(s), { walkMs: isWalking(s) ? s.walker.clockMs : null, nowMs: s.now }) : 0;
   dom.img.style.transform = [mirrored ? 'scaleX(-1)' : '', bounce ? `translateY(${-bounce}px)` : ''].join(' ').trim();
   dom.mover.style.transform = `translateX(${s.walker.x}px)`;
   const { liftPx } = gaitStyle(s);
@@ -89,11 +94,13 @@ function paint(dom: Dom, s: State, width: number): void {
   dom.bubble.style.left = `${bubbleLeft(s.walker.x, width, BUBBLE_W)}px`;
 }
 
-function wirePointer(dom: Dom, s: State, width: () => number, toggle: () => void): void {
+function wirePointer(dom: Dom, s: State, width: () => number, toggle: () => void, trusted: (e: Event) => boolean): void {
   let drag: { startX: number; petX: number; moved: boolean } | null = null;
   let suppressClick = false;
   dom.pet.addEventListener('pointerdown', (e) => {
+    if (!trusted(e)) return;
     drag = { startX: e.clientX, petX: s.walker.x, moved: false };
+    s.held = true;
     dom.pet.setPointerCapture?.(e.pointerId);
   });
   dom.pet.addEventListener('pointermove', (e) => {
@@ -106,8 +113,14 @@ function wirePointer(dom: Dom, s: State, width: () => number, toggle: () => void
   dom.pet.addEventListener('pointerup', () => {
     suppressClick = drag?.moved ?? false;
     drag = null;
+    s.held = false;
   });
-  dom.pet.addEventListener('click', () => {
+  dom.pet.addEventListener('pointercancel', () => {
+    drag = null;
+    s.held = false;
+  });
+  dom.pet.addEventListener('click', (e) => {
+    if (!trusted(e)) return;
     if (suppressClick) suppressClick = false;
     else toggle();
   });
@@ -134,7 +147,7 @@ function createLoop(dom: Dom, s: State, deps: RoamViewDeps, width: () => number)
     const dt = s.last === null ? 0 : now - s.last;
     s.last = now;
     s.now = now;
-    const still = s.display?.motion !== 'walk';
+    const still = s.display?.motion !== 'walk' || s.held || !dom.bubble.hidden;
     s.walker = still ? restWalker(s.walker, dt, width()) : stepWalker(s.walker, dt, width(), deps.rng, gaitStyle(s).pxPerS);
     paint(dom, s, width());
     rafId = raf(tick);
@@ -155,13 +168,18 @@ function createLoop(dom: Dom, s: State, deps: RoamViewDeps, width: () => number)
 export function mountRoam(doc: Document, deps: RoamViewDeps): RoamView {
   const width = () => doc.defaultView?.innerWidth ?? 0;
   const dom = createDom(doc);
-  const s: State = { display: null, frames: null, walker: createWalker(width(), deps.rng), now: 0, last: null, happyUntil: 0 };
+  const s: State = {
+    display: null, frames: null, walker: createWalker(width(), deps.rng), now: 0, last: null, happyUntil: 0, held: false,
+  };
+  const trusted = deps.trusted ?? ((e: Event) => e.isTrusted);
   const loop = createLoop(dom, s, deps, width);
   const bubble = bubbleControls(dom, s, deps.t);
   let destroyed = false;
 
-  wirePointer(dom, s, width, bubble.toggle);
-  dom.hide.addEventListener('click', () => deps.onHide());
+  wirePointer(dom, s, width, bubble.toggle, trusted);
+  dom.hide.addEventListener('click', (e) => {
+    if (trusted(e)) deps.onHide();
+  });
   dom.root.addEventListener('keydown', (e) => {
     if ((e as KeyboardEvent).key === 'Escape') bubble.close();
   });

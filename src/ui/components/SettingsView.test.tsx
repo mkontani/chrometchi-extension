@@ -66,6 +66,13 @@ test('toggling roam calls onRoamToggle, not onChange', () => {
   expect(onChange).not.toHaveBeenCalled();
 });
 
+test('the roam box shows the saved setting, not the click, until the save changes (a refused prompt leaves it off)', () => {
+  setup();
+  const box = screen.getByLabelText('settings_roam') as HTMLInputElement;
+  fireEvent.click(box);
+  expect(box.checked).toBe(false);
+});
+
 test('hidden sites are listed and can be shown again', () => {
   const { onChange } = setup({ roam: true, roamHiddenSites: ['a.com', 'b.com'] });
   expect(screen.getByText('settings_roam_hidden')).toBeTruthy();

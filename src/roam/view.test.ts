@@ -31,8 +31,11 @@ function frames(n: number, ms = 16) {
 }
 
 let views: RoamView[] = [];
-function mount(onHide = vi.fn()) {
-  const view = mountRoam(document, { t: (k) => `t:${k}`, onHide, rng: createRng(1), raf, cancelRaf });
+/** Test events are untrusted (as page-script events are); `trusted: false` keeps the real check. */
+function mount(onHide = vi.fn(), trusted = true) {
+  const view = mountRoam(document, {
+    t: (k) => `t:${k}`, onHide, rng: createRng(1), raf, cancelRaf, ...(trusted ? { trusted: () => true } : {}),
+  });
   views.push(view);
   return view;
 }
@@ -164,6 +167,67 @@ describe('roaming view', () => {
       else expect(lift()).toBe(0);
     }
     expect(maxWalking).toBe(HOP_PX);
+  });
+
+  test('a still floater (reduced motion, asleep) hovers without bobbing', () => {
+    mount().render(pet('still', { formId: 'adult_ghost', stage: 'adult' }), FRAMES);
+    for (let i = 0; i < 100; i++) {
+      frames(1, 50);
+      expect(img().style.transform).not.toContain('translateY');
+    }
+    expect($('.mover')?.style.bottom).toBe(`${GAIT_STYLES.float.liftPx}px`);
+  });
+
+  test('page scripts cannot click the pet, drag it or press hide', () => {
+    const onHide = vi.fn();
+    mount(onHide, false).render(pet('still'), FRAMES);
+    frames(1);
+    const x = moverX();
+    const button = $('.pet') as HTMLElement;
+    button.dispatchEvent(new PointerEvent('pointerdown', { clientX: 500, pointerId: 1, bubbles: true }));
+    button.dispatchEvent(new PointerEvent('pointermove', { clientX: 300, pointerId: 1, bubbles: true }));
+    button.dispatchEvent(new PointerEvent('pointerup', { clientX: 300, pointerId: 1, bubbles: true }));
+    button.click();
+    $('.hide')?.click();
+    frames(1);
+    expect(moverX()).toBe(x);
+    expect($('.bubble')?.hidden).toBe(true);
+    expect(onHide).not.toHaveBeenCalled();
+  });
+
+  test('the pet holds still while its bubble is open, and walks on once it closes', () => {
+    mount().render(pet(), FRAMES);
+    frames(1);
+    $('.pet')?.click();
+    const x = moverX();
+    frames(400, 50);
+    expect(moverX()).toBe(x);
+    $('.pet')?.click();
+    frames(400, 50);
+    expect(moverX()).not.toBe(x);
+  });
+
+  test('the pet stays under the pointer while it is held in a drag', () => {
+    mount().render(pet(), FRAMES);
+    frames(1);
+    const button = $('.pet') as HTMLElement;
+    button.dispatchEvent(new PointerEvent('pointerdown', { clientX: 500, pointerId: 1, bubbles: true }));
+    button.dispatchEvent(new PointerEvent('pointermove', { clientX: 450, pointerId: 1, bubbles: true }));
+    frames(1);
+    const x = moverX();
+    frames(200, 50);
+    expect(moverX()).toBe(x);
+  });
+
+  test('a drag the browser cancels lets the pet walk on', () => {
+    mount().render(pet(), FRAMES);
+    frames(1);
+    const button = $('.pet') as HTMLElement;
+    button.dispatchEvent(new PointerEvent('pointerdown', { clientX: 500, pointerId: 1, bubbles: true }));
+    button.dispatchEvent(new PointerEvent('pointercancel', { pointerId: 1, bubbles: true }));
+    const x = moverX();
+    frames(400, 50);
+    expect(moverX()).not.toBe(x);
   });
 
   test('a crawling form moves at its slower pace', () => {

@@ -24,6 +24,9 @@ export interface RoamControllerDeps {
   t(key: string): string;
   rng: Rng;
   mountView?: (doc: Document, deps: RoamViewDeps) => RoamView;
+  /** False once the extension is disabled, removed or updated and this script is orphaned. */
+  isAlive?: () => boolean;
+  raf?: (cb: FrameRequestCallback) => number;
 }
 
 /** Storage is shared with the page's other extension contexts: never trust its shape. */
@@ -39,11 +42,34 @@ function isFramesResponse(res: unknown): res is { ok: true; frames: RoamFrames }
 
 const petKey = (d: RoamDisplay): string | null => (d.kind === 'pet' ? `${d.pet.formId}:${d.generation}` : null);
 
+/** Animation frames that end the pet instead of running once the extension is gone. */
+function guardedRaf(deps: RoamControllerDeps, onDead: () => void): (cb: FrameRequestCallback) => number {
+  const raf = deps.raf ?? ((cb: FrameRequestCallback) => requestAnimationFrame(cb));
+  const isAlive = deps.isAlive ?? (() => true);
+  return (cb) => raf((now) => (isAlive() ? cb(now) : onDead()));
+}
+
+/** Removes the pet first: in an orphaned script, unhooking extension listeners can throw. */
+function stopper(view: RoamView, unhook: () => void): () => void {
+  let stopped = false;
+  return () => {
+    if (stopped) return;
+    stopped = true;
+    view.destroy();
+    try {
+      unhook();
+    } catch {
+      // The extension is gone, so there is nothing left to unhook or to report to.
+    }
+  };
+}
+
 /** Runs the roaming pet on this page; returns a function that removes it again. */
 export function startRoam(deps: RoamControllerDeps): () => void {
   const host = hostOf(deps.href);
   const onHide = () => void deps.sendMessage({ type: 'hideRoamSite' }).catch(() => undefined);
-  const view = (deps.mountView ?? mountRoam)(deps.doc, { t: deps.t, rng: deps.rng, onHide });
+  const raf = guardedRaf(deps, () => stop());
+  const view = (deps.mountView ?? mountRoam)(deps.doc, { t: deps.t, rng: deps.rng, onHide, raf });
   let save: SaveV1 | null = null;
   let loaded: { key: string; frames: RoamFrames } | null = null;
   let requested: string | null = null;
@@ -75,9 +101,9 @@ export function startRoam(deps: RoamControllerDeps): () => void {
     .catch(() => undefined)
     .finally(render);
 
-  return () => {
+  const stop = stopper(view, () => {
     deps.storage.onChanged.removeListener(onStorage);
     deps.reducedMotion.removeEventListener('change', render);
-    view.destroy();
-  };
+  });
+  return stop;
 }

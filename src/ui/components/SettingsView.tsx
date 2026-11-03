@@ -21,7 +21,13 @@ function Toggle(props: { label: string; checked: boolean; onToggle(next: boolean
       <input
         type="checkbox"
         checked={props.checked}
-        onChange={(e) => props.onToggle((e.currentTarget as HTMLInputElement).checked)}
+        onChange={(e) => {
+          // Show the saved setting until the save changes: a refused permission prompt changes nothing.
+          const box = e.currentTarget as HTMLInputElement;
+          const next = box.checked;
+          box.checked = props.checked;
+          props.onToggle(next);
+        }}
       />
     </label>
   );

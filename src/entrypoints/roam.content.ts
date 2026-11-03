@@ -8,6 +8,8 @@ import { startRoam } from '@/roam/controller';
 export default defineContentScript({
   registration: 'runtime',
   matches: [],
+  /** WXT would otherwise post the extension id to every page the pet visits. */
+  noScriptStartedPostMessage: true,
   main(ctx) {
     const stop = startRoam({
       doc: document,
@@ -17,6 +19,7 @@ export default defineContentScript({
       reducedMotion: matchMedia('(prefers-reduced-motion: reduce)'),
       t,
       rng: Math.random,
+      isAlive: () => ctx.isValid,
     });
     ctx.onInvalidated(stop);
   },
