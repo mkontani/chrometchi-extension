@@ -19,9 +19,16 @@ function applyTransition(pet: PetState, asleepNow: boolean): StepResult {
   return { pet, events: [] };
 }
 
-/** Eggs sleep and wake like everyone else but are never charged a lights mistake. */
+/**
+ * Whether a sleeping pet is owed "lights off": the lights are on and it is not an egg. Eggs sleep
+ * and wake like everyone else but are never charged a lights mistake (nor reminded about it).
+ */
+export function lightsNeedTurningOff(pet: PetState): boolean {
+  return pet.stage !== 'egg' && pet.lightsOn;
+}
+
 function stepLightsEpisode(pet: PetState): StepResult {
-  if (pet.stage === 'egg' || !pet.asleep || !pet.lightsOn) return { pet, events: [] };
+  if (!pet.asleep || !lightsNeedTurningOff(pet)) return { pet, events: [] };
   const lightsOnAsleepMin = pet.episodes.lightsOnAsleepMin + 1;
   if (lightsOnAsleepMin < MISTAKE_AFTER_MIN || pet.episodes.lightsMistakeTaken) {
     return { pet: { ...pet, episodes: { ...pet.episodes, lightsOnAsleepMin } }, events: [] };

@@ -1,4 +1,4 @@
-/** Minimal typing for the `chrome` global used inside `serviceWorker.evaluate` callbacks. */
+/** Minimal typing for the `chrome` global used inside `evaluate` callbacks (worker and popup). */
 declare const chrome: {
   storage: {
     local: {
@@ -8,4 +8,5 @@ declare const chrome: {
     };
   };
   i18n: { getMessage(key: string): string };
+  runtime: { sendMessage(message: unknown): Promise<unknown> };
 };

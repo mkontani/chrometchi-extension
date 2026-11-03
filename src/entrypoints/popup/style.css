@@ -23,11 +23,15 @@ body {
 
 .app { width: 360px; height: var(--popup-h); padding: 4px 1px; display: flex; flex-direction: column; gap: 4px; }
 .message { text-align: center; margin-top: 160px; }
-.error { border: 3px solid var(--ink); background: var(--pink); padding: 4px 8px; }
+/* Out of the flow, just above the action bar: the main screen has no spare height for it. */
+.error {
+  position: absolute; left: 8px; right: 8px; bottom: 128px; z-index: 11; pointer-events: none;
+  border: 3px solid var(--ink); background: var(--pink); padding: 4px 8px;
+}
 .error p { margin: 0; }
 
 .status-bar {
-  height: 48px; display: flex; align-items: center; justify-content: space-between;
+  height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
   padding: 0 8px; border: 3px solid var(--ink); background: #fff;
 }
 .status-rows { display: flex; gap: 8px; }

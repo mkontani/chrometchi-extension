@@ -98,7 +98,7 @@ export function composeHtml(slide: Slide, lang: Lang): string {
   <link rel="stylesheet" href="/font/index.css"><style>${style(slide.theme, lang)}</style></head><body>
   <div class="blob"></div>
   <section class="copy">
-    <div class="brand"><img class="px" src="/icon/128.png" width="48" height="48" alt="">Chrometchi</div>
+    <div class="brand"><img class="px" src="/icon/48.png" width="48" height="48" alt="">Chrometchi</div>
     <h1>${title}</h1>
     <p class="sub">${esc(slide.sub[lang]).replace(/\n/g, '<br>')}</p>
     ${visual(slide.visual, lang)}

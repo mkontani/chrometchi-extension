@@ -52,6 +52,22 @@ test('host passes no player sprite to the game until one has loaded', () => {
   expect(stub.render.mock.calls.at(-1)?.[2]).toEqual({ player: null });
 });
 
+test('host passes the loaded pet sprite to the game', () => {
+  class LoadedImage {
+    src = '';
+    complete = true;
+    naturalWidth = 32;
+  }
+  vi.stubGlobal('Image', LoadedImage);
+  stub.render.mockClear();
+  render(<MiniGameHost game="catch" playerUrl="/sprites/puni/idle0.png" onFinish={vi.fn()} onCancel={vi.fn()} />);
+  act(() => void vi.advanceTimersByTime(50));
+  const player = stub.render.mock.calls.at(-1)?.[2]?.player as LoadedImage | undefined;
+  expect(player).toBeInstanceOf(LoadedImage);
+  expect(player?.src).toBe('/sprites/puni/idle0.png');
+  vi.unstubAllGlobals();
+});
+
 test('host is a modal dialog labelled with the game name', () => {
   render(<MiniGameHost game="catch" onFinish={vi.fn()} onCancel={vi.fn()} />);
   const dialog = screen.getByRole('dialog', { name: 'game_catch' });

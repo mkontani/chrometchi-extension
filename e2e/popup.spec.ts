@@ -130,3 +130,25 @@ test('legacy save shows renewal notice', async ({ context, extensionId, msg }) =
   await expect(dialog).toBeHidden();
   await expect.poll(async () => (await readSave(context)).meta.showRenewal).toBe(false);
 });
+
+test('a failed request shows its error inside the popup without squashing the layout', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, seed({ formId: 'baby_puni', stage: 'baby' }));
+  const popupSize = { width: 360, height: 462 };
+  await page.setViewportSize(popupSize);
+  await expect(petButton(page, msg, 'form_baby_puni')).toBeVisible();
+  const statusBefore = await page.locator('.status-bar').boundingBox();
+  await page.evaluate(() => {
+    Object.defineProperty(chrome.runtime, 'sendMessage', {
+      configurable: true,
+      value: () => Promise.reject(new Error('worker unavailable')),
+    });
+  });
+  await petButton(page, msg, 'form_baby_puni').click();
+  const alert = page.getByRole('alert');
+  await expect(alert).toBeVisible();
+  const box = await alert.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(popupSize.height);
+  expect((await page.locator('.status-bar').boundingBox())?.height).toBe(statusBefore?.height);
+});

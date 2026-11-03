@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { LIGHTS_MISTAKE_MOOD, MISTAKE_AFTER_MIN } from './constants';
 import { makePet } from './__fixtures__/pet';
-import { stepSleep } from './sleep';
+import { lightsNeedTurningOff, stepSleep } from './sleep';
 
 function run(pet: ReturnType<typeof makePet>, n: number, asleepNow: boolean) {
   let p = pet;
@@ -83,4 +83,13 @@ describe('stepSleep', () => {
     stepSleep(pet, true);
     expect(pet).toEqual(snapshot);
   });
+});
+
+test.each([
+  ['baby', true, true],
+  ['adult', true, true],
+  ['baby', false, false],
+  ['egg', true, false],
+] as const)('lightsNeedTurningOff(%s, lightsOn=%s) is %s', (stage, lightsOn, expected) => {
+  expect(lightsNeedTurningOff(makePet({ stage, lightsOn }))).toBe(expected);
 });

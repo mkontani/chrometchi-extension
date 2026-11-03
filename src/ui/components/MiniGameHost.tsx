@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { GameId } from '@/core/types';
 import { MINI_GAMES, type AnyMiniGame } from '@/games/registry';
 import { loadSprite } from '@/games/sprites';
@@ -43,28 +43,36 @@ function startLoop(
   return () => cancelAnimationFrame(raf);
 }
 
+/** A ref that always holds the latest value, for callbacks read inside the RAF loop. */
+function useLatest<T>(value: T): { readonly current: T } {
+  const ref = useRef(value);
+  ref.current = value;
+  return ref;
+}
+
+/** Starts loading the pet sprite once per URL; the returned getter is stable and cheap per frame. */
+function usePlayerSprite(url: string | undefined): () => CanvasImageSource | null {
+  const latest = useLatest(useMemo(() => loadSprite(url ?? null), [url]));
+  return useCallback(() => latest.current(), [latest]);
+}
+
 export function MiniGameHost({ game, playerUrl, onFinish, onCancel, onResult }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [result, setResult] = useState<boolean | null>(null);
   const [ready, setReady] = useState(false);
-  const finishRef = useRef(onFinish);
-  finishRef.current = onFinish;
-  const resultRef = useRef(onResult);
-  resultRef.current = onResult;
+  const finishRef = useLatest(onFinish);
+  const resultRef = useLatest(onResult);
   const def = MINI_GAMES[game];
   const take = useGameInput(canvasRef, def.pickFromPointer);
-  const takeRef = useRef(take);
-  takeRef.current = take;
-  const player = useMemo(() => loadSprite(playerUrl ?? null), [playerUrl]);
-  const playerRef = useRef(player);
-  playerRef.current = player;
+  const takeRef = useLatest(take);
+  const player = usePlayerSprite(playerUrl);
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     setReady(true);
-    const view = (): GameView => ({ player: playerRef.current() });
+    const view = (): GameView => ({ player: player() });
     const stop = startLoop(def, ctx, () => takeRef.current(), view, (won) => {
       setResult(won);
       resultRef.current?.(won);
@@ -74,7 +82,7 @@ export function MiniGameHost({ game, playerUrl, onFinish, onCancel, onResult }: 
       stop();
       if (timer !== undefined) clearTimeout(timer);
     };
-  }, [def]);
+  }, [def, player]);
 
   return (
     <div class="minigame" role="dialog" aria-modal="true" aria-label={t(`game_${game}`)}>

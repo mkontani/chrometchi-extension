@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { checkImage, requiredSpritePaths } from '../../scripts/art/lib';
 import { FORMS } from '@/data/forms';
@@ -11,6 +13,27 @@ const SMALL_ICONS = new Set<string>([
   'heart_full', 'heart_half', 'heart_empty',
 ]);
 const GAME_ART_SIZE: Record<string, number> = { rock: 16, cup: 32, treat: 16 };
+const TOOLBAR_ICONS = [16, 48, 128] as const;
+
+/** Every PNG the popup bundles (assets.ts globs all of src/assets). */
+function shippedPngs(dir = 'src/assets'): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) return shippedPngs(p);
+    return e.name.endsWith('.png') ? [p] : [];
+  });
+}
+
+function checkedPngs(): Set<string> {
+  return new Set([
+    ...requiredSpritePaths(FORMS),
+    ...ICON_IDS.map((id) => `src/assets/ui/icons/${id}.png`),
+    ...EFFECT_IDS.map((id) => `src/assets/ui/effects/${id}.png`),
+    ...GAME_ART_IDS.map((id) => `src/assets/ui/game/${id}.png`),
+    ...BACKGROUND_IDS.map((id) => `src/assets/ui/bg/${id}.png`),
+    'src/assets/ui/frame.png',
+  ]);
+}
 
 describe('shipped art is complete and on-palette', () => {
   test.each(requiredSpritePaths(FORMS))('%s', (p) => {
@@ -31,5 +54,12 @@ describe('shipped art is complete and on-palette', () => {
   });
   test('panel frame', () => {
     expect(checkImage('src/assets/ui/frame.png', sized(24))).toEqual([]);
+  });
+  test.each(TOOLBAR_ICONS)('toolbar icon %spx', (n) => {
+    expect(checkImage(`public/icon/${n}.png`, sized(n))).toEqual([]);
+  });
+  test('every bundled PNG is one of the checked files above', () => {
+    const checked = checkedPngs();
+    expect(shippedPngs().filter((p) => !checked.has(p))).toEqual([]);
   });
 });

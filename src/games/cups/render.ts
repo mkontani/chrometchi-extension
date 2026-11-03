@@ -1,6 +1,6 @@
-import { gameArtUrl } from '@/ui/assets';
 import { drawCounter } from '../hud';
-import { createSpriteCache, drawSprite } from '../sprites';
+import { gameArt as art } from '../art';
+import { drawSprite } from '../sprites';
 import { cupPosition, ROUNDS, type CupsState } from './logic';
 
 const SIZE = 180;
@@ -13,7 +13,6 @@ const TREAT = 16;
 const CUP_ART = 32;
 const TREAT_COLOR = '#ffd84a';
 const CUP_COLOR = '#8a5a2b';
-const art = createSpriteCache(gameArtUrl);
 
 /** A 32px cup sprite sits at the bottom centre of the cup's 40×44 hit box. */
 function drawCup(ctx: CanvasRenderingContext2D, x: number, y: number): void {

@@ -54,6 +54,11 @@ describe('squash', () => {
     expect([out.width, out.height]).toEqual([3, 3]);
   });
 
+  test('leaves a one-row sprite as it is (there is no row to spare)', () => {
+    const src = fromRows(['...', '.a.', '...']);
+    expect(toRows(squash(src))).toEqual(['...', '.a.', '...']);
+  });
+
   test('returns a copy of an empty image', () => {
     const src = fromRows(['...', '...']);
     expect(toRows(squash(src))).toEqual(['...', '...']);

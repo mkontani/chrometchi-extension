@@ -11,10 +11,8 @@ import {
   spriteUrl,
 } from '@/ui/assets';
 
-test('spriteUrl falls back to placeholder for unknown forms', () => {
-  const placeholder = spriteUrl('_placeholder', 'idle0');
-  expect(placeholder).toBeTruthy();
-  expect(spriteUrl('nope', 'happy')).toBe(placeholder);
+test('spriteUrl falls back to the plain egg for forms without art', () => {
+  expect(spriteUrl('nope', 'happy')).toContain('/sprites/egg/plain/idle0');
 });
 
 test('egg sprites follow the generation pattern, other forms ignore it', () => {

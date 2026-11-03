@@ -225,11 +225,12 @@ describe('engine', () => {
   });
 
   test.each([
-    ['baby', true],
-    ['egg', false],
-  ] as const)('falling asleep as %s passes lightsReminder=%s', async (stage, expected) => {
+    ['baby', true, true],
+    ['baby', false, false],
+    ['egg', true, false],
+  ] as const)('falling asleep as %s with lightsOn=%s passes lightsReminder=%s', async (stage, lightsOn, expected) => {
     const bedtime = Date.UTC(2026, 0, 1, 21, 59, 0);
-    const pet = makePet({ stage, formId: stage === 'egg' ? 'egg' : 'baby_puni' });
+    const pet = makePet({ stage, lightsOn, formId: stage === 'egg' ? 'egg' : 'baby_puni' });
     const seen: Array<{ events: GameEvent[]; lightsReminder: boolean }> = [];
     const { engine, clock } = setup({ pet }, bedtime, {
       notifier: {

@@ -30,7 +30,7 @@ function remap(png: PngData, from: (x: number, y: number) => [number, number] | 
   return { width: png.width, height: png.height, data };
 }
 
-/** Number of pixels that differ between row `a` and row `b`. */
+/** Number of RGBA channel values (bytes) that differ between row `a` and row `b`. */
 function rowDiff(png: PngData, a: number, b: number): number {
   let diff = 0;
   for (let i = 0; i < png.width * 4; i++) {
@@ -59,7 +59,8 @@ function cutRow(png: PngData, top: number, bottom: number): number {
 /** Idle bounce frame: removes one row low in the body so the top sinks 1px while the feet stay put. */
 export function squash(png: PngData): PngData {
   const rows = bodyRows(png);
-  if (!rows) return remap(png, (x, y) => [x, y]);
+  // An empty or one-row sprite has no row to spare: return an unchanged copy.
+  if (!rows || rows[0] === rows[1]) return remap(png, (x, y) => [x, y]);
   const [top, bottom] = rows;
   const cut = cutRow(png, top, bottom);
   return remap(png, (x, y) => {

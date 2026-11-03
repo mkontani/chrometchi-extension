@@ -76,7 +76,7 @@ export const SLIDES: readonly Slide[] = [
       kind: 'chips',
       items: [
         { icon: 'game_catch', text: t('キャッチ:おやつを受けとめよう', 'Catch: grab the falling treats') },
-        { icon: 'game_cups', text: t('カップあて:ボールはどこ?', 'Cups: find the hidden ball') },
+        { icon: 'game_cups', text: t('カップあて:おやつはどこ?', 'Cups: find the hidden treat') },
         { icon: 'game_stop', text: t('ストップ:ぴったりで止めよう', 'Stop: hit the target') },
       ],
     },

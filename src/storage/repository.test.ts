@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { makeGame } from '@/core/__fixtures__/pet';
 import { createFreshSave, createSaveRepository } from './repository';
-import { LEGACY_KEYS, SAVE_KEY, saveSchema } from './schema';
+import { LEGACY_KEYS, NOTIFY_KINDS, SAVE_KEY, saveSchema } from './schema';
 import { createMemoryArea } from './__fixtures__/memory-area';
 
 const NOW = 1_000_000;
@@ -26,6 +26,23 @@ describe('saveSchema', () => {
     const history = { ...s.game.pet.history, foodCounts: food };
     const badFood = { ...s, game: { ...s.game, pet: { ...s.game.pet, history } } };
     expect(saveSchema.safeParse(badFood).success).toBe(false);
+  });
+
+  test('keeps every known notify stamp, fellAsleep included', () => {
+    const s = createFreshSave(NOW);
+    const lastNotified = Object.fromEntries(NOTIFY_KINDS.map((k, i) => [k, NOW + i]));
+    const parsed = saveSchema.parse({ ...s, meta: { ...s.meta, lastNotified } });
+    expect(parsed.meta.lastNotified).toEqual(lastNotified);
+    expect(parsed.meta.lastNotified.fellAsleep).toBe(NOW + NOTIFY_KINDS.indexOf('fellAsleep'));
+  });
+
+  test('drops notify stamps this build does not know instead of rejecting the save', () => {
+    const s = createFreshSave(NOW);
+    const meta = { ...s.meta, lastNotified: { hungry: NOW, someFutureKind: NOW } };
+    const parsed = saveSchema.safeParse({ ...s, meta });
+    expect(parsed.success).toBe(true);
+    expect(parsed.data?.meta.lastNotified).toEqual({ hungry: NOW });
+    expect(parsed.data?.game).toEqual(s.game);
   });
 
   test('rejects hunger out of range', () => {

@@ -1,18 +1,21 @@
 import { z } from 'zod';
 import type { GameState, PetState, Settings, Zukan } from '@/core/types';
 
-export type NotifyKind =
-  | 'hungry'
-  | 'unhappy'
-  | 'pooped'
-  | 'sick'
-  | 'danger'
-  | 'critical'
-  | 'hatched'
-  | 'evolved'
-  | 'died'
-  | 'departed'
-  | 'fellAsleep';
+/** The single list of notification kinds; the type and the save schema both derive from it. */
+export const NOTIFY_KINDS = [
+  'hungry',
+  'unhappy',
+  'pooped',
+  'sick',
+  'danger',
+  'critical',
+  'hatched',
+  'evolved',
+  'died',
+  'departed',
+  'fellAsleep',
+] as const;
+export type NotifyKind = (typeof NOTIFY_KINDS)[number];
 
 export interface SaveMeta {
   lastNotified: Partial<Record<NotifyKind, number>>;
@@ -121,22 +124,21 @@ export const settingsSchema = z.object({
   sleepEndMin: minuteOfDay,
 });
 
-const notifyKinds = [
-  'hungry',
-  'unhappy',
-  'pooped',
-  'sick',
-  'danger',
-  'critical',
-  'hatched',
-  'evolved',
-  'died',
-  'departed',
-  'fellAsleep',
-] as const;
+const KNOWN_NOTIFY_KINDS = new Set<string>(NOTIFY_KINDS);
+const isNotifyKind = (k: string): k is NotifyKind => KNOWN_NOTIFY_KINDS.has(k);
+
+/**
+ * Throttle stamps only. A kind this build does not know (say, from a newer version) is dropped
+ * rather than failing the whole save, which would reset the pet and the zukan.
+ */
+const lastNotifiedSchema = z
+  .record(z.string(), z.number())
+  .transform((stamps): Partial<Record<NotifyKind, number>> =>
+    Object.fromEntries(Object.entries(stamps).filter(([kind]) => isNotifyKind(kind))),
+  );
 
 const metaSchema: z.ZodType<SaveMeta> = z.object({
-  lastNotified: z.partialRecord(z.enum(notifyKinds), z.number()),
+  lastNotified: lastNotifiedSchema,
   showRenewal: z.boolean(),
   showDataReset: z.boolean(),
 });

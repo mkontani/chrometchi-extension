@@ -1,6 +1,7 @@
 import { advanceTime } from '@/core/advance';
 import { applyCare } from '@/core/care';
 import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/lifecycle';
+import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
   CareOutcome,
@@ -121,7 +122,7 @@ export function createEngine(deps: EngineDeps): Engine {
       return await deps.notifier.notify(events, {
         settings: save.settings,
         asleep: pet.asleep,
-        lightsReminder: pet.stage !== 'egg' && pet.lightsOn,
+        lightsReminder: lightsNeedTurningOff(pet),
         now,
         lastNotified: save.meta.lastNotified,
       });

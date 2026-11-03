@@ -1,6 +1,6 @@
-import { gameArtUrl } from '@/ui/assets';
 import { HUD_TOP, drawCounter, drawTimeBar } from '../hud';
-import { createSpriteCache, drawSprite } from '../sprites';
+import { gameArt as art } from '../art';
+import { drawSprite } from '../sprites';
 import type { GameView } from '../types';
 import { TOTAL_MS, type CatchState } from './logic';
 
@@ -15,7 +15,6 @@ const FLOOR = PLAYER_Y - ITEM + 8;
 const PLAYER_COLOR = '#ff7aa2';
 const GOOD_COLOR = '#ffd84a';
 const BAD_COLOR = '#8a8a8a';
-const art = createSpriteCache(gameArtUrl);
 
 /** The pet catches; it and the treats/rocks use pixel sprites once loaded, flat boxes until then. */
 export function renderCatch(ctx: CanvasRenderingContext2D, s: CatchState, view: GameView): void {

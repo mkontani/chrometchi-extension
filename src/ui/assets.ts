@@ -38,7 +38,8 @@ export function spriteUrl(formId: FormId, pose: Pose, generation = 1): string {
   return (
     lookup(`sprites/${dir}/${pose}`) ??
     lookup(`sprites/${dir}/idle0`) ??
-    (lookup('sprites/_placeholder/idle0') as string)
+    // assets.test.ts guarantees every form has art; the plain egg is the last resort.
+    (lookup('sprites/egg/plain/idle0') as string)
   );
 }
 

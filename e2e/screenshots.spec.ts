@@ -6,7 +6,7 @@ import { makePet, type PetOverrides } from '../src/core/__fixtures__/pet';
 import type { FormId } from '../src/core/types';
 import { createFreshSave } from '../src/storage/repository';
 import type { SaveV1 } from '../src/storage/schema';
-import { expect, openPopup, seedSave, test } from './fixtures';
+import { expect, seedSave, test } from './fixtures';
 import { POPUP, STORE, composeHtml } from './store/compose';
 import { SLIDES, type Lang } from './store/copy';
 
@@ -19,6 +19,17 @@ import { SLIDES, type Lang } from './store/copy';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'screenshots');
 const ORIGIN = 'https://store.local';
+/**
+ * Catch slide, found by simulating the game logic: with this seed and these moves (ms after the
+ * game opens) the pet has caught two treats, a third is right above it and no rock is on screen.
+ */
+const CATCH_SEED = 3;
+const CATCH_MOVES: ReadonlyArray<{ at: number; key: string }> = [
+  { at: 1800, key: 'ArrowRight' },
+  { at: 2600, key: 'ArrowLeft' },
+  { at: 3400, key: 'ArrowRight' },
+];
+const CATCH_PLAY_MS = 3600;
 const NEVER_ASLEEP: [number, number] = [0, 0];
 const ALWAYS_ASLEEP: [number, number] = [0, 1439];
 const DISCOVERED: FormId[] = [
@@ -44,9 +55,12 @@ function scene(pet: PetOverrides, sleep = NEVER_ASLEEP, discovered: FormId[] = [
   };
 }
 
-async function open(context: BrowserContext, extensionId: string, save: SaveV1): Promise<Page> {
+/** `fakeClock` installs Playwright's (context-wide) clock before load, so a scene can step time exactly. */
+async function open(context: BrowserContext, extensionId: string, save: SaveV1, fakeClock = false): Promise<Page> {
   await seedSave(context, save);
-  const page = await openPopup(context, extensionId);
+  const page = await context.newPage();
+  if (fakeClock) await page.clock.install();
+  await page.goto(`chrome-extension://${extensionId}/popup.html`);
   await page.setViewportSize({ width: POPUP.width, height: POPUP.height });
   const cdp = await context.newCDPSession(page);
   await cdp.send('Emulation.setDeviceMetricsOverride', {
@@ -54,6 +68,36 @@ async function open(context: BrowserContext, extensionId: string, save: SaveV1):
   });
   await expect(page.locator('.stage, .zukan').first()).toBeVisible();
   return page;
+}
+
+/** Replaces Math.random with a seeded generator (mulberry32) so a mini-game plays the same every run. */
+async function seedRandom(page: Page, seed: number): Promise<void> {
+  await page.evaluate((initial) => {
+    let state = initial;
+    Math.random = () => {
+      state = (state + 0x6d2b79f5) | 0;
+      let t = Math.imul(state ^ (state >>> 15), 1 | state);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }, seed);
+}
+
+/** Plays Catch for exactly CATCH_PLAY_MS of clock time: seeded items, paused clock, fixed moves. */
+async function playCatch(page: Page, msg: (key: string) => string): Promise<void> {
+  await seedRandom(page, CATCH_SEED);
+  await page.getByRole('button', { name: msg('action_play'), exact: true }).click();
+  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1000);
+  await page.getByRole('button', { name: new RegExp(msg('game_catch')) }).click();
+  let played = 100;
+  await page.clock.runFor(played); // mount effects: the loop and the key listeners start
+  await expect(page.locator('.minigame__frame[data-ready="true"]')).toBeVisible();
+  for (const move of CATCH_MOVES) {
+    await page.clock.runFor(move.at - played);
+    played = move.at;
+    await page.keyboard.press(move.key);
+  }
+  await page.clock.runFor(CATCH_PLAY_MS - played);
 }
 
 async function capture(page: Page): Promise<Buffer> {
@@ -107,13 +151,11 @@ test('store screenshots @screenshots', async ({ context, extensionId, msg }) => 
   await page.locator('.panel__item').first().click();
   await compose(context, await capture(page), 2, lang);
 
-  page = await open(context, extensionId, scene({ formId: 'young_hinoko', stage: 'young' }));
-  await page.getByRole('button', { name: msg('action_play'), exact: true }).click();
-  await page.getByRole('button', { name: new RegExp(msg('game_catch')) }).click();
-  await expect(page.locator('.minigame__frame[data-ready="true"]')).toBeVisible();
-  await page.keyboard.press('ArrowLeft');
-  await page.waitForTimeout(2500);
-  await compose(context, await capture(page), 3, lang);
+  page = await open(context, extensionId, scene({ formId: 'young_hinoko', stage: 'young' }), true);
+  await playCatch(page, msg);
+  const catchShot = await capture(page);
+  await context.clock.resume(); // the clock is context-wide: let later pages run normally
+  await compose(context, catchShot, 3, lang);
 
   page = await open(context, extensionId, scene({}, NEVER_ASLEEP, DISCOVERED));
   await page.getByRole('button', { name: msg('action_zukan'), exact: true }).click();
