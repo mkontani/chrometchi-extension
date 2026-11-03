@@ -16,6 +16,7 @@ export type IconId =
   | `game_${GameId}`;
 export type EffectId = 'poop' | 'zzz' | 'sweat' | 'sparkle' | 'note' | 'skull' | 'pill';
 export type BackgroundId = 'room_day' | 'room_night';
+export type GameArtId = 'rock' | 'cup' | 'treat';
 
 export const ICON_IDS: readonly IconId[] = [
   'feed', 'play', 'clean', 'medicine', 'lights', 'zukan', 'settings',
@@ -27,6 +28,7 @@ export const EFFECT_IDS: readonly EffectId[] = [
   'poop', 'zzz', 'sweat', 'sparkle', 'note', 'skull', 'pill',
 ];
 export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
+export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];
 
 const lookup = (path: string): string | null => FILES[`/src/assets/${path}.png`] ?? null;
 
@@ -43,3 +45,4 @@ export function spriteUrl(formId: FormId, pose: Pose, generation = 1): string {
 export const iconUrl = (id: IconId): string | null => lookup(`ui/icons/${id}`);
 export const effectUrl = (id: EffectId): string | null => lookup(`ui/effects/${id}`);
 export const backgroundUrl = (id: BackgroundId): string | null => lookup(`ui/bg/${id}`);
+export const gameArtUrl = (id: GameArtId): string | null => lookup(`ui/game/${id}`);

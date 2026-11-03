@@ -11,6 +11,7 @@ vi.mock('@/ui/assets', () => ({
   effectUrl: () => null,
   backgroundUrl: () => null,
   iconUrl: () => null,
+  gameArtUrl: () => null,
 }));
 const useGame = vi.fn<() => UseGame>();
 vi.mock('@/ui/useGame', () => ({ useGame: () => useGame() }));
