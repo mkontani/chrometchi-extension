@@ -23,12 +23,27 @@ test('listener rejects foreign senders without calling the engine', () => {
   expect(handle).not.toHaveBeenCalled();
 });
 
-test('a content script may hide its site', async () => {
-  const handle = vi.fn().mockResolvedValue({ ok: true });
+test('a content script hides the site it runs on, whatever host it names', async () => {
+  const handle = vi.fn().mockResolvedValue({ ok: true, save: { secret: 1 } });
   const send = vi.fn();
-  createMessageListener({ handle }, 'me')({ type: 'hideRoamSite', host: 'a.com' }, PAGE, send);
-  await vi.waitFor(() => expect(send).toHaveBeenCalledWith({ ok: true }));
+  createMessageListener({ handle }, 'me')({ type: 'hideRoamSite', host: 'other.com' }, PAGE, send);
+  await vi.waitFor(() => expect(send).toHaveBeenCalled());
   expect(handle).toHaveBeenCalledWith({ type: 'hideRoamSite', host: 'a.com' });
+});
+
+test('a content script gets no save back', async () => {
+  const handle = vi.fn().mockResolvedValue({ ok: true, save: { secret: 1 } });
+  const send = vi.fn();
+  createMessageListener({ handle }, 'me')({ type: 'hideRoamSite' }, PAGE, send);
+  await vi.waitFor(() => expect(send).toHaveBeenCalledWith({ ok: true }));
+});
+
+test('a content script on a page without a web host is refused', () => {
+  const handle = vi.fn();
+  const send = vi.fn();
+  createMessageListener({ handle }, 'me')({ type: 'hideRoamSite' }, { id: 'me', url: 'file:///x.html' }, send);
+  expect(send).toHaveBeenCalledWith({ ok: false, error: 'forbidden' });
+  expect(handle).not.toHaveBeenCalled();
 });
 
 test.each([{ type: 'restart' }, { type: 'care', action: { kind: 'pet' } }, { type: 'sync' }, 'junk'])(

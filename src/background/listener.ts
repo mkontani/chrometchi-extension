@@ -1,4 +1,5 @@
-import type { EngineResponse } from '@/messaging/protocol';
+import type { EngineRequest, EngineResponse } from '@/messaging/protocol';
+import { hostOf } from '@/roam/sites';
 import type { Engine } from './engine';
 
 interface Sender {
@@ -6,8 +7,11 @@ interface Sender {
   url?: string;
 }
 
-/** Requests a content script (a sender on a web page) may make; everything else is refused. */
-const CONTENT_SCRIPT_TYPES = new Set(['hideRoamSite']);
+/** What a content script gets back: never the save, only whether it worked. */
+export type ContentScriptResponse = { ok: true } | { ok: false; error: string };
+type Reply = (r: EngineResponse | ContentScriptResponse) => void;
+
+const FORBIDDEN: ContentScriptResponse = { ok: false, error: 'forbidden' };
 
 type Trust = 'extension' | 'contentScript' | 'none';
 
@@ -17,27 +21,39 @@ function trustOf(sender: Sender, extensionId: string): Trust {
   return sender.url?.startsWith(`chrome-extension://${extensionId}/`) ? 'extension' : 'contentScript';
 }
 
-function allowed(message: unknown, trust: Trust): boolean {
-  if (trust === 'extension') return true;
-  if (trust === 'none') return false;
-  const type = (message as { type?: unknown } | null)?.type;
-  return typeof type === 'string' && CONTENT_SCRIPT_TYPES.has(type);
+/**
+ * The one request a content script may make, rebuilt from what Chrome reports about the sender
+ * (its page URL) rather than from what the message claims.
+ */
+function contentScriptRequest(message: unknown, sender: Sender): EngineRequest | null {
+  if ((message as { type?: unknown } | null)?.type !== 'hideRoamSite') return null;
+  const host = hostOf(sender.url ?? '');
+  return host ? { type: 'hideRoamSite', host } : null;
 }
+
+const minimal = (res: EngineResponse): ContentScriptResponse =>
+  res.ok ? { ok: true } : { ok: false, error: res.error };
 
 export function createMessageListener(
   engine: Pick<Engine, 'handle'>,
   extensionId: string,
   onHandled: (res: EngineResponse) => void = () => {},
 ) {
-  return (message: unknown, sender: Sender, sendResponse: (r: EngineResponse) => void): true => {
-    if (!allowed(message, trustOf(sender, extensionId))) {
-      sendResponse({ ok: false, error: 'forbidden' });
-    } else {
-      void engine.handle(message).then((res) => {
-        onHandled(res);
-        sendResponse(res);
-      });
+  const run = (request: unknown, reply: (res: EngineResponse) => void) =>
+    void engine.handle(request).then((res) => {
+      onHandled(res);
+      reply(res);
+    });
+
+  return (message: unknown, sender: Sender, sendResponse: Reply): true => {
+    const trust = trustOf(sender, extensionId);
+    if (trust === 'extension') {
+      run(message, sendResponse);
+      return true;
     }
+    const request = trust === 'contentScript' ? contentScriptRequest(message, sender) : null;
+    if (request) run(request, (res) => sendResponse(minimal(res)));
+    else sendResponse(FORBIDDEN);
     return true;
   };
 }
