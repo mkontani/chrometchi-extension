@@ -72,3 +72,18 @@ test('onHandled receives each engine response', async () => {
   createMessageListener({ handle: vi.fn().mockResolvedValue(response) }, 'me', onHandled)({ type: 'sync' }, POPUP, send);
   await vi.waitFor(() => expect(onHandled).toHaveBeenCalledWith(response));
 });
+
+test('a content script may fetch roam frames, and gets only the frames', async () => {
+  const handle = vi.fn();
+  const frames = vi.fn().mockResolvedValue({ ok: true, key: 'k', frames: { walk: [], rest: [], sleep: 's', happy: 'h' } });
+  const send = vi.fn();
+  createMessageListener({ handle }, 'me', undefined, frames)({ type: 'roamFrames' }, PAGE, send);
+  await vi.waitFor(() => expect(send).toHaveBeenCalledWith({ ok: true, key: 'k', frames: { walk: [], rest: [], sleep: 's', happy: 'h' } }));
+  expect(handle).not.toHaveBeenCalled();
+});
+
+test('roam frames are refused when no loader is wired', () => {
+  const send = vi.fn();
+  createMessageListener({ handle: vi.fn() }, 'me')({ type: 'roamFrames' }, PAGE, send);
+  expect(send).toHaveBeenCalledWith({ ok: false, error: 'forbidden' });
+});

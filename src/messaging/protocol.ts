@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { CareAction, CareOutcome, Settings } from '@/core/types';
+import type { RoamFrames } from '@/roam/frames';
 import { hostnameSchema, settingsSchema, type SaveV1 } from '@/storage/schema';
 
 export type EngineRequest =
@@ -12,6 +13,11 @@ export type EngineRequest =
   | { type: 'dismissNotice'; notice: 'renewal' | 'dataReset' }
   /** The only request a content script may send: hide the roaming pet on its site. */
   | { type: 'hideRoamSite'; host: string };
+
+/** Content script → background: the current pet's sprites (answered outside the engine). */
+export type RoamFramesResponse =
+  | { ok: true; key: string; frames: RoamFrames }
+  | { ok: false; error: string };
 
 export type EngineResponse =
   | { ok: true; save: SaveV1; outcome?: CareOutcome }

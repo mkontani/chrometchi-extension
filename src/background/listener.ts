@@ -1,4 +1,4 @@
-import type { EngineRequest, EngineResponse } from '@/messaging/protocol';
+import type { EngineRequest, EngineResponse, RoamFramesResponse } from '@/messaging/protocol';
 import { hostOf } from '@/roam/sites';
 import type { Engine } from './engine';
 
@@ -9,7 +9,7 @@ interface Sender {
 
 /** What a content script gets back: never the save, only whether it worked. */
 export type ContentScriptResponse = { ok: true } | { ok: false; error: string };
-type Reply = (r: EngineResponse | ContentScriptResponse) => void;
+type Reply = (r: EngineResponse | ContentScriptResponse | RoamFramesResponse) => void;
 
 const FORBIDDEN: ContentScriptResponse = { ok: false, error: 'forbidden' };
 
@@ -31,6 +31,8 @@ function contentScriptRequest(message: unknown, sender: Sender): EngineRequest |
   return host ? { type: 'hideRoamSite', host } : null;
 }
 
+const isRoamFrames = (message: unknown): boolean => (message as { type?: unknown } | null)?.type === 'roamFrames';
+
 const minimal = (res: EngineResponse): ContentScriptResponse =>
   res.ok ? { ok: true } : { ok: false, error: res.error };
 
@@ -38,6 +40,7 @@ export function createMessageListener(
   engine: Pick<Engine, 'handle'>,
   extensionId: string,
   onHandled: (res: EngineResponse) => void = () => {},
+  frames?: () => Promise<RoamFramesResponse>,
 ) {
   const run = (request: unknown, reply: (res: EngineResponse) => void) =>
     void engine.handle(request).then((res) => {
@@ -49,6 +52,10 @@ export function createMessageListener(
     const trust = trustOf(sender, extensionId);
     if (trust === 'extension') {
       run(message, sendResponse);
+      return true;
+    }
+    if (trust === 'contentScript' && frames && isRoamFrames(message)) {
+      void frames().then(sendResponse);
       return true;
     }
     const request = trust === 'contentScript' ? contentScriptRequest(message, sender) : null;

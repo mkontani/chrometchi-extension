@@ -30,7 +30,9 @@ export const EFFECT_IDS: readonly EffectId[] = [
 export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
 export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];
 
-const lookup = (path: string): string | null => FILES[`/src/assets/${path}.png`] ?? null;
+/** The bundled URL of `src/assets/<path>.png`, or null when there is no such file. */
+export const assetUrl = (path: string): string | null => FILES[`/src/assets/${path}.png`] ?? null;
+const lookup = assetUrl;
 
 /** `generation` only matters for the egg, whose shell pattern changes each generation. */
 export function spriteUrl(formId: FormId, pose: Pose, generation = 1): string {

@@ -4,6 +4,7 @@ import { createEngine } from '@/background/engine';
 import { createMessageListener } from '@/background/listener';
 import { createNotifier } from '@/background/notifier';
 import { createRoamManager, roamHandlers } from '@/background/roam';
+import { createDataUrlReader, createFrameLoader } from '@/background/roamFrames';
 import { t } from '@/i18n/t';
 import { createSaveRepository } from '@/storage/repository';
 
@@ -11,8 +12,9 @@ export default defineBackground(() => {
   const reportError = (err: unknown, context: string): void =>
     console.error(`[chrometchi] ${context}`, err);
 
+  const repo = createSaveRepository(browser.storage.local, Date.now);
   const engine = createEngine({
-    repo: createSaveRepository(browser.storage.local, Date.now),
+    repo,
     now: Date.now,
     rng: Math.random,
     queryIdle: () => browser.idle.queryState(60),
@@ -58,5 +60,12 @@ export default defineBackground(() => {
     .then(roam.afterHandle)
     .catch((err: unknown) => reportError(err, 'startup roam sync'));
 
-  browser.runtime.onMessage.addListener(createMessageListener(engine, browser.runtime.id, roam.afterHandle));
+  const frames = createFrameLoader({
+    load: () => repo.load(),
+    toDataUrl: createDataUrlReader(
+      (url) => fetch(url),
+      (path) => browser.runtime.getURL(path as Parameters<typeof browser.runtime.getURL>[0]),
+    ),
+  });
+  browser.runtime.onMessage.addListener(createMessageListener(engine, browser.runtime.id, roam.afterHandle, frames));
 });
