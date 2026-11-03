@@ -60,6 +60,11 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   sound: false,
   sleepStartMin: 1320,
   sleepEndMin: 420,
+  roam: false,
+  roamHiddenSites: [],
 };
+
+/** Most sites the roaming pet can be hidden on; the oldest entry drops off beyond this. */
+export const MAX_HIDDEN_SITES = 100;
 
 export const NOTIFY_THROTTLE_MS = 30 * 60_000;

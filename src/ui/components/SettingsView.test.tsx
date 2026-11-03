@@ -6,7 +6,9 @@ import { SettingsView } from './SettingsView';
 vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
 afterEach(cleanup);
 
-const settings: Settings = { notifications: true, sound: false, sleepStartMin: 22 * 60, sleepEndMin: 7 * 60 };
+const settings: Settings = {
+  notifications: true, sound: false, sleepStartMin: 22 * 60, sleepEndMin: 7 * 60, roam: false, roamHiddenSites: [],
+};
 
 function setup() {
   const onChange = vi.fn();

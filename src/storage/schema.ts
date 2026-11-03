@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { GameState, PetState, Settings, Zukan } from '@/core/types';
+import { DEFAULT_SETTINGS, MAX_HIDDEN_SITES } from '@/core/constants';
 
 /** The single list of notification kinds; the type and the save schema both derive from it. */
 export const NOTIFY_KINDS = [
@@ -117,12 +118,24 @@ const zukanSchema: z.ZodType<Zukan> = z.object({
   memories: z.array(memorySchema),
 });
 
+/** A bare, lowercase hostname such as `example.com` (no scheme, port or path). */
+export const hostnameSchema = z.string().max(253).regex(/^[a-z0-9-]+(\.[a-z0-9-]+)*$/);
+
+/** Strict and default-free: used for patches, so a partial patch never resets other fields. */
 export const settingsSchema = z.object({
   notifications: z.boolean(),
   sound: z.boolean(),
   sleepStartMin: minuteOfDay,
   sleepEndMin: minuteOfDay,
+  roam: z.boolean(),
+  roamHiddenSites: z.array(hostnameSchema).max(MAX_HIDDEN_SITES),
 });
+
+/** Saves written before a setting existed get its default instead of failing (and resetting). */
+function withDefaultSettings(raw: unknown): unknown {
+  const isObject = typeof raw === 'object' && raw !== null && !Array.isArray(raw);
+  return isObject ? { ...DEFAULT_SETTINGS, ...raw } : raw;
+}
 
 const KNOWN_NOTIFY_KINDS = new Set<string>(NOTIFY_KINDS);
 const isNotifyKind = (k: string): k is NotifyKind => KNOWN_NOTIFY_KINDS.has(k);
@@ -147,6 +160,6 @@ export const saveSchema: z.ZodType<SaveV1> = z.object({
   version: z.literal(1),
   game: gameSchema,
   zukan: zukanSchema,
-  settings: settingsSchema,
+  settings: z.preprocess(withDefaultSettings, settingsSchema),
   meta: metaSchema,
 });

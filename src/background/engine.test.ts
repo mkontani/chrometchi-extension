@@ -129,6 +129,13 @@ describe('engine', () => {
     expect(stored().settings.sound).toBe(false);
   });
 
+  test('updateSettings keeps roam fields the patch leaves out', async () => {
+    const { engine, stored } = setup();
+    await engine.handle({ type: 'updateSettings', patch: { roam: true, roamHiddenSites: ['a.com'] } });
+    await engine.handle({ type: 'updateSettings', patch: { sound: true } });
+    expect(stored().settings).toMatchObject({ sound: true, roam: true, roamHiddenSites: ['a.com'] });
+  });
+
   test('invalid settings patch is rejected and save unchanged', async () => {
     const { engine, stored } = setup();
     const before = stored();

@@ -81,6 +81,10 @@ export interface Settings {
   sound: boolean;
   sleepStartMin: number;
   sleepEndMin: number;
+  /** The pet walks along the bottom of web pages (needs optional host access). */
+  roam: boolean;
+  /** Hostnames where the roaming pet stays hidden. */
+  roamHiddenSites: string[];
 }
 
 export interface Memory {

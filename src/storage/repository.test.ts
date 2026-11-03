@@ -45,6 +45,28 @@ describe('saveSchema', () => {
     expect(parsed.data?.game).toEqual(s.game);
   });
 
+  test('a save from before roaming loads with roaming off and the pet intact', () => {
+    const s = createFreshSave(NOW);
+    const settings: Record<string, unknown> = { ...s.settings };
+    delete settings.roam;
+    delete settings.roamHiddenSites;
+    const parsed = saveSchema.safeParse({ ...s, settings });
+    expect(parsed.success).toBe(true);
+    expect(parsed.data?.settings.roam).toBe(false);
+    expect(parsed.data?.settings.roamHiddenSites).toEqual([]);
+    expect(parsed.data?.game).toEqual(s.game);
+  });
+
+  test.each([
+    ['a URL', ['https://a.com']],
+    ['a path', ['a.com/x']],
+    ['spaces', ['A B']],
+    ['too many sites', Array.from({ length: 101 }, (_, i) => `s${i}.com`)],
+  ])('roamHiddenSites rejects %s', (_label, roamHiddenSites) => {
+    const s = createFreshSave(NOW);
+    expect(saveSchema.safeParse({ ...s, settings: { ...s.settings, roamHiddenSites } }).success).toBe(false);
+  });
+
   test('rejects hunger out of range', () => {
     const s = createFreshSave(NOW);
     const stats = { ...s.game.pet.stats, hunger: 101 };
