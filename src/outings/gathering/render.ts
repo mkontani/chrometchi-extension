@@ -1,7 +1,7 @@
-import { drawCounter, HUD_TOP } from '@/games/hud';
+import { ART_HUD_TOP, drawArtCounter } from '@/games/hud';
 import { drawSprite } from '@/games/sprites';
 import type { OutingView } from '../types';
-import { BUSH_SIZE, BUSHES, bushX, bushY } from './constants';
+import { BUSH_SIZE, BUSHES, bushX, bushY, FLIPS } from './constants';
 import type { GatheringState } from './logic';
 import { isShaking } from './shake';
 
@@ -47,7 +47,7 @@ export function renderGathering(ctx: CanvasRenderingContext2D, s: GatheringState
   ctx.fillStyle = SKY;
   ctx.fillRect(0, 0, SIZE, SIZE);
   ctx.fillStyle = GROUND;
-  ctx.fillRect(0, 12, SIZE, HUD_TOP - 12);
+  ctx.fillRect(0, 12, SIZE, ART_HUD_TOP - 12);
   drawSprite(ctx, view.player, PET, INK);
   for (let i = 0; i < BUSHES; i++) {
     const shake = isShaking(s, i) ? SHAKE_PX : 0;
@@ -55,6 +55,6 @@ export function renderGathering(ctx: CanvasRenderingContext2D, s: GatheringState
     else drawBush(ctx, bushX(i) + shake, bushY(i), view);
   }
   drawCursor(ctx, s.cursor);
-  drawCounter(ctx, 4, BUSH, `${4 - s.flips}`);
-  drawCounter(ctx, 40, NUT, `×${s.found}`);
+  drawArtCounter(ctx, 4, view.art('hud_bush'), BUSH, `${FLIPS - s.flips}`);
+  drawArtCounter(ctx, 40, view.art('hud_nuts'), NUT, `×${s.found}`);
 }

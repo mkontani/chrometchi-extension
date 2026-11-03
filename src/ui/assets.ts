@@ -32,9 +32,13 @@ export const EFFECT_IDS: readonly EffectId[] = [
   'crumb', 'dust0', 'dust1', 'dust2', 'star',
 ];
 /** Art the outing games and the farm row draw (`src/assets/ui/outing/<id>.png`). */
-export const OUTING_ART_IDS: readonly OutingArtId[] = ['float', 'grass', 'bush', 'sprout', 'can'];
+export const OUTING_ART_IDS: readonly OutingArtId[] = [
+  'float', 'grass', 'bush', 'sprout', 'can',
+  'hud_fish', 'hud_meat', 'hud_nuts', 'hud_bush',
+];
 export const OUTING_ART_SIZE: Readonly<Record<OutingArtId, number>> = {
   float: 16, grass: 32, bush: 32, sprout: 16, can: 16,
+  hud_fish: 16, hud_meat: 16, hud_nuts: 16, hud_bush: 16,
 };
 export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
 export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];

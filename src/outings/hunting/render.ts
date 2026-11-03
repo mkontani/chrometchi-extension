@@ -1,4 +1,4 @@
-import { drawCounter, HUD_TOP } from '@/games/hud';
+import { ART_HUD_TOP, drawArtCounter } from '@/games/hud';
 import { drawSprite } from '@/games/sprites';
 import type { OutingView } from '../types';
 import { BURST_MS, POP_Y, TUFT_SIZE, TUFT_Y, TUFTS, tuftX } from './constants';
@@ -62,11 +62,11 @@ export function renderHunting(ctx: CanvasRenderingContext2D, s: HuntingState, vi
   ctx.fillStyle = SKY;
   ctx.fillRect(0, 0, SIZE, SIZE);
   ctx.fillStyle = GROUND;
-  ctx.fillRect(0, TUFT_Y - 4, SIZE, HUD_TOP - TUFT_Y + 4);
+  ctx.fillRect(0, TUFT_Y - 4, SIZE, ART_HUD_TOP - TUFT_Y + 4);
   drawSprite(ctx, view.player, PET, INK);
   if (s.pop) drawPop(ctx, s.pop.tuft, s.pop.egg, view);
   for (let i = 0; i < TUFTS; i++) drawTuft(ctx, i, view);
   if (s.burst) drawBurst(ctx, s.burst.tuft, s.burst.ageMs);
   drawCursor(ctx, s.cursor);
-  drawCounter(ctx, 4, GROUND, `×${s.caught}`);
+  drawArtCounter(ctx, 4, view.art('hud_meat'), GROUND, `×${s.caught}`);
 }

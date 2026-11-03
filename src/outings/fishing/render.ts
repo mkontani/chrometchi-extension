@@ -1,4 +1,4 @@
-import { drawCounter, HUD_TOP } from '@/games/hud';
+import { ART_HUD_TOP, drawArtCounter } from '@/games/hud';
 import { drawSprite } from '@/games/sprites';
 import type { OutingView } from '../types';
 import type { FishingState } from './logic';
@@ -58,7 +58,7 @@ function drawScene(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = SKY;
   ctx.fillRect(0, 0, SIZE, SIZE);
   ctx.fillStyle = WATER;
-  ctx.fillRect(BANK_W, WATER_TOP, SIZE - BANK_W, HUD_TOP - WATER_TOP);
+  ctx.fillRect(BANK_W, WATER_TOP, SIZE - BANK_W, ART_HUD_TOP - WATER_TOP);
   ctx.fillStyle = BANK;
   ctx.fillRect(0, WATER_TOP - 4, BANK_W, SIZE - WATER_TOP + 4);
 }
@@ -74,5 +74,5 @@ export function renderFishing(ctx: CanvasRenderingContext2D, s: FishingState, vi
   const art = view.art('float');
   if (art) drawSprite(ctx, art, { x: FLOAT_X, y: floatY, w: FLOAT_SIZE, h: FLOAT_SIZE }, INK);
   else drawFloatFallback(ctx, FLOAT_X, floatY);
-  drawCounter(ctx, 4, WATER, `×${s.catches}`);
+  drawArtCounter(ctx, 4, view.art('hud_fish'), WATER, `×${s.catches}`);
 }

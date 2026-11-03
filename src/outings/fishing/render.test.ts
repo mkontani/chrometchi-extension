@@ -9,7 +9,25 @@ const NO_ART: OutingView = { player: null, art: () => null };
 const wait: FishingState = { elapsed: 0, phase: 'wait', phaseMs: 0, waitMs: 1500, catches: 0 };
 const bite: FishingState = { ...wait, phase: 'bite', phaseMs: BITE_MS / 2 };
 
+const withArt = (map: Record<string, CanvasImageSource>): OutingView => ({ player: null, art: (id) => map[id] ?? null });
+
 describe('fishing scene', () => {
+  test('the counter shows the fish icon and the catch count', () => {
+    const { ctx, images, texts } = recordCanvas();
+    const fish = {} as CanvasImageSource;
+    renderFishing(ctx, { ...wait, catches: 3 }, withArt({ hud_fish: fish }));
+    expect(images.filter((i) => i.img === fish)).toEqual([{ img: fish, x: 4, y: 160, w: 16, h: 16 }]);
+    expect(texts).toEqual(['×3']);
+  });
+
+  test('the counter falls back to a water-colored square without the art', () => {
+    const { ctx, images, rects } = recordCanvas();
+    renderFishing(ctx, wait, NO_ART);
+    expect(images).toEqual([]);
+    expect(rects.some((r) => r.x === 4 && r.y === 169 && r.w === 7 && r.color === '#4a90d9')).toBe(true);
+  });
+
+
   test.each([['wait', wait, 0], ['bite', bite, 4]] as const)('the line hangs straight down from the rod tip in the %s phase', (_n, s, dip) => {
     const { ctx, pixel } = recordCanvas();
     renderFishing(ctx, s, NO_ART);

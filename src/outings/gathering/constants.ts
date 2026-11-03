@@ -3,6 +3,8 @@ export const BUSHES = 9;
 export const SHAKE_EVERY_MS = 1200;
 export const SHAKE_MS = 300;
 export const COLS = 3;
+/** Bushes the pet may open in one game. */
+export const FLIPS = 4;
 export const BUSH_SIZE = 30;
 const GAP = 4;
 const PITCH = BUSH_SIZE + GAP;

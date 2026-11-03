@@ -1,13 +1,12 @@
 import type { Rng } from '@/core/types';
 import type { GameInput } from '@/games/types';
 import { OUTING_GAME_MS, type OutingGame } from '../types';
-import { BUSHES, SHAKE_EVERY_MS, SHAKE_MS, bushAt } from './constants';
+import { BUSHES, FLIPS, SHAKE_EVERY_MS, SHAKE_MS, bushAt } from './constants';
 import { isShaking } from './shake';
 import { renderGathering } from './render';
 
-export { BUSHES, SHAKE_EVERY_MS, SHAKE_MS, isShaking };
+export { BUSHES, FLIPS, SHAKE_EVERY_MS, SHAKE_MS, isShaking };
 export const NUTS = 3;
-export const FLIPS = 4;
 const MAX_SCORE = 100;
 
 export interface GatheringState {
