@@ -62,3 +62,20 @@ test('useGame applies valid storage changes and ignores invalid ones', async () 
   });
   await waitFor(() => expect(result.current.save).toEqual(save));
 });
+
+test('send resolves to the engine response', async () => {
+  const outcome = { action: 'clean', result: 'ok' } as const;
+  mocked.mockResolvedValue({ ok: true, save, outcome });
+  const { result } = renderHook(() => useGame());
+  await waitFor(() => expect(result.current.save).toEqual(save));
+  let res: unknown;
+  await act(async () => {
+    res = await result.current.send({ type: 'care', action: { kind: 'clean' } });
+  });
+  expect(res).toEqual({ ok: true, save, outcome });
+  mocked.mockResolvedValue({ ok: false, error: 'bad' });
+  await act(async () => {
+    res = await result.current.send({ type: 'sync' });
+  });
+  expect(res).toEqual({ ok: false, error: 'bad' });
+});

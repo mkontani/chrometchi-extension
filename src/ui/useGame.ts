@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import type { CareOutcome } from '@/core/types';
-import type { EngineRequest } from '@/messaging/protocol';
+import type { EngineRequest, EngineResponse } from '@/messaging/protocol';
 import { SAVE_KEY, saveSchema, type SaveV1 } from '@/storage/schema';
 import { requestEngine } from '@/ui/api';
 
@@ -10,7 +10,8 @@ export interface UseGame {
   save: SaveV1 | null;
   outcome: CareOutcome | null;
   error: string | null;
-  send(req: EngineRequest): Promise<void>;
+  /** Resolves to the engine's response once the state is updated. */
+  send(req: EngineRequest): Promise<EngineResponse>;
 }
 
 export function useGame(): UseGame {
@@ -18,7 +19,7 @@ export function useGame(): UseGame {
   const [outcome, setOutcome] = useState<CareOutcome | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const send = useCallback(async (req: EngineRequest) => {
+  const send = useCallback(async (req: EngineRequest): Promise<EngineResponse> => {
     const r = await requestEngine(req);
     if (r.ok) {
       setSave(r.save);
@@ -27,6 +28,7 @@ export function useGame(): UseGame {
     } else {
       setError(r.error);
     }
+    return r;
   }, []);
 
   useEffect(() => {
