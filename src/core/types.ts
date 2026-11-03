@@ -202,10 +202,11 @@ export type RefuseReason =
   | 'egg'
   | 'cooldown'
   | 'noPoop'
-  | 'noStock';
+  | 'noStock'
+  | 'outingLimit';
 
 export interface CareOutcome {
-  action: CareAction['kind'];
+  action: CareAction['kind'] | 'forage' | 'farm';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }

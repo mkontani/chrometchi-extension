@@ -272,6 +272,9 @@
   "refuse_noStock": {
     "message": "もっていないよ"
   },
+  "refuse_outingLimit": {
+    "message": "きょうはもうおしまい"
+  },
   "food_kind_meal": {
     "message": "ごはん"
   },

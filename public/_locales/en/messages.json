@@ -272,6 +272,9 @@
   "refuse_noStock": {
     "message": "You don't have any."
   },
+  "refuse_outingLimit": {
+    "message": "That's enough for today."
+  },
   "food_kind_meal": {
     "message": "Meal"
   },

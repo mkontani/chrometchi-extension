@@ -2,11 +2,13 @@ import { advanceTime } from '@/core/advance';
 import { applyCare } from '@/core/care';
 import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/lifecycle';
 import { feedFromPantry } from '@/core/pantry';
+import { forage } from '@/core/outings';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
   CareOutcome,
   GameEvent,
+  Gained,
   IdleState,
   Rng,
   Settings,
@@ -55,6 +57,7 @@ interface Mutation {
   save: SaveV1;
   events: GameEvent[];
   outcome?: CareOutcome;
+  gained?: Gained;
 }
 
 type Mutator = (save: SaveV1, now: number) => Mutation;
@@ -66,7 +69,15 @@ const withPet = (save: SaveV1, pet: SaveV1['game']['pet']): SaveV1 => ({
   game: { ...save.game, pet },
 });
 
-function mutatorFor(req: EngineRequest): Mutator {
+function forageMutator(req: Extract<EngineRequest, { type: 'forage' }>, rng: Rng): Mutator {
+  return (save, now) => {
+    const r = forage({ pet: save.game.pet, kitchen: save.kitchen, kind: req.kind, score: req.score, now, rng });
+    const gained = r.outcome.result === 'ok' ? r.gained : undefined;
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained };
+  };
+}
+
+function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
   switch (req.type) {
     case 'sync':
       return noMutation;
@@ -81,6 +92,8 @@ function mutatorFor(req: EngineRequest): Mutator {
         const r = applyCare(save.game.pet, action);
         return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome };
       };
+    case 'forage':
+      return forageMutator(req, rng);
     case 'ackCritical':
       return (save) => ({ save: withPet(save, acknowledgeCritical(save.game.pet)), events: [] });
     case 'updateSettings':
@@ -181,8 +194,15 @@ export function createEngine(deps: EngineDeps): Engine {
       const req = parseEngineRequest(raw);
       if (req === null) return { ok: false, error: 'invalid request' };
       try {
-        const { save, outcome } = await enqueue(() => runOperation(mutatorFor(req)));
-        return outcome === undefined ? { ok: true, save } : { ok: true, save, outcome };
+        const { save, outcome, gained } = await enqueue(() =>
+          runOperation(mutatorFor(req, deps.rng)),
+        );
+        return {
+          ok: true,
+          save,
+          ...(outcome === undefined ? {} : { outcome }),
+          ...(gained === undefined ? {} : { gained }),
+        };
       } catch (err) {
         return { ok: false, error: err instanceof Error ? err.message : String(err) };
       }

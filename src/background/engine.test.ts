@@ -73,6 +73,26 @@ describe('engine', () => {
     expect(second).toMatchObject({ ok: true, outcome: { result: 'refused', reason: 'noStock' } });
   });
 
+  test('forage adds the haul to the pantry and returns gained', async () => {
+    const { engine, stored } = setup();
+    const res = await engine.handle({ type: 'forage', kind: 'fishing', score: 100 });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'forage', result: 'ok' } });
+    if (!res.ok) throw new Error('unreachable');
+    expect(res.gained?.fish).toBe(4);
+    expect(stored().kitchen.pantry.fish).toBe(4);
+    expect(stored().kitchen.outings.used.fishing).toBe(1);
+  });
+
+  test('a refused forage returns the outcome and changes nothing', async () => {
+    const { engine, stored } = setup({ pet: makePet({ asleep: true }) });
+    const before = stored().kitchen;
+    const res = await engine.handle({ type: 'forage', kind: 'fishing', score: 50 });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'forage', result: 'refused', reason: 'asleep' } });
+    if (!res.ok) throw new Error('unreachable');
+    expect(res.gained).toBeUndefined();
+    expect(stored().kitchen).toEqual(before);
+  });
+
   test('ackCritical stamps criticalSeenAt', async () => {
     const { engine, stored } = setup({ pet: makePet({ stats: { vitality: 10 } }) });
     const res = await engine.handle({ type: 'ackCritical' });

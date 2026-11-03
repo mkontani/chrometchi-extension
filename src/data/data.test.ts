@@ -104,7 +104,7 @@ describe('i18n', () => {
   test('every refuse reason has a message in both locales', () => {
     const reasons: Record<RefuseReason, true> = {
       full: true, notSick: true, asleep: true, awake: true,
-      notAlive: true, egg: true, cooldown: true, noPoop: true, noStock: true,
+      notAlive: true, egg: true, cooldown: true, noPoop: true, noStock: true, outingLimit: true,
     };
     for (const reason of Object.keys(reasons)) {
       expect(ja[`refuse_${reason}`]?.message, `ja ${reason}`).toBeTruthy();

@@ -42,3 +42,22 @@ describe('parseEngineRequest', () => {
     for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
   });
 });
+
+describe('forage request', () => {
+  test('accepts a valid forage', () => {
+    const raw = { type: 'forage', kind: 'fishing', score: 100 };
+    expect(parseEngineRequest(raw)).toEqual(raw);
+  });
+
+  test('forage requests with a bad score are rejected', () => {
+    const bad = [
+      { type: 'forage', kind: 'fishing', score: 150 },
+      { type: 'forage', kind: 'fishing', score: -1 },
+      { type: 'forage', kind: 'fishing', score: 2.5 },
+      { type: 'forage', kind: 'fishing', score: '100' },
+      { type: 'forage', score: 10 },
+      { type: 'forage', kind: 'swimming', score: 10 },
+    ];
+    for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
+  });
+});
