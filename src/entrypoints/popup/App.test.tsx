@@ -554,7 +554,7 @@ function startFishing(send: ReturnType<typeof vi.fn>) {
     toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
       'requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
   });
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => ({ fillRect: vi.fn() })) as never;
+  HTMLCanvasElement.prototype.getContext = vi.fn(() => ({ fillRect: vi.fn(), fillText: vi.fn() })) as never;
   fireEvent.click(screen.getByLabelText('action_outing'));
   fireEvent.click(screen.getByText('outing_fishing'));
   expect(send).not.toHaveBeenCalled();
