@@ -1,12 +1,21 @@
 # Chrometchi
 
 A pixel-art virtual pet that lives in your Chrome toolbar. Hatch an egg, raise it through
-its life stages, and discover all 42 forms.
+its life stages, and discover every form it can grow into.
+
+![Keep a tiny pet in your browser](screenshots/en/store_1.png)
+
+| | |
+| --- | --- |
+| ![Care](screenshots/en/store_2.png) | ![Mini-games](screenshots/en/store_3.png) |
+| ![Evolution](screenshots/en/store_4.png) | ![Night](screenshots/en/store_5.png) |
+
+Japanese versions are in [`screenshots/ja`](screenshots/ja).
 
 ## Features
 
-- **42 forms** across five stages. How you care for your pet decides what it becomes.
-- **Care**: 6 foods, 3 mini-games (Catch, Cups, Stop), cleaning up, medicine, lights out, and petting.
+- **Branching evolution** across five stages. How you care for your pet decides what it becomes, and some forms are secret.
+- **Care**: meals and treats, mini-games (Catch, Cups, Stop), cleaning up, medicine, lights out, and petting.
 - **Time only runs while Chrome is open.** Your pet sleeps at night (configurable) and needs the lights off.
 - **Warnings before death**: notifications and an in-popup banner tell you when life is in danger.
 - **Zukan**: a collection of every form you have discovered, plus memories of past pets.
@@ -35,6 +44,7 @@ Built with [WXT](https://wxt.dev), TypeScript and Preact.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript type check |
 | `npm run zip` | Package `.output/*-chrome.zip` for release |
+| `npm run screenshots` | Regenerate the store screenshots in `screenshots/{ja,en}` |
 
 Before the first e2e run: `npx playwright install chromium`.
 

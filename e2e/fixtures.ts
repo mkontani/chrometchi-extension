@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { test as base, chromium, expect, type BrowserContext, type Page } from '@playwright/test';
 import { SAVE_KEY, type SaveV1 } from '../src/storage/schema';
 
-const EXTENSION_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../.output/chrome-mv3');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+/** E2E_EXTENSION_PATH lets `npm run screenshots` load a single-language copy of the build. */
+const EXTENSION_PATH = process.env.E2E_EXTENSION_PATH ?? path.join(ROOT, '.output/chrome-mv3');
 
 type Msg = (key: string) => string;
 
@@ -38,7 +40,7 @@ export async function openPopup(context: BrowserContext, extensionId: string): P
   return page;
 }
 
-const ENGLISH_MESSAGES = path.join(EXTENSION_PATH, '_locales', 'en', 'messages.json');
+const ENGLISH_MESSAGES = path.join(ROOT, 'public/_locales/en/messages.json');
 
 function messageKeys(): string[] {
   return Object.keys(JSON.parse(readFileSync(ENGLISH_MESSAGES, 'utf8')));

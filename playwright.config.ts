@@ -2,6 +2,8 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: 'e2e',
+  // Store screenshots only run via `npm run screenshots`.
+  grepInvert: process.env.SCREENSHOTS ? undefined : /@screenshots/,
   globalSetup: './e2e/global-setup.ts',
   workers: 1,
   fullyParallel: false,
