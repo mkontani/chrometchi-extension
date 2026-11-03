@@ -135,6 +135,11 @@ test('an effect pose wins over the usual pose', () => {
   expect(src()).toBe('sprite-eat.png');
 });
 
+test('a sleeping pet keeps sleeping through an effect pose (cleaning or medicine at night)', () => {
+  render(<PetStage generation={1} pet={makePet({ asleep: true, sick: true })} reaction={null} effect={withFrame({ pose: 'happy' })} />);
+  expect(src()).toBe('sprite-sleep.png');
+});
+
 test('an effect without a pose keeps the usual pose', () => {
   render(<PetStage generation={1} pet={makePet({ asleep: true })} reaction={null} effect={withFrame({})} />);
   expect(src()).toBe('sprite-sleep.png');

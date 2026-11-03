@@ -93,7 +93,8 @@ export function PetStage({ pet, generation, reaction, fromPlay = false, effect =
   const bg = backgroundUrl(pet.asleep ? 'room_night' : 'room_day');
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
   const style = bg ? { backgroundImage: `url(${bg})` } : undefined;
-  const pose = effect?.pose ?? choosePose(pet, reaction, frame);
+  // A sleeping pet stays asleep: clean and medicine still play their props around it.
+  const pose = (pet.asleep ? null : effect?.pose) ?? choosePose(pet, reaction, frame);
   const darkness = effect?.dim ?? (pet.asleep && !pet.lightsOn ? 1 : 0);
   const formName = t(`form_${pet.formId}`);
   const onKeyDown = (e: KeyboardEvent) => {
