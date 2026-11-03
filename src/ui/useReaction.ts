@@ -14,8 +14,6 @@ const NONE: ReactionState = { reaction: null, fromPlay: false };
 function reactionFor(outcome: CareOutcome | null): ReactionState {
   if (outcome?.result !== 'ok') return NONE;
   switch (outcome.action) {
-    case 'feed':
-      return { reaction: 'eat', fromPlay: false };
     case 'play':
       return { reaction: 'happy', fromPlay: true };
     case 'pet':
@@ -25,7 +23,7 @@ function reactionFor(outcome: CareOutcome | null): ReactionState {
   }
 }
 
-/** Shows a short pose for each new ok outcome (keyed on object identity). */
+/** Shows a short happy pose for each new ok play or pet (keyed on object identity); care effects show the rest. */
 export function useReaction(outcome: CareOutcome | null): ReactionState {
   const [state, setState] = useState<ReactionState>(NONE);
 

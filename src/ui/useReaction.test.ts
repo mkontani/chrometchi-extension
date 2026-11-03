@@ -13,9 +13,14 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test('feed gives eat which ends after 1000 ms', () => {
+test('feed gives no reaction (the care effect shows the eating)', () => {
   const { result } = renderHook(() => useReaction(OUT.feed));
-  expect(result.current).toEqual({ reaction: 'eat', fromPlay: false });
+  expect(result.current).toEqual({ reaction: null, fromPlay: false });
+});
+
+test('pet gives happy which ends after 1000 ms', () => {
+  const { result } = renderHook(() => useReaction(OUT.pet));
+  expect(result.current.reaction).toBe('happy');
   act(() => void vi.advanceTimersByTime(1000));
   expect(result.current.reaction).toBeNull();
 });
@@ -32,9 +37,9 @@ test('pet gives happy not from play', () => {
 
 test('an intervening non-reaction outcome clears the reaction', () => {
   const { result, rerender } = renderHook(({ o }) => useReaction(o), {
-    initialProps: { o: OUT.feed as CareOutcome | null },
+    initialProps: { o: OUT.pet as CareOutcome | null },
   });
-  expect(result.current.reaction).toBe('eat');
+  expect(result.current.reaction).toBe('happy');
   act(() => void vi.advanceTimersByTime(300));
   rerender({ o: OUT.clean });
   expect(result.current.reaction).toBeNull();
@@ -43,7 +48,7 @@ test('an intervening non-reaction outcome clears the reaction', () => {
 });
 
 test('unmount leaves no timers', () => {
-  const { unmount } = renderHook(() => useReaction(OUT.feed));
+  const { unmount } = renderHook(() => useReaction(OUT.pet));
   unmount();
   expect(vi.getTimerCount()).toBe(0);
 });

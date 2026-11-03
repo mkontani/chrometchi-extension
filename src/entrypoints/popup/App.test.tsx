@@ -12,6 +12,7 @@ vi.mock('@/ui/assets', () => ({
   backgroundUrl: () => null,
   iconUrl: () => null,
   gameArtUrl: () => null,
+  foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
 }));
 const useGame = vi.fn<() => UseGame>();
 vi.mock('@/ui/useGame', () => ({ useGame: () => useGame() }));
@@ -29,6 +30,8 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
   }) as unknown as NonNullable<UseGame['save']>;
 const save = fullSave();
 const PET_LABEL = 'action_pet: form_child_kemu';
+/** What `send` resolves to when a test does not care about the engine's answer. */
+const NOT_APPLIED = { ok: false, error: 'not applied in this test' } as const;
 
 test('shows loading while save is null', () => {
   useGame.mockReturnValue({ save: null, outcome: null, error: null, send: vi.fn() });
@@ -47,7 +50,7 @@ test('shows only the localized generic error; the raw detail goes to the console
 });
 
 test('clicking clean sends the care request', () => {
-  const send = vi.fn().mockResolvedValue(undefined);
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   useGame.mockReturnValue({ save, outcome: null, error: null, send });
   render(<App />);
   fireEvent.click(screen.getByLabelText('action_clean'));
@@ -55,7 +58,7 @@ test('clicking clean sends the care request', () => {
 });
 
 test('clicking medicine sends the care request', () => {
-  const send = vi.fn().mockResolvedValue(undefined);
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   useGame.mockReturnValue({ save, outcome: null, error: null, send });
   render(<App />);
   fireEvent.click(screen.getByLabelText('action_medicine'));
@@ -69,7 +72,7 @@ afterEach(() => {
 });
 
 function setup(outcome: CareOutcome | null = null, petPatch: object = {}, extra: object = {}) {
-  const send = vi.fn().mockResolvedValue(undefined);
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   const s = fullSave(petPatch, extra);
   useGame.mockReturnValue({ save: s, outcome, error: null, send });
   return { send, ui: render(<App />) };
@@ -166,13 +169,80 @@ test('stage is not dimmed when lights are on', () => {
   expect(ui.container.querySelector('.stage--dark')).toBeNull();
 });
 
-test('ok feed outcome shows the eat pose for 1s', () => {
+/** Answers a care like the engine: ok with the given outcome and the save after it. */
+const answered = (outcome: CareOutcome, petPatch: object = {}) =>
+  ({ ok: true, save: fullSave(petPatch), outcome }) as const;
+const flush = () => act(async () => void (await Promise.resolve()));
+const advance = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
+const petSrc = (c: Element) => c.querySelector('img.pet')?.getAttribute('src') ?? '';
+
+async function feedRice(send: ReturnType<typeof vi.fn>) {
+  send.mockResolvedValueOnce(answered({ action: 'feed', result: 'ok' }));
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  fireEvent.click(screen.getByText('food_rice'));
+  await flush();
+}
+
+test('an ok feed plays the eating effect, then the stage returns to normal', async () => {
   vi.useFakeTimers();
-  const { ui } = setup({ action: 'feed', result: 'ok' });
-  const img = () => ui.container.querySelector('img.pet')?.getAttribute('src') ?? '';
-  expect(img()).toBe('sprite-eat.png');
-  act(() => void vi.advanceTimersByTime(1000));
-  expect(img()).not.toBe('sprite-eat.png');
+  const { send, ui } = setup();
+  await feedRice(send);
+  expect(ui.container.querySelector('img.fx-prop--food')?.getAttribute('src')).toBe('food-rice-0.png');
+  advance(300);
+  expect(petSrc(ui.container)).toBe('sprite-eat.png');
+  advance(2300);
+  expect(ui.container.querySelector('.fx-prop')).toBeNull();
+  expect(petSrc(ui.container)).toBe('sprite-sick.png'); // the saved pet is sick
+});
+
+test('an ok clean sweeps the poops that were there', async () => {
+  vi.useFakeTimers();
+  const { send, ui } = setup(null, { poops: 2, sick: false });
+  send.mockResolvedValueOnce(answered({ action: 'clean', result: 'ok' }, { poops: 0, sick: false }));
+  useGame.mockReturnValue({ save: fullSave({ poops: 0, sick: false }), outcome: null, error: null, send });
+  fireEvent.click(screen.getByLabelText('action_clean'));
+  ui.rerender(<App />);
+  await flush();
+  expect(ui.container.querySelectorAll('.poops > *')).toHaveLength(2);
+  advance(1800);
+  expect(ui.container.querySelectorAll('.poop--gone')).toHaveLength(2);
+  advance(400);
+  expect(ui.container.querySelectorAll('.poops > *')).toHaveLength(0);
+});
+
+test('a refused care keeps the running effect and only shows the toast', async () => {
+  vi.useFakeTimers();
+  const { send, ui } = setup();
+  await feedRice(send);
+  advance(500);
+  send.mockResolvedValueOnce(answered({ action: 'clean', result: 'refused', reason: 'noPoop' }));
+  fireEvent.click(screen.getByLabelText('action_clean'));
+  await flush();
+  useGame.mockReturnValue({ save, outcome: { action: 'clean', result: 'refused', reason: 'noPoop' }, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.getByText('refuse_noPoop')).toBeTruthy();
+  expect(ui.container.querySelector('img.fx-prop--food')).not.toBeNull();
+});
+
+test('a sync during the feed effect keeps the food on stage', async () => {
+  vi.useFakeTimers();
+  const { send, ui } = setup();
+  await feedRice(send);
+  advance(500);
+  useGame.mockReturnValue({ save: fullSave({ stats: { ...pet.stats, hunger: 90 } }), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  expect(ui.container.querySelector('img.fx-prop--food')).not.toBeNull();
+});
+
+test('another ok care replaces the running effect', async () => {
+  vi.useFakeTimers();
+  const { send, ui } = setup();
+  await feedRice(send);
+  expect(ui.container.querySelector('img.fx-prop--food')).not.toBeNull();
+  send.mockResolvedValueOnce(answered({ action: 'pet', result: 'ok' }));
+  fireEvent.click(screen.getByRole('button', { name: PET_LABEL }));
+  await flush();
+  expect(ui.container.querySelector('.fx-prop')).toBeNull();
 });
 
 test('zukan opens as an overlay, closing the food panel, and closes again', () => {
@@ -290,7 +360,7 @@ test('mini-game replaces zukan layer and main screen', () => {
 });
 
 test('a running mini-game disappears when the pet dies and never sends play', () => {
-  const send = vi.fn().mockResolvedValue(undefined);
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   useGame.mockReturnValue({ save: fullSave(), outcome: null, error: null, send });
   const ui = render(<App />);
   fireEvent.click(screen.getByLabelText('action_play'));
@@ -317,7 +387,7 @@ test('no ackCritical while zukan is open; sent once after returning', () => {
 });
 
 test('ack is deferred while a notice hides the main screen', () => {
-  const send = vi.fn().mockResolvedValue(undefined);
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   const crit = { stats: critStats, criticalSeenAt: null };
   useGame.mockReturnValue({ save: fullSave(crit, notice), outcome: null, error: null, send });
   const ui = render(<App />);
@@ -349,7 +419,7 @@ function stubAudio() {
     currentTime = 0;
     state = 'running';
     destination = {};
-    resume = vi.fn().mockResolvedValue(undefined);
+    resume = vi.fn().mockResolvedValue(NOT_APPLIED);
     createGain() {
       return { gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() }, connect: vi.fn() };
     }
@@ -372,21 +442,36 @@ function stubAudio() {
   return freqs;
 }
 
-test('an ok feed outcome plays the eat sound when sound is on', () => {
+test('the feeding effect plays a bite sound as each bite lands', async () => {
+  vi.useFakeTimers();
   const freqs = stubAudio();
-  const send = vi.fn().mockResolvedValue(undefined);
+  const { send } = setup();
+  await feedRice(send);
+  advance(550);
+  expect(freqs).toEqual([]);
+  advance(50);
+  expect(freqs).toEqual([523, 659]);
+  vi.unstubAllGlobals();
+});
+
+test('an ok care with an effect makes no sound of its own; a refusal still alerts', () => {
+  const freqs = stubAudio();
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   useGame.mockReturnValue({ save, outcome: null, error: null, send });
   const ui = render(<App />);
-  useGame.mockReturnValue({ save, outcome: { action: 'feed', result: 'ok' }, error: null, send });
+  useGame.mockReturnValue({ save, outcome: { action: 'clean', result: 'ok' }, error: null, send });
   ui.rerender(<App />);
-  expect(freqs).toEqual([523, 659]);
+  expect(freqs).toEqual([]);
+  useGame.mockReturnValue({ save, outcome: { action: 'clean', result: 'refused', reason: 'noPoop' }, error: null, send });
+  ui.rerender(<App />);
+  expect(freqs).toEqual([988, 988]);
   vi.unstubAllGlobals();
 });
 
 test('no sound plays when the sound setting is off', () => {
   const freqs = stubAudio();
   const quiet = fullSave({}, { settings: { notifications: true, sound: false, sleepStartMin: 0, sleepEndMin: 0 } });
-  const send = vi.fn().mockResolvedValue(undefined);
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   useGame.mockReturnValue({ save: quiet, outcome: null, error: null, send });
   const ui = render(<App />);
   useGame.mockReturnValue({ save: quiet, outcome: { action: 'feed', result: 'ok' }, error: null, send });
