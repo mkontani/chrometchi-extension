@@ -275,6 +275,9 @@
   "refuse_outingLimit": {
     "message": "That's enough for today."
   },
+  "refuse_farmNotReady": {
+    "message": "Not now."
+  },
   "food_kind_meal": {
     "message": "Meal"
   },

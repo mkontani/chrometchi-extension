@@ -40,7 +40,8 @@ function refusal(kitchen: Kitchen, reason: RefuseReason): KitchenResult {
   return { kitchen, gained: {}, outcome: { action: 'forage', result: 'refused', reason } };
 }
 
-function whyNotNow(pet: PetState): RefuseReason | null {
+/** Why this pet cannot go out or work the farm now, in a fixed order; null when it can. */
+export function outingRefusal(pet: PetState): RefuseReason | null {
   if (pet.lifecycle !== 'alive') return 'notAlive';
   if (pet.stage === 'egg') return 'egg';
   if (pet.asleep) return 'asleep';
@@ -63,7 +64,7 @@ export function forage(input: {
   rng: Rng;
 }): KitchenResult {
   const { pet, kitchen, kind, score, now, rng } = input;
-  const reason = whyNotNow(pet);
+  const reason = outingRefusal(pet);
   if (reason !== null) return refusal(kitchen, reason);
   if (outingsLeft(kitchen.outings, kind, now) <= 0) return refusal(kitchen, 'outingLimit');
   const { main, rare } = OUTING_YIELDS[kind];

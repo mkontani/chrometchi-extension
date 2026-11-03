@@ -2,6 +2,7 @@ import { advanceTime } from '@/core/advance';
 import { applyCare } from '@/core/care';
 import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/lifecycle';
 import { feedFromPantry } from '@/core/pantry';
+import { farmAction, growFarm } from '@/core/farm';
 import { forage } from '@/core/outings';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
@@ -77,6 +78,14 @@ function forageMutator(req: Extract<EngineRequest, { type: 'forage' }>, rng: Rng
   };
 }
 
+function farmMutator(req: Extract<EngineRequest, { type: 'farm' }>): Mutator {
+  return (save) => {
+    const r = farmAction({ pet: save.game.pet, kitchen: save.kitchen, action: req.action });
+    const gained = r.outcome.result === 'ok' && req.action.op === 'harvest' ? r.gained : undefined;
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained };
+  };
+}
+
 function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
   switch (req.type) {
     case 'sync':
@@ -94,6 +103,8 @@ function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
       };
     case 'forage':
       return forageMutator(req, rng);
+    case 'farm':
+      return farmMutator(req);
     case 'ackCritical':
       return (save) => ({ save: withPet(save, acknowledgeCritical(save.game.pet)), events: [] });
     case 'updateSettings':
@@ -177,7 +188,12 @@ export function createEngine(deps: EngineDeps): Engine {
       idle,
       rng: deps.rng,
     });
-    const afterAdvance = bookkeepZukan({ ...loaded, game: advanced.game }, advanced.events, now);
+    const grown = { ...loaded.kitchen, farm: growFarm(loaded.kitchen.farm, advanced.minutes) };
+    const afterAdvance = bookkeepZukan(
+      { ...loaded, game: advanced.game, kitchen: grown },
+      advanced.events,
+      now,
+    );
     const mutation = mutate(afterAdvance, now);
     const events = [...advanced.events, ...mutation.events];
     const withZukan = unlockOnly(mutation.save, mutation.events);

@@ -61,3 +61,25 @@ describe('forage request', () => {
     for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
   });
 });
+
+describe('farm request', () => {
+  test('accepts plant, water and harvest', () => {
+    const good = [
+      { type: 'farm', action: { op: 'plant', crop: 'veggie' } },
+      { type: 'farm', action: { op: 'plant', crop: 'fruit' } },
+      { type: 'farm', action: { op: 'water' } },
+      { type: 'farm', action: { op: 'harvest' } },
+    ];
+    for (const raw of good) expect(parseEngineRequest(raw)).toEqual(raw);
+  });
+
+  test('rejects a bad crop, a missing crop and unknown ops', () => {
+    const bad = [
+      { type: 'farm', action: { op: 'plant', crop: 'fish' } },
+      { type: 'farm', action: { op: 'plant' } },
+      { type: 'farm', action: { op: 'burn' } },
+      { type: 'farm' },
+    ];
+    for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
+  });
+});

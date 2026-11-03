@@ -93,6 +93,56 @@ describe('engine', () => {
     expect(stored().kitchen).toEqual(before);
   });
 
+  test('farm requests return gained on harvest', async () => {
+    const { engine, stored, area } = setup();
+    const seeded = stored();
+    const farm = { crop: 'veggie' as const, growMinLeft: 0, watered: true };
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, farm } });
+    const res = await engine.handle({ type: 'farm', action: { op: 'harvest' } });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'farm', result: 'ok' } });
+    if (!res.ok) throw new Error('unreachable');
+    expect(res.gained).toEqual({ veggie: 4 });
+    expect(stored().kitchen.pantry.veggie).toBe(4);
+    expect(stored().kitchen.farm).toEqual({ crop: null, growMinLeft: 0, watered: false });
+  });
+
+  test('plant and water return no gained, and a refusal changes nothing', async () => {
+    const { engine, stored } = setup();
+    const planted = await engine.handle({ type: 'farm', action: { op: 'plant', crop: 'fruit' } });
+    expect(planted).toMatchObject({ ok: true, outcome: { action: 'farm', result: 'ok' } });
+    expect(planted).not.toHaveProperty('gained');
+    const watered = await engine.handle({ type: 'farm', action: { op: 'water' } });
+    expect(watered).not.toHaveProperty('gained');
+    const before = stored().kitchen;
+    const early = await engine.handle({ type: 'farm', action: { op: 'harvest' } });
+    expect(early).toMatchObject({ outcome: { result: 'refused', reason: 'farmNotReady' } });
+    expect(early).not.toHaveProperty('gained');
+    expect(stored().kitchen).toEqual(before);
+  });
+
+  test('a tick grows the farm by game minutes only', async () => {
+    const { engine, stored, area, clock } = setup();
+    const seeded = stored();
+    const farm = { crop: 'veggie' as const, growMinLeft: 100, watered: false };
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, farm } });
+    clock.now = T0 + 3 * MIN;
+    await engine.tick();
+    expect(stored().kitchen.farm.growMinLeft).toBe(97);
+    clock.now = T0 + 3 * MIN + 60 * MIN;
+    await engine.tick();
+    expect(stored().kitchen.farm.growMinLeft).toBe(97);
+  });
+
+  test('a harvest request sees the field grown by the elapsed minutes', async () => {
+    const { engine, stored, area, clock } = setup();
+    const seeded = stored();
+    const farm = { crop: 'fruit' as const, growMinLeft: 2, watered: false };
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, farm } });
+    clock.now = T0 + 2 * MIN;
+    const res = await engine.handle({ type: 'farm', action: { op: 'harvest' } });
+    expect(res).toMatchObject({ ok: true, gained: { fruit: 2 } });
+  });
+
   test('ackCritical stamps criticalSeenAt', async () => {
     const { engine, stored } = setup({ pet: makePet({ stats: { vitality: 10 } }) });
     const res = await engine.handle({ type: 'ackCritical' });

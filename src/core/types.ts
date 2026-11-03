@@ -203,7 +203,8 @@ export type RefuseReason =
   | 'cooldown'
   | 'noPoop'
   | 'noStock'
-  | 'outingLimit';
+  | 'outingLimit'
+  | 'farmNotReady';
 
 export interface CareOutcome {
   action: CareAction['kind'] | 'forage' | 'farm';
