@@ -145,6 +145,19 @@ describe('roam handlers', () => {
     expect(engine.handle).not.toHaveBeenCalled();
   });
 
+  test('startup syncs from the stored save without writing it', async () => {
+    const { manager, engine, h } = setup();
+    h.startup({ version: 1, settings: { ...DEFAULT_SETTINGS, roam: true }, game: {} });
+    await vi.waitFor(() => expect(manager.sync).toHaveBeenCalledWith(expect.objectContaining({ roam: true })));
+    expect(engine.handle).not.toHaveBeenCalled();
+  });
+
+  test('startup with no usable save syncs as roaming off', async () => {
+    const { manager, h } = setup();
+    h.startup(undefined);
+    await vi.waitFor(() => expect(manager.sync).toHaveBeenCalledWith({ roam: false }));
+  });
+
   test('a failing sync is reported', async () => {
     const { manager, errors, h } = setup();
     manager.sync.mockRejectedValueOnce(new Error('boom'));

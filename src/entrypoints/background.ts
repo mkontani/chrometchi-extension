@@ -7,6 +7,7 @@ import { createRoamManager, roamHandlers } from '@/background/roam';
 import { createDataUrlReader, createFrameLoader } from '@/background/roamFrames';
 import { t } from '@/i18n/t';
 import { createSaveRepository } from '@/storage/repository';
+import { SAVE_KEY } from '@/storage/schema';
 
 export default defineBackground(() => {
   const reportError = (err: unknown, context: string): void =>
@@ -54,10 +55,10 @@ export default defineBackground(() => {
   );
   browser.permissions.onAdded.addListener(roam.onPermissionAdded);
   browser.permissions.onRemoved.addListener(roam.onPermissionRemoved);
-  // Re-check the registration whenever the worker starts (settings may have changed while asleep).
-  engine
-    .handle({ type: 'sync' })
-    .then(roam.afterHandle)
+  // Re-check the registration whenever the worker starts, reading (never writing) the save.
+  browser.storage.local
+    .get(SAVE_KEY)
+    .then((got) => roam.startup(got[SAVE_KEY]))
     .catch((err: unknown) => reportError(err, 'startup roam sync'));
 
   const frames = createFrameLoader({

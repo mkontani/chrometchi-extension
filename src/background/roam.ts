@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { Settings } from '@/core/types';
 import type { EngineRequest, EngineResponse } from '@/messaging/protocol';
 import { ROAM_ORIGINS, ROAM_SCRIPT_FILE, ROAM_SCRIPT_ID } from '@/roam/constants';
@@ -75,9 +76,14 @@ export function createRoamManager(deps: RoamDeps): RoamManager {
   return { sync: (settings) => queue(() => syncOnce(deps, settings)) };
 }
 
+/** Only `settings.roam` matters at startup; the rest of the save is validated by the engine. */
+const storedRoamSchema = z.object({ settings: z.object({ roam: z.boolean() }) });
+
 export interface RoamHandlers {
   /** Called with every engine response (popup requests, content scripts, permission events). */
   afterHandle(res: EngineResponse): void;
+  /** Worker start: sync from the stored save as-is. Read-only, so it never races other writers. */
+  startup(storedSave: unknown): void;
   onPermissionAdded(p: { origins?: string[] }): void;
   onPermissionRemoved(p: { origins?: string[] }): void;
 }
@@ -102,8 +108,14 @@ export function roamHandlers(
       .then(afterHandle)
       .catch((err: unknown) => reportError(err, 'set roam'));
   };
+  const startup = (storedSave: unknown): void => {
+    const parsed = storedRoamSchema.safeParse(storedSave);
+    const roam = parsed.success && parsed.data.settings.roam;
+    manager.sync({ roam }).catch((err: unknown) => reportError(err, 'sync roam'));
+  };
   return {
     afterHandle,
+    startup,
     onPermissionAdded: (p) => {
       if (grantsRoam(p)) setRoam(true);
     },
