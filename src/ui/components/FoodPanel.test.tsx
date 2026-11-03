@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, expect, test, vi } from 'vitest';
 import { FOODS } from '@/data/foods';
 import { FoodPanel } from './FoodPanel';
@@ -48,4 +48,43 @@ test('foods at 0 are disabled', () => {
   expect(disabled('food_rice')).toBe(false);
   fireEvent.click(btn('food_shrimp'));
   expect(onPick).not.toHaveBeenCalled();
+});
+
+function stubScroll(el: Element, m: { scrollHeight: number; clientHeight: number; scrollTop: number }) {
+  for (const k of ['scrollHeight', 'clientHeight', 'scrollTop'] as const) {
+    Object.defineProperty(el, k, { configurable: true, get: () => m[k] });
+  }
+}
+
+test('shows a decorative scroll cue while foods hide below, and hides it at the bottom', () => {
+  const { container } = render(<FoodPanel pantry={{}} onPick={vi.fn()} onClose={vi.fn()} />);
+  const list = container.querySelector('.panel__grid--food')!;
+  const m = { scrollHeight: 200, clientHeight: 112, scrollTop: 0 };
+  stubScroll(list, m);
+  act(() => { list.dispatchEvent(new Event('scroll')); });
+  const cue = container.querySelector('.panel__more');
+  expect(cue).toBeTruthy();
+  expect(cue!.getAttribute('aria-hidden')).toBe('true');
+  m.scrollTop = 88;
+  act(() => { list.dispatchEvent(new Event('scroll')); });
+  expect(container.querySelector('.panel__more')).toBeNull();
+});
+
+test('no scroll cue when every food fits', () => {
+  const { container } = render(<FoodPanel pantry={{}} onPick={vi.fn()} onClose={vi.fn()} />);
+  const list = container.querySelector('.panel__grid--food')!;
+  stubScroll(list, { scrollHeight: 100, clientHeight: 100, scrollTop: 0 });
+  act(() => { list.dispatchEvent(new Event('scroll')); });
+  expect(container.querySelector('.panel__more')).toBeNull();
+});
+
+test('clicking the cue scrolls the list down by one row', () => {
+  const { container } = render(<FoodPanel pantry={{}} onPick={vi.fn()} onClose={vi.fn()} />);
+  const list = container.querySelector('.panel__grid--food') as HTMLElement;
+  stubScroll(list, { scrollHeight: 200, clientHeight: 112, scrollTop: 0 });
+  const scrollBy = vi.fn();
+  list.scrollBy = scrollBy;
+  act(() => { list.dispatchEvent(new Event('scroll')); });
+  fireEvent.click(container.querySelector('.panel__more')!);
+  expect(scrollBy).toHaveBeenCalledWith({ top: 50 });
 });

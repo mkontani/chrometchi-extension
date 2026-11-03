@@ -109,6 +109,14 @@ body {
 }
 .panel__grid { display: grid; gap: 4px; }
 .panel__grid--food { grid-template-columns: repeat(3, 1fr); max-height: 112px; overflow-y: auto; }
+/* Pixel-crisp scroll cue over the bottom edge of the food list while more foods hide below. */
+.panel__list { position: relative; }
+.panel__more {
+  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 24px; height: 12px; padding: 0; line-height: 1; font-size: 8px; cursor: pointer;
+  border: 2px solid var(--ink); background: var(--cream); color: var(--ink); font-family: inherit;
+}
+.panel__more:hover { background: var(--pink); }
 .panel__grid--play { grid-template-columns: repeat(3, 1fr); }
 .panel__grid--outing { grid-template-columns: repeat(3, 1fr); }
 .panel__item:disabled { opacity: 0.4; cursor: default; }
