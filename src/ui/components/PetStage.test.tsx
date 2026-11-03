@@ -1,6 +1,7 @@
 import { act, cleanup, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { makePet } from './__fixtures__/pet';
+import { BASE_FRAME, type EffectFrame } from '@/ui/effects/types';
 import { PetStage } from './PetStage';
 
 const urls = vi.hoisted(() => ({ on: false }));
@@ -11,6 +12,8 @@ vi.mock('@/ui/assets', () => ({
     gen === 1 ? `sprite-${pose}.png` : `sprite-${pose}-g${gen}.png`,
   effectUrl: (id: string) => (urls.on ? `fx-${id}.png` : null),
   backgroundUrl: (id: string) => (urls.on ? `bg-${id}.png` : null),
+  foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
+  iconUrl: (id: string) => `icon-${id}.png`,
 }));
 
 beforeEach(() => {
@@ -122,4 +125,81 @@ test('the pet button names the action and the form for screen readers', () => {
 test('passes the generation through for the egg pattern', () => {
   render(<PetStage generation={3} pet={makePet()} reaction={null} />);
   expect(src()).toBe('sprite-idle0-g3.png');
+});
+
+const withFrame = (patch: Partial<EffectFrame>): EffectFrame => ({ ...BASE_FRAME, ...patch });
+const petImg = () => screen.getByAltText('form_child_kemu') as HTMLImageElement;
+
+test('an effect pose wins over the usual pose', () => {
+  render(<PetStage generation={1} pet={makePet({ sick: true })} reaction={null} effect={withFrame({ pose: 'eat' })} />);
+  expect(src()).toBe('sprite-eat.png');
+});
+
+test('an effect without a pose keeps the usual pose', () => {
+  render(<PetStage generation={1} pet={makePet({ asleep: true })} reaction={null} effect={withFrame({})} />);
+  expect(src()).toBe('sprite-sleep.png');
+});
+
+test('the pet shakes by petDx', () => {
+  render(<PetStage generation={1} pet={makePet({ asleep: true })} reaction={null} effect={withFrame({ petDx: 4 })} />);
+  expect(petImg().style.left).toBe('116px');
+  cleanup();
+  render(<PetStage generation={1} pet={makePet()} reaction={null} effect={withFrame({ petDx: 0 })} />);
+  expect(petImg().style.left).toBe('');
+});
+
+test('effect props are drawn on the stage', () => {
+  const props = [{ key: 'food', art: { kind: 'food', food: 'rice', bites: 0 }, x: 208, y: 148, scale: 2 } as const];
+  const { container } = render(<PetStage generation={1} pet={makePet()} reaction={null} effect={withFrame({ props })} />);
+  expect(container.querySelector('img.fx-prop--food')?.getAttribute('src')).toBe('food-rice-0.png');
+});
+
+test('effect poops replace the saved count and keep gone slots', () => {
+  urls.on = true;
+  const poops = [{ look: 'poop', dx: -4 }, { look: 'dust1', dx: -8 }, { look: 'gone', dx: 0 }] as const;
+  const { container } = render(
+    <PetStage generation={1} pet={makePet({ poops: 0 })} reaction={null} effect={withFrame({ poops })} />,
+  );
+  const slots = [...container.querySelectorAll('.poops > *')];
+  expect(slots).toHaveLength(3);
+  expect(slots[0]!.getAttribute('src')).toBe('fx-poop.png');
+  expect((slots[0] as HTMLElement).style.transform).toBe('translateX(-4px)');
+  expect(slots[1]!.getAttribute('src')).toBe('fx-dust1.png');
+  expect(slots[2]!.className).toContain('poop--gone');
+});
+
+test('the room darkens to the effect level, and stars come only when fully dark', () => {
+  urls.on = true;
+  const pet = makePet({ asleep: true, lightsOn: false });
+  const half = render(<PetStage generation={1} pet={pet} reaction={null} effect={withFrame({ dim: 0.5 })} />);
+  const dim = half.container.querySelector('.stage__dim') as HTMLElement;
+  expect(dim.style.getPropertyValue('--dim')).toBe('0.5');
+  expect(half.container.querySelectorAll('.effect--star')).toHaveLength(0);
+  expect(half.container.querySelector('.stage--dark')).toBeNull();
+  cleanup();
+  const full = render(<PetStage generation={1} pet={pet} reaction={null} effect={withFrame({ dim: 1 })} />);
+  expect(full.container.querySelectorAll('.effect--star')).toHaveLength(3);
+  expect(full.container.querySelector('.stage--dark')).not.toBeNull();
+});
+
+test('a lit room has no darkness and no stars', () => {
+  urls.on = true;
+  const { container } = render(
+    <PetStage generation={1} pet={makePet({ asleep: true, lightsOn: false })} reaction={null} effect={withFrame({ dim: 0 })} />,
+  );
+  expect(container.querySelector('.stage__dim')).toBeNull();
+  expect(container.querySelectorAll('.effect--star')).toHaveLength(0);
+});
+
+test('stars show for a sleeping egg with the lights off and no effect', () => {
+  urls.on = true;
+  const egg = makePet({ formId: 'egg', stage: 'egg', asleep: true, lightsOn: false });
+  const { container } = render(<PetStage generation={1} pet={egg} reaction={null} />);
+  expect(container.querySelectorAll('.effect--star')).toHaveLength(3);
+  expect((container.querySelector('.stage__dim') as HTMLElement).style.getPropertyValue('--dim')).toBe('1');
+});
+
+test('the flash is drawn', () => {
+  const { container } = render(<PetStage generation={1} pet={makePet()} reaction={null} effect={withFrame({ flash: true })} />);
+  expect(container.querySelector('.stage__flash')).not.toBeNull();
 });
