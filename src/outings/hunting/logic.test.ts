@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { NO_INPUT } from '@/games/types';
 import { OUTING_GAME_MS, type OutingView } from '../types';
+import { PICK_BOTTOM, PICK_TOP, tuftX } from './constants';
 import { POINTS_PER_CATCH, POP_EVERY_MS, POP_MS, TUFTS, huntingGame, type HuntingState } from './logic';
 
 const rngAt = (v: number) => () => v;
@@ -70,6 +71,20 @@ describe('hunting', () => {
     expect(huntingGame.pickFromPointer?.(0, 120)).toBe(0);
     expect(huntingGame.pickFromPointer?.(90, 120)).toBe(2);
     expect(huntingGame.pickFromPointer?.(179, 120)).toBe(4);
+  });
+
+  test('pickFromPointer ignores taps outside the tufts row band', () => {
+    expect(huntingGame.pickFromPointer?.(90, PICK_TOP - 1)).toBeNull();
+    expect(huntingGame.pickFromPointer?.(90, 10)).toBeNull();
+    expect(huntingGame.pickFromPointer?.(90, PICK_BOTTOM)).toBeNull();
+    expect(huntingGame.pickFromPointer?.(90, PICK_TOP)).toBe(2);
+    expect(huntingGame.pickFromPointer?.(90, PICK_BOTTOM - 1)).toBe(2);
+  });
+
+  test('tuft x positions are finite integers', () => {
+    for (let i = 0; i < TUFTS; i++) {
+      expect(Number.isInteger(tuftX(i))).toBe(true);
+    }
   });
 
   test('20% of pops are eggs, as a visual flag', () => {

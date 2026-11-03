@@ -1,14 +1,11 @@
 import { drawCounter, HUD_TOP } from '@/games/hud';
 import { drawSprite } from '@/games/sprites';
 import type { OutingView } from '../types';
-import { BURST_MS, TUFTS, type HuntingState } from './logic';
+import { BURST_MS, POP_Y, TUFT_SIZE, TUFT_Y, TUFTS, tuftX } from './constants';
+import type { HuntingState } from './logic';
 
 const SIZE = 180;
-const TUFT_W = SIZE / TUFTS;
-const TUFT_SIZE = 28;
-const TUFT_Y = 112;
 const POP_SIZE = 20;
-const POP_Y = 88;
 const PET = { x: 6, y: 20, w: 40, h: 48 };
 const SKY = '#cfe8f5';
 const GROUND = '#a5d66b';
@@ -23,8 +20,6 @@ const RAYS = [
   { dx: 0, dy: -1 }, { dx: 1, dy: 0 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 },
   { dx: 1, dy: -1 }, { dx: 1, dy: 1 }, { dx: -1, dy: 1 }, { dx: -1, dy: -1 },
 ] as const;
-
-const tuftX = (i: number): number => Math.round(i * TUFT_W + (TUFT_W - TUFT_SIZE) / 2);
 
 function drawTuft(ctx: CanvasRenderingContext2D, i: number, view: OutingView): void {
   const box = { x: tuftX(i), y: TUFT_Y, w: TUFT_SIZE, h: TUFT_SIZE };

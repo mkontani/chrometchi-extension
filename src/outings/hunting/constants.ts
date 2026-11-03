@@ -1,0 +1,15 @@
+import { HUD_TOP } from '@/games/hud';
+
+/** Shared by logic and render so neither has to import runtime values from the other. */
+export const TUFTS = 5;
+export const BURST_MS = 300;
+export const CANVAS = 180;
+export const TUFT_SIZE = 28;
+export const TUFT_Y = 112;
+export const POP_Y = 88;
+/** Taps between a little above the pop and the HUD strip pick a tuft. */
+export const PICK_TOP = POP_Y - 4;
+export const PICK_BOTTOM = HUD_TOP;
+
+const TUFT_W = CANVAS / TUFTS;
+export const tuftX = (i: number): number => Math.round(i * TUFT_W + (TUFT_W - TUFT_SIZE) / 2);
