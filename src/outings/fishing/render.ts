@@ -6,16 +6,23 @@ import type { FishingState } from './logic';
 const SIZE = 180;
 const WATER_TOP = 90;
 const BANK_W = 50;
-const PET = { x: 6, y: 42, w: 40, h: 48 };
-const ROD_TIP = { x: 44, y: 50 };
-const FLOAT_X = 112;
-const FLOAT_Y = 84;
+export const PET_BOX = { x: 6, y: 42, w: 40, h: 48 };
 const FLOAT_SIZE = 12;
+export const FLOAT_X = 112;
+export const FLOAT_Y = 84;
+/** The rod tip sits directly above the float's center; the line hangs from here. */
+export const ROD_TIP = { x: FLOAT_X + FLOAT_SIZE / 2, y: 36 };
+/** Where the rod leaves the pet's hands. */
+const ROD_BUTT = { x: 40, y: 66 };
+const ROD_THICK = 2;
 const DIP_PX = 4;
 const SKY = '#cfe8f5';
 const WATER = '#4a90d9';
 const BANK = '#8bc34a';
 const INK = '#2b2233';
+export const LINE_COLOR = INK;
+export const ROD_COLOR = '#b4794d';
+const OUTLINE = '#000000';
 
 function drawFloatFallback(ctx: CanvasRenderingContext2D, x: number, y: number): void {
   ctx.fillStyle = '#ffffff';
@@ -24,13 +31,27 @@ function drawFloatFallback(ctx: CanvasRenderingContext2D, x: number, y: number):
   ctx.fillRect(x, y, FLOAT_SIZE, FLOAT_SIZE / 2);
 }
 
-/** A 1px pixel-stepped line from the rod tip, drawn with fillRect so it stays crisp. */
-function drawLine(ctx: CanvasRenderingContext2D, toX: number, toY: number): void {
-  ctx.fillStyle = INK;
-  const steps = toX - ROD_TIP.x;
-  for (let i = 0; i <= steps; i++) {
-    ctx.fillRect(ROD_TIP.x + i, Math.round(ROD_TIP.y + ((toY - ROD_TIP.y) * i) / steps), 1, 1);
-  }
+/** The row of the rod's top edge in column `x`, stepping whole pixels from the butt to the tip. */
+function rodY(x: number): number {
+  const t = (x - ROD_BUTT.x) / (ROD_TIP.x - ROD_BUTT.x);
+  return Math.round(ROD_BUTT.y + (ROD_TIP.y - ROD_BUTT.y) * t);
+}
+
+/** A 2px brown pole with a 1px black outline from the pet's hands up to the tip over the water. */
+function drawRod(ctx: CanvasRenderingContext2D): void {
+  ctx.fillStyle = OUTLINE;
+  for (let x = ROD_BUTT.x; x <= ROD_TIP.x; x++) ctx.fillRect(x, rodY(x) - 1, 1, ROD_THICK + 2);
+  ctx.fillRect(ROD_BUTT.x - 1, rodY(ROD_BUTT.x), 1, ROD_THICK);
+  ctx.fillRect(ROD_TIP.x + 1, rodY(ROD_TIP.x), 1, ROD_THICK);
+  ctx.fillStyle = ROD_COLOR;
+  for (let x = ROD_BUTT.x; x <= ROD_TIP.x; x++) ctx.fillRect(x, rodY(x), 1, ROD_THICK);
+}
+
+/** A 1px vertical line hanging from the rod tip down to the float. */
+function drawLine(ctx: CanvasRenderingContext2D, floatTop: number): void {
+  const top = ROD_TIP.y + ROD_THICK + 1;
+  ctx.fillStyle = LINE_COLOR;
+  ctx.fillRect(ROD_TIP.x, top, 1, floatTop - top);
 }
 
 function drawScene(ctx: CanvasRenderingContext2D): void {
@@ -45,10 +66,11 @@ function drawScene(ctx: CanvasRenderingContext2D): void {
 /** Pixel-crisp fishing scene: the pet on the left bank, a line and a float on the water. */
 export function renderFishing(ctx: CanvasRenderingContext2D, s: FishingState, view: OutingView): void {
   drawScene(ctx);
-  drawSprite(ctx, view.player, PET, INK);
+  drawSprite(ctx, view.player, PET_BOX, INK);
+  drawRod(ctx);
   const dip = s.phase === 'bite' ? DIP_PX : 0;
   const floatY = FLOAT_Y + dip;
-  drawLine(ctx, FLOAT_X + FLOAT_SIZE / 2, floatY);
+  drawLine(ctx, floatY);
   const art = view.art('float');
   if (art) drawSprite(ctx, art, { x: FLOAT_X, y: floatY, w: FLOAT_SIZE, h: FLOAT_SIZE }, INK);
   else drawFloatFallback(ctx, FLOAT_X, floatY);
