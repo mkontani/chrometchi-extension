@@ -1,7 +1,8 @@
+import { forageAmount } from '@/core/outings';
 import { ART_HUD_TOP, drawArtCounter } from '@/games/hud';
 import { drawSprite } from '@/games/sprites';
 import type { OutingView } from '../types';
-import { BUSH_SIZE, BUSHES, bushX, bushY, FLIPS } from './constants';
+import { BUSH_SIZE, BUSHES, bushX, bushY, FLIPS, gatheringScoreOf } from './constants';
 import type { GatheringState } from './logic';
 import { isShaking } from './shake';
 
@@ -56,5 +57,5 @@ export function renderGathering(ctx: CanvasRenderingContext2D, s: GatheringState
   }
   drawCursor(ctx, s.cursor);
   drawArtCounter(ctx, 4, view.art('hud_bush'), BUSH, `${FLIPS - s.flips}`);
-  drawArtCounter(ctx, 40, view.art('hud_nuts'), NUT, `×${s.found}`);
+  drawArtCounter(ctx, 40, view.art('hud_nuts'), NUT, `×${forageAmount(gatheringScoreOf(s.found))}`);
 }

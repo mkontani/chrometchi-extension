@@ -1,7 +1,8 @@
+import { forageAmount } from '@/core/outings';
 import { ART_HUD_TOP, drawArtCounter } from '@/games/hud';
 import { drawSprite } from '@/games/sprites';
 import type { OutingView } from '../types';
-import { BURST_MS, POP_Y, TUFT_SIZE, TUFT_Y, TUFTS, tuftX } from './constants';
+import { BURST_MS, POP_Y, TUFT_SIZE, TUFT_Y, TUFTS, huntingScoreOf, tuftX } from './constants';
 import type { HuntingState } from './logic';
 
 const SIZE = 180;
@@ -69,5 +70,5 @@ export function renderHunting(ctx: CanvasRenderingContext2D, s: HuntingState, vi
   for (let i = 0; i < TUFTS; i++) drawTuft(ctx, i, view);
   if (s.burst) drawBurst(ctx, s.burst.tuft, s.burst.ageMs);
   drawCursor(ctx, s.cursor);
-  drawArtCounter(ctx, 4, view.art('hud_meat'), GROUND, `×${s.caught}`);
+  drawArtCounter(ctx, 4, view.art('hud_meat'), GROUND, `×${forageAmount(huntingScoreOf(s.caught))}`);
 }

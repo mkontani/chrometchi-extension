@@ -23,3 +23,8 @@ export function bushAt(x: number, y: number): number | null {
   if (col < 0 || col >= COLS || row < 0 || row >= COLS) return null;
   return row * COLS + col;
 }
+
+export const NUTS = 3;
+const MAX_SCORE = 100;
+
+export const gatheringScoreOf = (found: number): number => Math.round((found / NUTS) * MAX_SCORE);

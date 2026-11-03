@@ -1,6 +1,8 @@
+import { forageAmount } from '@/core/outings';
 import { ART_HUD_TOP, drawArtCounter } from '@/games/hud';
 import { drawSprite } from '@/games/sprites';
 import type { OutingView } from '../types';
+import { fishingScoreOf } from './constants';
 import type { FishingState } from './logic';
 
 const SIZE = 180;
@@ -74,5 +76,5 @@ export function renderFishing(ctx: CanvasRenderingContext2D, s: FishingState, vi
   const art = view.art('float');
   if (art) drawSprite(ctx, art, { x: FLOAT_X, y: floatY, w: FLOAT_SIZE, h: FLOAT_SIZE }, INK);
   else drawFloatFallback(ctx, FLOAT_X, floatY);
-  drawArtCounter(ctx, 4, view.art('hud_fish'), WATER, `×${s.catches}`);
+  drawArtCounter(ctx, 4, view.art('hud_fish'), WATER, `×${forageAmount(fishingScoreOf(s.catches))}`);
 }

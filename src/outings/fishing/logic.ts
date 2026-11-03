@@ -1,13 +1,14 @@
 import type { Rng } from '@/core/types';
 import type { GameInput } from '@/games/types';
 import { OUTING_GAME_MS, type OutingGame } from '../types';
+import { POINTS_PER_CATCH, fishingScoreOf } from './constants';
 import { renderFishing } from './render';
+
+export { POINTS_PER_CATCH };
 
 export const WAIT_MS = [1000, 2500] as const;
 export const BITE_MS = 600;
 export const REEL_MS = 500;
-export const POINTS_PER_CATCH = 20;
-const MAX_SCORE = 100;
 
 export type FishingPhase = 'wait' | 'bite' | 'reel';
 
@@ -51,7 +52,7 @@ export const fishingGame: OutingGame<FishingState> = {
     return advancePhase(acted === s ? { ...timed, phaseMs: s.phaseMs + dtMs } : timed, rng);
   },
   isOver: (s) => s.elapsed >= OUTING_GAME_MS,
-  score: (s) => Math.min(MAX_SCORE, s.catches * POINTS_PER_CATCH),
+  score: (s) => fishingScoreOf(s.catches),
   render: renderFishing,
   /** Any tap on the canvas is the tap that sets the hook. */
   pickFromPointer: () => 0,

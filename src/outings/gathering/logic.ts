@@ -1,13 +1,11 @@
 import type { Rng } from '@/core/types';
 import type { GameInput } from '@/games/types';
 import { OUTING_GAME_MS, type OutingGame } from '../types';
-import { BUSHES, FLIPS, SHAKE_EVERY_MS, SHAKE_MS, bushAt } from './constants';
+import { BUSHES, FLIPS, SHAKE_EVERY_MS, SHAKE_MS, NUTS, bushAt, gatheringScoreOf } from './constants';
 import { isShaking } from './shake';
 import { renderGathering } from './render';
 
-export { BUSHES, FLIPS, SHAKE_EVERY_MS, SHAKE_MS, isShaking };
-export const NUTS = 3;
-const MAX_SCORE = 100;
+export { BUSHES, FLIPS, NUTS, SHAKE_EVERY_MS, SHAKE_MS, isShaking };
 
 export interface GatheringState {
   elapsed: number;
@@ -63,7 +61,7 @@ export const gatheringGame: OutingGame<GatheringState> = {
     return { ...next, elapsed: s.elapsed + dtMs };
   },
   isOver: (s) => s.flips >= FLIPS || s.elapsed >= OUTING_GAME_MS,
-  score: (s) => Math.round((s.found / NUTS) * MAX_SCORE),
+  score: (s) => gatheringScoreOf(s.found),
   render: renderGathering,
   pickFromPointer: bushAt,
 };

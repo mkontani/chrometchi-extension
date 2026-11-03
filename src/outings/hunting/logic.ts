@@ -1,16 +1,14 @@
 import type { Rng } from '@/core/types';
 import type { GameInput } from '@/games/types';
 import { OUTING_GAME_MS, type OutingGame } from '../types';
-import { BURST_MS, CANVAS, PICK_BOTTOM, PICK_TOP, TUFTS } from './constants';
+import { BURST_MS, CANVAS, PICK_BOTTOM, PICK_TOP, POINTS_PER_CATCH, TUFTS, huntingScoreOf } from './constants';
 import { renderHunting } from './render';
 
-export { TUFTS };
+export { POINTS_PER_CATCH, TUFTS };
 
 export const POP_EVERY_MS = 1000;
 export const POP_MS = [700, 450] as const;
-export const POINTS_PER_CATCH = 10;
 const EGG_CHANCE = 0.2;
-const MAX_SCORE = 100;
 const START_CURSOR = 2;
 
 export interface Pop {
@@ -79,7 +77,7 @@ export const huntingGame: OutingGame<HuntingState> = {
     return timed.pop ? timed : spawn(timed, rng);
   },
   isOver: (s) => s.elapsed >= OUTING_GAME_MS,
-  score: (s) => Math.min(MAX_SCORE, s.caught * POINTS_PER_CATCH),
+  score: (s) => huntingScoreOf(s.caught),
   render: renderHunting,
   pickFromPointer: (x, y) => (y < PICK_TOP || y >= PICK_BOTTOM ? null : clampTuft(Math.floor((x / CANVAS) * TUFTS))),
 };

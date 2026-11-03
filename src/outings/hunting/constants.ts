@@ -13,3 +13,8 @@ export const PICK_BOTTOM = ART_HUD_TOP;
 
 const TUFT_W = CANVAS / TUFTS;
 export const tuftX = (i: number): number => Math.round(i * TUFT_W + (TUFT_W - TUFT_SIZE) / 2);
+
+export const POINTS_PER_CATCH = 10;
+const MAX_SCORE = 100;
+
+export const huntingScoreOf = (caught: number): number => Math.min(MAX_SCORE, caught * POINTS_PER_CATCH);

@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { recordCanvas } from '../__fixtures__/canvas';
 import type { OutingView } from '../types';
-import { BITE_MS } from './logic';
+import { forageAmount } from '@/core/outings';
+import { BITE_MS, fishingGame } from './logic';
 import type { FishingState } from './logic';
 import { FLOAT_X, FLOAT_Y, LINE_COLOR, PET_BOX, renderFishing, ROD_TIP, ROD_COLOR } from './render';
 
@@ -12,13 +13,22 @@ const bite: FishingState = { ...wait, phase: 'bite', phaseMs: BITE_MS / 2 };
 const withArt = (map: Record<string, CanvasImageSource>): OutingView => ({ player: null, art: (id) => map[id] ?? null });
 
 describe('fishing scene', () => {
-  test('the counter shows the fish icon and the catch count', () => {
-    const { ctx, images, texts } = recordCanvas();
+  test('the counter shows the fish icon', () => {
+    const { ctx, images } = recordCanvas();
     const fish = {} as CanvasImageSource;
     renderFishing(ctx, { ...wait, catches: 3 }, withArt({ hud_fish: fish }));
     expect(images.filter((i) => i.img === fish)).toEqual([{ img: fish, x: 4, y: 160, w: 16, h: 16 }]);
-    expect(texts).toEqual(['×3']);
   });
+
+  test.each([[0, 1], [1, 1], [2, 2], [3, 2], [4, 3], [5, 4]])(
+    'the counter shows the haul %i catches earn: x%i',
+    (catches, haul) => {
+      const { ctx, texts } = recordCanvas();
+      renderFishing(ctx, { ...wait, catches }, NO_ART);
+      expect(texts).toEqual([`×${haul}`]);
+      expect(haul).toBe(forageAmount(fishingGame.score({ ...wait, catches })));
+    },
+  );
 
   test('the counter falls back to a water-colored square without the art', () => {
     const { ctx, images, rects } = recordCanvas();

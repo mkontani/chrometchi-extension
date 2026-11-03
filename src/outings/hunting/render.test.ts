@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { recordCanvas } from '../__fixtures__/canvas';
 import type { OutingView } from '../types';
-import type { HuntingState } from './logic';
+import { forageAmount } from '@/core/outings';
+import { huntingGame, type HuntingState } from './logic';
 import { PICK_BOTTOM, PICK_TOP, tuftX } from './constants';
 import { POP_SIZE, renderHunting } from './render';
 
@@ -9,13 +10,22 @@ const base: HuntingState = { elapsed: 0, cursor: 2, caught: 0, sinceSpawn: 0, po
 const withArt = (map: Record<string, CanvasImageSource>): OutingView => ({ player: null, art: (id) => map[id] ?? null });
 
 describe('hunting counter', () => {
-  test('shows the meat icon and the caught count', () => {
-    const { ctx, images, texts } = recordCanvas();
+  test('shows the meat icon', () => {
+    const { ctx, images } = recordCanvas();
     const meat = {} as CanvasImageSource;
     renderHunting(ctx, { ...base, caught: 4 }, withArt({ hud_meat: meat }));
     expect(images.filter((i) => i.img === meat)).toEqual([{ img: meat, x: 4, y: 160, w: 16, h: 16 }]);
-    expect(texts).toEqual(['×4']);
   });
+
+  test.each([[0, 1], [3, 1], [4, 2], [7, 3], [10, 4], [12, 4]])(
+    'shows the haul %i caught earn: x%i',
+    (caught, haul) => {
+      const { ctx, texts } = recordCanvas();
+      renderHunting(ctx, { ...base, caught }, withArt({}));
+      expect(texts).toEqual([`×${haul}`]);
+      expect(haul).toBe(forageAmount(huntingGame.score({ ...base, caught })));
+    },
+  );
 
   test('falls back to a ground-colored square without the art', () => {
     const { ctx, images, rects } = recordCanvas();

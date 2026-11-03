@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest';
 import { recordCanvas } from '../__fixtures__/canvas';
 import type { OutingView } from '../types';
 import { BUSHES } from './constants';
-import type { GatheringState } from './logic';
+import { forageAmount } from '@/core/outings';
+import { gatheringGame, type GatheringState } from './logic';
 import { renderGathering } from './render';
 
 const none = Array.from({ length: BUSHES }, () => false);
@@ -10,14 +11,21 @@ const base: GatheringState = { elapsed: 0, cursor: 0, nuts: none, flipped: none,
 const withArt = (map: Record<string, CanvasImageSource>): OutingView => ({ player: null, art: (id) => map[id] ?? null });
 
 describe('gathering counters', () => {
-  test('show the bush icon with the flips left and the nuts icon with the count found', () => {
+  test('show the bush icon with the flips left and the nuts icon with the haul found nuts earn', () => {
     const { ctx, images, texts } = recordCanvas();
     const bush = {} as CanvasImageSource;
     const nuts = {} as CanvasImageSource;
     renderGathering(ctx, base, withArt({ hud_bush: bush, hud_nuts: nuts }));
     expect(images.filter((i) => i.img === bush)).toEqual([{ img: bush, x: 4, y: 160, w: 16, h: 16 }]);
     expect(images.filter((i) => i.img === nuts)).toEqual([{ img: nuts, x: 40, y: 160, w: 16, h: 16 }]);
-    expect(texts).toEqual(['3', '×2']);
+    expect(texts).toEqual(['3', '×3']);
+  });
+
+  test.each([[0, 1], [1, 1], [2, 3], [3, 4]])('the nuts counter for %i found is x%i', (found, haul) => {
+    const { ctx, texts } = recordCanvas();
+    renderGathering(ctx, { ...base, found }, withArt({}));
+    expect(texts).toEqual(['3', `×${haul}`]);
+    expect(haul).toBe(forageAmount(gatheringGame.score({ ...base, found })));
   });
 
   test('fall back to colored squares without the art', () => {
