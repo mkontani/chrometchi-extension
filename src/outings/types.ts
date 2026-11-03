@@ -4,7 +4,7 @@ import type { GameInput } from '@/games/types';
 export const OUTING_GAME_MS = 15_000;
 
 export type OutingArtId =
-  | 'float' | 'grass' | 'bush' | 'sprout' | 'can'
+  | 'float' | 'grass' | 'bush' | 'sprout' | 'sprout_wet' | 'can'
   | 'boar' | 'chicken'
   | 'hud_fish' | 'hud_meat' | 'hud_nuts' | 'hud_bush';
 

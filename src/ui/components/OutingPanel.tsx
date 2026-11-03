@@ -39,7 +39,7 @@ function FarmControls({ farm, onFarm }: { farm: Farm; onFarm(action: FarmOp): vo
     );
   }
   if (farm.growMinLeft > 0) {
-    const sprout = assetUrl('ui/outing/sprout');
+    const sprout = assetUrl(farm.watered ? 'ui/outing/sprout_wet' : 'ui/outing/sprout');
     const can = assetUrl('ui/outing/can');
     return (
       <>

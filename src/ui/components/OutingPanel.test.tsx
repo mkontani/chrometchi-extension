@@ -67,6 +67,13 @@ test('a growing crop shows the sprout picture', () => {
   expect(container.querySelector('img[src="ui/outing/sprout.png"]')).toBeTruthy();
 });
 
+test('a watered crop shows the darker wet sprout instead', () => {
+  const farm = { ...growing, watered: true };
+  const { container } = render(<OutingPanel {...props} kitchen={kitchen({ farm })} />);
+  expect(container.querySelector('img[src="ui/outing/sprout_wet.png"]')).toBeTruthy();
+  expect(container.querySelector('img[src="ui/outing/sprout.png"]')).toBeNull();
+});
+
 test('the water button shows the can picture', () => {
   render(<OutingPanel {...props} kitchen={kitchen({ farm: growing })} />);
   expect(btn('farm_water').querySelector('img[src="ui/outing/can.png"]')).toBeTruthy();
