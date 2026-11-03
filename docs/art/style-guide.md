@@ -58,6 +58,15 @@ Every form except the egg has `side.png` (right-facing profile) and `walk0`–`w
   - hop: `squashing and stretching in place as if hopping … staying on the ground in the center of the frame`;
   - float, legless: `floating in place, hovering with a gentle up and down bob …, no legs, no walking`.
 
+## Effects (care)
+
+Effects play on the popup stage after feed, clean, medicine and lights (`src/ui/effects/`).
+
+- **Bitten foods** come from a script, never from AI: `npx tsx scripts/art/bite.ts <1|2> src/assets/ui/icons/food_<id>.png src/assets/ui/food/<id>_bite<n>.png`.
+  - It cuts round bites from the right side and drops any piece the bite leaves floating.
+  - It outlines the new edge in `#000000`.
+  - A new food only needs the script run twice.
+
 ## Eggs
 
 - **Eggs never have a face** (no eyes, mouth or cheeks). This is owner feedback from Gate A.

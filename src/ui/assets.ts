@@ -49,3 +49,7 @@ export const iconUrl = (id: IconId): string | null => lookup(`ui/icons/${id}`);
 export const effectUrl = (id: EffectId): string | null => lookup(`ui/effects/${id}`);
 export const backgroundUrl = (id: BackgroundId): string | null => lookup(`ui/bg/${id}`);
 export const gameArtUrl = (id: GameArtId): string | null => lookup(`ui/game/${id}`);
+
+/** A food picture with `bites` taken out of it: 0 is the whole food (its menu icon). */
+export const foodUrl = (food: FoodId, bites: 0 | 1 | 2): string | null =>
+  bites === 0 ? iconUrl(`food_${food}`) : lookup(`ui/food/${food}_bite${bites}`);

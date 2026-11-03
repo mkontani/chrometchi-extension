@@ -6,10 +6,12 @@ import {
   ICON_IDS,
   backgroundUrl,
   effectUrl,
+  foodUrl,
   gameArtUrl,
   iconUrl,
   spriteUrl,
 } from '@/ui/assets';
+import { FOODS } from '@/data/foods';
 
 test('spriteUrl falls back to the plain egg for forms without art', () => {
   expect(spriteUrl('nope', 'happy')).toContain('/sprites/egg/plain/idle0');
@@ -36,4 +38,12 @@ test('id lists are complete', () => {
   expect(EFFECT_IDS).toHaveLength(7);
   expect(BACKGROUND_IDS).toEqual(['room_day', 'room_night']);
   expect(GAME_ART_IDS).toEqual(['rock', 'cup', 'treat']);
+});
+
+test('every food has a whole and two bitten pictures', () => {
+  for (const f of FOODS) {
+    expect(foodUrl(f.id, 0)).toBe(iconUrl(`food_${f.id}`));
+    expect(foodUrl(f.id, 1), f.id).toContain(`/ui/food/${f.id}_bite1`);
+    expect(foodUrl(f.id, 2), f.id).toContain(`/ui/food/${f.id}_bite2`);
+  }
 });
