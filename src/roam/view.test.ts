@@ -3,6 +3,7 @@ import { makePet, type PetOverrides } from '@/core/__fixtures__/pet';
 import { createRng } from '@/core/rng';
 import type { RoamDisplay } from './display';
 import type { RoamFrames } from './frames';
+import { GAIT_STYLES, HOP_PX } from './gait';
 import { bubbleLeft, HOST_TAG, mountRoam, type RoamView } from './view';
 
 const FRAMES: RoamFrames = {
@@ -139,6 +140,42 @@ describe('roaming view', () => {
     }
     expect(FRAMES.walk.every((f) => seen.has(f))).toBe(true);
     expect(mirrored).toBe(true);
+  });
+
+  test('a floating form hovers above the page bottom over a shadow; others stand on it', () => {
+    const view = mount();
+    view.render(pet('walk', { formId: 'adult_ghost', stage: 'adult' }), FRAMES);
+    frames(1);
+    expect($('.mover')?.style.bottom).toBe(`${GAIT_STYLES.float.liftPx}px`);
+    expect($('.shadow')?.hidden).toBe(false);
+    view.render(pet('walk', { formId: 'baby_puni' }), FRAMES);
+    frames(1);
+    expect($('.mover')?.style.bottom).toBe('0px');
+    expect($('.shadow')?.hidden).toBe(true);
+  });
+
+  test('a hopping form leaves the ground only while it moves', () => {
+    mount().render(pet('walk', { formId: 'baby_puni' }), FRAMES);
+    const lift = () => Number(/translateY\((-?[\d.]+)px\)/.exec(img().style.transform)?.[1] ?? 0);
+    let maxWalking = 0;
+    for (let i = 0; i < 600; i++) {
+      frames(1, 50);
+      if (FRAMES.walk.includes(img().src)) maxWalking = Math.max(maxWalking, -lift());
+      else expect(lift()).toBe(0);
+    }
+    expect(maxWalking).toBe(HOP_PX);
+  });
+
+  test('a crawling form moves at its slower pace', () => {
+    mount().render(pet('walk', { formId: 'adult_serpent', stage: 'adult' }), FRAMES);
+    frames(1, 50);
+    let maxStep = 0;
+    for (let i = 0; i < 600; i++) {
+      const before = moverX();
+      frames(1, 50);
+      maxStep = Math.max(maxStep, Math.abs(moverX() - before));
+    }
+    expect(maxStep).toBeCloseTo((GAIT_STYLES.crawl.pxPerS * 50) / 1000);
   });
 
   test('hidden removes the host; destroy stops the loop', () => {

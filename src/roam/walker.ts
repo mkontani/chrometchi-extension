@@ -21,8 +21,8 @@ export function createWalker(width: number, rng: Rng): Walker {
 }
 
 /** Moves along the floor, turning around at either edge. */
-function move(w: Walker, dtMs: number, width: number): Walker {
-  const x = w.x + (w.dir * WALK_PX_PER_S * dtMs) / 1000;
+function move(w: Walker, dtMs: number, width: number, pxPerS: number): Walker {
+  const x = w.x + (w.dir * pxPerS * dtMs) / 1000;
   if (x >= maxX(width)) return { ...w, x: maxX(width), dir: -1 };
   if (x <= 0) return { ...w, x: 0, dir: 1 };
   return { ...w, x };
@@ -36,16 +36,17 @@ function switchMode(w: Walker, rng: Rng): Walker {
   return { ...w, mode: 'rest', modeLeftMs: between(REST_MS, rng), clockMs: 0 };
 }
 
-export function stepWalker(w: Walker, dtMs: number, width: number, rng: Rng): Walker {
+export function stepWalker(w: Walker, dtMs: number, width: number, rng: Rng, pxPerS: number = WALK_PX_PER_S): Walker {
   const dt = Math.min(Math.max(dtMs, 0), MAX_DT_MS);
   const ticked = { ...w, clockMs: w.clockMs + dt, modeLeftMs: w.modeLeftMs - dt };
-  const placed = ticked.mode === 'walk' ? move(ticked, dt, width) : { ...ticked, x: clampX(ticked.x, width) };
+  const placed = ticked.mode === 'walk' ? move(ticked, dt, width, pxPerS) : { ...ticked, x: clampX(ticked.x, width) };
   return placed.modeLeftMs <= 0 ? switchMode(placed, rng) : placed;
 }
 
-/** Which of `count` frames to show now (walk cycle while walking, idle frames while resting). */
-export function frameIndex(w: Walker, count: number): number {
-  return count > 0 ? Math.floor(w.clockMs / FRAME_MS[w.mode]) % count : 0;
+/** Which of `count` frames to show now: the walk cycle at `walkFrameMs`, or the idle frames while resting. */
+export function frameIndex(w: Walker, count: number, walkFrameMs: number = FRAME_MS.walk): number {
+  const frameMs = w.mode === 'walk' ? walkFrameMs : FRAME_MS.rest;
+  return count > 0 ? Math.floor(w.clockMs / frameMs) % count : 0;
 }
 
 /** Dropped where the user let go, then rests a moment before walking on. */

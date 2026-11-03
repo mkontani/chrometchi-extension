@@ -70,6 +70,15 @@ describe('walker', () => {
     expect(stepWalker(walking({ mode: 'rest' }), 100, 800, createRng(1)).x).toBe(100);
   });
 
+  test('stepWalker moves at the pace it is given', () => {
+    expect(stepWalker(walking(), 100, 800, createRng(1), 20).x).toBeCloseTo(102);
+  });
+
+  test('frameIndex plays the walk cycle at the frame time it is given', () => {
+    expect(frameIndex(walking({ clockMs: 330 }), 8, 150)).toBe(2);
+    expect(frameIndex(walking({ mode: 'rest', clockMs: 500 }), 2, 150)).toBe(1);
+  });
+
   test('frameIndex cycles through 8 walk frames at 110ms and 2 rest frames at 500ms', () => {
     expect(frameIndex(walking({ clockMs: 0 }), 8)).toBe(0);
     expect(frameIndex(walking({ clockMs: 110 }), 8)).toBe(1);

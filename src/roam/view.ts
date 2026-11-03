@@ -3,6 +3,7 @@ import { bubbleKey } from './bubble';
 import { PET_PX } from './constants';
 import type { RoamDisplay } from './display';
 import type { RoamFrames } from './frames';
+import { bounceOffset, GAIT_STYLES, gaitOf, type Gait, type GaitStyle } from './gait';
 import { ROAM_STYLES } from './styles';
 import { createWalker, dragWalker, frameIndex, restWalker, stepWalker, type Walker } from './walker';
 
@@ -39,12 +40,12 @@ function createDom(doc: Document) {
   const host = doc.createElement(HOST_TAG);
   Object.entries(HOST_STYLE).forEach(([k, v]) => host.style.setProperty(k, v, 'important'));
   const root = host.attachShadow({ mode: 'open' });
-  root.innerHTML = `<style>${ROAM_STYLES}</style><div class="mover"><div class="bubble" hidden>
+  root.innerHTML = `<style>${ROAM_STYLES}</style><div class="mover"><div class="shadow" hidden></div><div class="bubble" hidden>
     <p class="say"></p><button type="button" class="hide"></button></div>
     <button type="button" class="pet"><img alt="" draggable="false"></button></div>`;
   const q = <T extends HTMLElement>(sel: string) => root.querySelector(sel) as T;
   return {
-    host, root, mover: q('.mover'), bubble: q('.bubble'), say: q('.say'), hide: q('.hide'),
+    host, root, mover: q('.mover'), shadow: q('.shadow'), bubble: q('.bubble'), say: q('.say'), hide: q('.hide'),
     pet: q<HTMLButtonElement>('.pet'), img: q<HTMLImageElement>('img'),
   };
 }
@@ -59,21 +60,32 @@ interface State {
   happyUntil: number;
 }
 
+/** The current form's gait; the egg (which never walks) gets the default. */
+const gaitFor = (s: State): Gait => gaitOf(s.display?.pet.formId ?? 'egg');
+const gaitStyle = (s: State): GaitStyle => GAIT_STYLES[gaitFor(s)];
+const isWalking = (s: State): boolean => s.display?.motion === 'walk' && s.walker.mode === 'walk';
+
 function pickFrame(s: State): { src: string; mirrored: boolean } {
   const { display, frames, walker } = s;
   if (!display || !frames) return { src: '', mirrored: false };
   if (s.now < s.happyUntil) return { src: frames.happy, mirrored: false };
   if (display.pose === 'sleep') return { src: frames.sleep, mirrored: false };
-  const walking = display.motion === 'walk' && walker.mode === 'walk';
+  const walking = isWalking(s);
   const list = walking ? frames.walk : frames.rest;
-  return { src: list[frameIndex(walker, list.length)] ?? frames.rest[0] ?? '', mirrored: walking && walker.dir === -1 };
+  const src = list[frameIndex(walker, list.length, gaitStyle(s).frameMs)] ?? frames.rest[0] ?? '';
+  return { src, mirrored: walking && walker.dir === -1 };
 }
 
 function paint(dom: Dom, s: State, width: number): void {
   const { src, mirrored } = pickFrame(s);
   if (dom.img.getAttribute('src') !== src) dom.img.src = src;
-  dom.img.style.transform = mirrored ? 'scaleX(-1)' : '';
+  const bounce = bounceOffset(gaitFor(s), { walkMs: isWalking(s) ? s.walker.clockMs : null, nowMs: s.now });
+  dom.img.style.transform = [mirrored ? 'scaleX(-1)' : '', bounce ? `translateY(${-bounce}px)` : ''].join(' ').trim();
   dom.mover.style.transform = `translateX(${s.walker.x}px)`;
+  const { liftPx } = gaitStyle(s);
+  dom.mover.style.bottom = `${liftPx}px`;
+  dom.shadow.style.bottom = `${-liftPx}px`;
+  dom.shadow.hidden = liftPx === 0;
   dom.bubble.style.left = `${bubbleLeft(s.walker.x, width, BUBBLE_W)}px`;
 }
 
@@ -123,7 +135,7 @@ function createLoop(dom: Dom, s: State, deps: RoamViewDeps, width: () => number)
     s.last = now;
     s.now = now;
     const still = s.display?.motion !== 'walk';
-    s.walker = still ? restWalker(s.walker, dt, width()) : stepWalker(s.walker, dt, width(), deps.rng);
+    s.walker = still ? restWalker(s.walker, dt, width()) : stepWalker(s.walker, dt, width(), deps.rng, gaitStyle(s).pxPerS);
     paint(dom, s, width());
     rafId = raf(tick);
   };

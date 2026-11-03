@@ -8,6 +8,11 @@ export const ROAM_STYLES = `
 }
 .pet:focus-visible { outline: 2px dashed #2b2233; outline-offset: 2px; }
 .pet img { display: block; width: 64px; height: 64px; image-rendering: pixelated; pointer-events: none; }
+.shadow {
+  position: absolute; left: 14px; width: 36px; height: 6px; border-radius: 50%;
+  background: rgba(43, 34, 51, 0.25); pointer-events: none;
+}
+.shadow[hidden] { display: none; }
 .bubble {
   pointer-events: auto; position: absolute; bottom: 72px; width: 200px; box-sizing: border-box;
   padding: 8px 10px; background: #fff4e0; color: #2b2233; border: 3px solid #2b2233;
