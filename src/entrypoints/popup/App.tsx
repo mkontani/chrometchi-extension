@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'preact/hooks';
 import type { FarmOp } from '@/core/farm';
 import type { CareOutcome, Gained, FoodId, GameId, OutingKind } from '@/core/types';
+import type { PotItem } from '@/data/recipes';
 import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
 import { spriteUrl } from '@/ui/assets';
@@ -25,6 +26,7 @@ import { useSfx, type SfxName } from '@/ui/sound';
 import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
 import { useCare } from '@/ui/useCare';
+import { useCooking } from '@/ui/useCooking';
 import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
@@ -64,15 +66,22 @@ interface ChoiceProps {
   onPlay(game: GameId): void;
   onGo(kind: OutingKind): void;
   onFarm(action: FarmOp): void;
+  onCook(items: readonly PotItem[]): void;
 }
 
 /** The feed, play or outing panel for the open one; nothing for the others. */
-function PanelChoice({ save, panel, care, close, onPlay, onGo, onFarm }: ChoiceProps) {
+function PanelChoice({ save, panel, care, close, onPlay, onGo, onFarm, onCook }: ChoiceProps) {
   const pickFood = (food: FoodId) => {
     care({ kind: 'feed', food });
     close();
   };
-  if (panel === 'feed') return <FoodPanel pantry={save.kitchen.pantry} onPick={pickFood} onClose={close} />;
+  const cookPot = (items: readonly PotItem[]) => {
+    onCook(items);
+    close();
+  };
+  if (panel === 'feed') {
+    return <FoodPanel pantry={save.kitchen.pantry} onPick={pickFood} onCook={cookPot} onClose={close} />;
+  }
   if (panel === 'play') return <PlayPanel onPick={onPlay} onClose={close} />;
   if (panel === 'outing') {
     return <OutingPanel kitchen={save.kitchen} now={Date.now()} onGo={onGo} onFarm={onFarm} onClose={close} />;
@@ -101,13 +110,14 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
   const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
   const pet = save.game.pet;
   const { stagePet, care } = useCare(pet, send, effects.play);
+  const cooking = useCooking(send);
   const onSelect = (kind: ActionKind) => {
     if (kind === 'clean' || kind === 'medicine') care({ kind });
     else if (kind === 'lights') care({ kind, on: !pet.lightsOn });
     else if (PANELS.includes(kind)) setPanel((cur) => (cur === kind ? null : (kind as Panel)));
   };
   const choice = (
-    <PanelChoice {...{ save, panel, onPlay, onGo, onFarm }} care={care} close={() => setPanel(null)} />
+    <PanelChoice {...{ save, panel, onPlay, onGo, onFarm }} onCook={cooking.cook} care={care} close={() => setPanel(null)} />
   );
   return (
     <>

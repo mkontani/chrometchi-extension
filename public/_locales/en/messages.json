@@ -685,5 +685,20 @@
   },
   "outing_hint_gathering": {
     "message": "Find the bushes that shake."
+  },
+  "tab_eat": {
+    "message": "Eat"
+  },
+  "tab_cook": {
+    "message": "Cook"
+  },
+  "cook_make": {
+    "message": "Cook it"
+  },
+  "cook_pot": {
+    "message": "Pot"
+  },
+  "cook_pot_empty": {
+    "message": "Tap ingredients to put them in the pot"
   }
 }

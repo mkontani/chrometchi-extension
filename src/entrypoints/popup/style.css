@@ -117,6 +117,26 @@ body {
   border: 2px solid var(--ink); background: var(--cream); color: var(--ink); font-family: inherit;
 }
 .panel__more:hover { background: var(--pink); }
+.panel__tabs { display: flex; gap: 2px; }
+.panel__tab {
+  border: 2px solid var(--ink); background: var(--cream); color: var(--ink); font-family: inherit;
+  font-size: 10px; padding: 1px 6px; cursor: pointer;
+}
+.panel__tab[aria-selected='true'] { background: var(--pink); }
+.cook__pot { display: flex; align-items: center; gap: 3px; margin-bottom: 2px; }
+.cook__slot {
+  box-sizing: border-box; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;
+  border: 3px solid var(--ink); background: #fff; font-family: inherit;
+}
+.cook__slot--filled { background: var(--cream); cursor: pointer; }
+.cook__slot--filled:hover { background: var(--pink); }
+.cook__hint { flex: 1; font-size: 9px; line-height: 1.2; }
+.cook__make {
+  margin-left: auto; border: 3px solid var(--ink); background: var(--accent); color: #fff; font-family: inherit;
+  font-size: 11px; padding: 4px 8px; cursor: pointer;
+}
+.cook__make:disabled { opacity: 0.4; cursor: default; }
+.panel__grid--cook { max-height: 74px; }
 .panel__grid--play { grid-template-columns: repeat(3, 1fr); }
 .panel__grid--outing { grid-template-columns: repeat(3, 1fr); }
 .panel__item:disabled { opacity: 0.4; cursor: default; }

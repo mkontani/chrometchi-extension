@@ -89,6 +89,17 @@ test('choosing a food sends care feed with that food and closes the panel', () =
   expect(screen.queryByText('panel_food_title')).toBeNull();
 });
 
+test('cooking from the food panel sends the pot and closes the panel', () => {
+  const { send } = setup(null, {}, { kitchen: { ...EMPTY_KITCHEN, pantry: { egg: 2 } } });
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  fireEvent.click(screen.getByRole('tab', { name: 'tab_cook' }));
+  fireEvent.click(screen.getByText('food_rice'));
+  fireEvent.click(screen.getByText('food_egg'));
+  fireEvent.click(screen.getByText('cook_make'));
+  expect(send).toHaveBeenCalledWith({ type: 'cook', items: ['rice', 'egg'] });
+  expect(screen.queryByText('panel_food_title')).toBeNull();
+});
+
 test('selecting feed twice toggles the panel closed', () => {
   setup();
   fireEvent.click(screen.getByLabelText('action_feed'));

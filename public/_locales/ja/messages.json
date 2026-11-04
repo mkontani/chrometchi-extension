@@ -685,5 +685,20 @@
   },
   "outing_hint_gathering": {
     "message": "ゆれているしげみをさがそう"
+  },
+  "tab_eat": {
+    "message": "たべる"
+  },
+  "tab_cook": {
+    "message": "りょうりする"
+  },
+  "cook_make": {
+    "message": "つくる"
+  },
+  "cook_pot": {
+    "message": "なべ"
+  },
+  "cook_pot_empty": {
+    "message": "しょくざいを タップして なべに いれよう"
   }
 }
