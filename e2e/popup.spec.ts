@@ -212,3 +212,108 @@ test('fish is disabled in the food panel with an empty pantry', async ({ context
   await expect(fish).toBeDisabled();
   await expect(fish.locator('.panel__count')).toHaveText('×0');
 });
+
+function seedPantry(pantry: SaveV1["kitchen"]["pantry"]): SaveV1 {
+  const base = seed({ stats: { hunger: 20 } });
+  return {
+    ...base,
+    kitchen: { ...base.kitchen, pantry: { ...base.kitchen.pantry, ...pantry } },
+  };
+}
+
+/** An ingredient row in the Cook tab; a filled pot slot is named by the bare food name, a row also has its count. */
+const potIngredient = (
+  page: Page,
+  msg: (key: string) => string,
+  foodKey: string,
+) => page.getByRole("button", { name: new RegExp(`^${msg(foodKey)} (×|∞)`) });
+
+async function openCookTab(page: Page, msg: (key: string) => string) {
+  await page
+    .getByRole("button", { name: msg("action_feed"), exact: true })
+    .click();
+  await page.getByRole("tab", { name: msg("tab_cook"), exact: true }).click();
+}
+
+const readyNote = (page: Page, msg: (key: string) => string, dishKey: string) =>
+  page.getByRole("status").filter({ hasText: msg(dishKey) });
+
+test("cooking steak puts it in the pantry and in the recipe book", async ({
+  context,
+  extensionId,
+  msg,
+}) => {
+  const save = seedPantry({ meat: 2, veggie: 1 });
+  const page = await seedAndOpen(context, extensionId, save);
+  await openCookTab(page, msg);
+
+  await potIngredient(page, msg, "food_meat").click();
+  await potIngredient(page, msg, "food_meat").click();
+  await potIngredient(page, msg, "food_veggie").click();
+  await page
+    .getByRole("button", { name: msg("cook_make"), exact: true })
+    .click();
+
+  const note = readyNote(page, msg, "food_steak");
+  await expect(note).toBeVisible({ timeout: 10_000 });
+  await expect(note).toContainText(msg("cooked_first"));
+  await note.click();
+
+  await page
+    .getByRole("button", { name: msg("action_feed"), exact: true })
+    .click();
+  await expect(
+    page.getByRole("tab", { name: msg("tab_eat"), exact: true }),
+  ).toBeVisible();
+  await expect(
+    foodButton(page, msg, "food_steak").locator(".panel__count"),
+  ).toHaveText("×1");
+  await expect(
+    foodButton(page, msg, "food_meat").locator(".panel__count"),
+  ).toHaveText("×0");
+  expect((await readSave(context)).kitchen.recipes).toEqual(["steak"]);
+
+  await page
+    .getByRole("button", { name: msg("action_zukan"), exact: true })
+    .click();
+  await page
+    .getByRole("tab", { name: msg("zukan_tab_recipes"), exact: true })
+    .click();
+  await expect(page.locator(".zukan__count")).toHaveText(/1\D+12/);
+  await expect(
+    page.locator(".recipes__name", { hasText: msg("food_steak") }),
+  ).toBeVisible();
+});
+
+test("a mix that matches no recipe makes a mystery dish", async ({
+  context,
+  extensionId,
+  msg,
+}) => {
+  const page = await seedAndOpen(
+    context,
+    extensionId,
+    seedPantry({ meat: 1, fruit: 1 }),
+  );
+  await openCookTab(page, msg);
+
+  await potIngredient(page, msg, "food_meat").click();
+  await potIngredient(page, msg, "food_fruit").click();
+  await page
+    .getByRole("button", { name: msg("cook_make"), exact: true })
+    .click();
+
+  const note = readyNote(page, msg, "food_mystery");
+  await expect(note).toBeVisible({ timeout: 10_000 });
+  await expect(note).not.toContainText(msg("cooked_first"));
+  await note.click();
+
+  expect((await readSave(context)).kitchen.recipes).toEqual([]);
+  await page
+    .getByRole("button", { name: msg("action_zukan"), exact: true })
+    .click();
+  await page
+    .getByRole("tab", { name: msg("zukan_tab_recipes"), exact: true })
+    .click();
+  await expect(page.locator(".zukan__count")).toHaveText(/0\D+12/);
+});
