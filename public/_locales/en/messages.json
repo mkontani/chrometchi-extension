@@ -149,6 +149,21 @@
   "food_candy": {
     "message": "Candy"
   },
+  "food_shrimp": {
+    "message": "Shrimp"
+  },
+  "food_egg": {
+    "message": "Egg"
+  },
+  "food_nuts": {
+    "message": "Nuts"
+  },
+  "food_mushroom": {
+    "message": "Mushroom"
+  },
+  "food_fruit": {
+    "message": "Fruit"
+  },
   "game_catch": {
     "message": "Catch"
   },
@@ -253,6 +268,15 @@
   },
   "refuse_noPoop": {
     "message": "Already clean"
+  },
+  "refuse_noStock": {
+    "message": "You don't have any."
+  },
+  "refuse_outingLimit": {
+    "message": "That's enough for today."
+  },
+  "refuse_farmNotReady": {
+    "message": "Not now."
   },
   "food_kind_meal": {
     "message": "Meal"
@@ -553,5 +577,74 @@
   },
   "settings_roam_unhide": {
     "message": "Show"
+  },
+  "action_outing": {
+    "message": "Go out"
+  },
+  "panel_outing_title": {
+    "message": "Where to?"
+  },
+  "outing_fishing": {
+    "message": "Fishing"
+  },
+  "outing_hunting": {
+    "message": "Hunting"
+  },
+  "outing_gathering": {
+    "message": "Gathering"
+  },
+  "outing_farm": {
+    "message": "Farm"
+  },
+  "outing_left": {
+    "message": "$P1$ left today",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_plant_veggie": {
+    "message": "Plant veggies"
+  },
+  "farm_plant_fruit": {
+    "message": "Plant fruit"
+  },
+  "farm_growing_hours": {
+    "message": "Growing, $P1$ h left",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_growing_minutes": {
+    "message": "Growing, $P1$ min left",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_water": {
+    "message": "Water"
+  },
+  "farm_harvest": {
+    "message": "Harvest"
+  },
+  "outing_done": {
+    "message": "Done!"
+  },
+  "gained_title": {
+    "message": "You got:"
+  },
+  "outing_hint_fishing": {
+    "message": "Tap when the float dips!"
+  },
+  "outing_hint_hunting": {
+    "message": "Tap what pops out!"
+  },
+  "outing_hint_gathering": {
+    "message": "Find the bushes that shake."
   }
 }

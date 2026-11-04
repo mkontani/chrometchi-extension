@@ -1,6 +1,6 @@
 import { useRef } from 'preact/hooks';
 
-export type SfxName = 'select' | 'eat' | 'happy' | 'win' | 'lose' | 'alert' | 'sweep' | 'gulp' | 'click';
+export type SfxName = 'select' | 'eat' | 'happy' | 'win' | 'lose' | 'alert' | 'sweep' | 'gulp' | 'click' | 'get';
 
 interface Sequence {
   readonly notes: readonly number[]; // Hz; 0 is a rest
@@ -17,6 +17,7 @@ const SEQUENCES: Readonly<Record<SfxName, Sequence>> = {
   sweep: { notes: [330, 262], noteSec: 0.05 },
   gulp: { notes: [392, 262], noteSec: 0.07 },
   click: { notes: [1318], noteSec: 0.03 },
+  get: { notes: [784, 1047], noteSec: 0.06 },
 };
 
 const PEAK_GAIN = 0.05;

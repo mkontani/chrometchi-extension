@@ -149,6 +149,21 @@
   "food_candy": {
     "message": "キャンディ"
   },
+  "food_shrimp": {
+    "message": "えび"
+  },
+  "food_egg": {
+    "message": "たまご"
+  },
+  "food_nuts": {
+    "message": "きのみ"
+  },
+  "food_mushroom": {
+    "message": "きのこ"
+  },
+  "food_fruit": {
+    "message": "くだもの"
+  },
   "game_catch": {
     "message": "キャッチ"
   },
@@ -253,6 +268,15 @@
   },
   "refuse_noPoop": {
     "message": "きれいだよ"
+  },
+  "refuse_noStock": {
+    "message": "もっていないよ"
+  },
+  "refuse_outingLimit": {
+    "message": "きょうはもうおしまい"
+  },
+  "refuse_farmNotReady": {
+    "message": "いまはできないよ"
   },
   "food_kind_meal": {
     "message": "ごはん"
@@ -553,5 +577,74 @@
   },
   "settings_roam_unhide": {
     "message": "表示する"
+  },
+  "action_outing": {
+    "message": "おでかけ"
+  },
+  "panel_outing_title": {
+    "message": "どこへいく？"
+  },
+  "outing_fishing": {
+    "message": "つり"
+  },
+  "outing_hunting": {
+    "message": "かり"
+  },
+  "outing_gathering": {
+    "message": "さいしゅう"
+  },
+  "outing_farm": {
+    "message": "はたけ"
+  },
+  "outing_left": {
+    "message": "きょう あと$P1$かい",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_plant_veggie": {
+    "message": "やさいをうえる"
+  },
+  "farm_plant_fruit": {
+    "message": "くだものをうえる"
+  },
+  "farm_growing_hours": {
+    "message": "そだちちゅう あと$P1$じかん",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_growing_minutes": {
+    "message": "そだちちゅう あと$P1$ふん",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "farm_water": {
+    "message": "みずやり"
+  },
+  "farm_harvest": {
+    "message": "しゅうかく"
+  },
+  "outing_done": {
+    "message": "おしまい！"
+  },
+  "gained_title": {
+    "message": "てにいれた！"
+  },
+  "outing_hint_fishing": {
+    "message": "うきがしずんだらタップ！"
+  },
+  "outing_hint_hunting": {
+    "message": "とびだしたらタップ！"
+  },
+  "outing_hint_gathering": {
+    "message": "ゆれているしげみをさがそう"
   }
 }

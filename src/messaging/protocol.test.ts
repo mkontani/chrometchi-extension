@@ -42,3 +42,44 @@ describe('parseEngineRequest', () => {
     for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
   });
 });
+
+describe('forage request', () => {
+  test('accepts a valid forage', () => {
+    const raw = { type: 'forage', kind: 'fishing', score: 100 };
+    expect(parseEngineRequest(raw)).toEqual(raw);
+  });
+
+  test('forage requests with a bad score are rejected', () => {
+    const bad = [
+      { type: 'forage', kind: 'fishing', score: 150 },
+      { type: 'forage', kind: 'fishing', score: -1 },
+      { type: 'forage', kind: 'fishing', score: 2.5 },
+      { type: 'forage', kind: 'fishing', score: '100' },
+      { type: 'forage', score: 10 },
+      { type: 'forage', kind: 'swimming', score: 10 },
+    ];
+    for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
+  });
+});
+
+describe('farm request', () => {
+  test('accepts plant, water and harvest', () => {
+    const good = [
+      { type: 'farm', action: { op: 'plant', crop: 'veggie' } },
+      { type: 'farm', action: { op: 'plant', crop: 'fruit' } },
+      { type: 'farm', action: { op: 'water' } },
+      { type: 'farm', action: { op: 'harvest' } },
+    ];
+    for (const raw of good) expect(parseEngineRequest(raw)).toEqual(raw);
+  });
+
+  test('rejects a bad crop, a missing crop and unknown ops', () => {
+    const bad = [
+      { type: 'farm', action: { op: 'plant', crop: 'fish' } },
+      { type: 'farm', action: { op: 'plant' } },
+      { type: 'farm', action: { op: 'burn' } },
+      { type: 'farm' },
+    ];
+    for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
+  });
+});

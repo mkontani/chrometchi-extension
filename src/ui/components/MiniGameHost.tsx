@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { GameId } from '@/core/types';
-import { MINI_GAMES, type AnyMiniGame } from '@/games/registry';
-import { loadSprite } from '@/games/sprites';
-import type { GameInput, GameView } from '@/games/types';
+import { MINI_GAMES } from '@/games/registry';
+import type { GameView } from '@/games/types';
 import { t } from '@/i18n/t';
+import { startLoop, useLatest, usePlayerSprite } from '@/ui/gameLoop';
 import { LOGICAL_SIZE, useGameInput } from '@/ui/useGameInput';
 
-const MAX_DT_MS = 100;
 const RESULT_MS = 1500;
 
 interface Props {
@@ -17,43 +16,6 @@ interface Props {
   onCancel(): void;
   /** Called once when the win/lose result is shown (before the result delay). */
   onResult?(won: boolean): void;
-}
-
-/** Runs the RAF loop; returns a cleanup. `onOver` fires once when the game ends. */
-function startLoop(
-  def: AnyMiniGame,
-  ctx: CanvasRenderingContext2D,
-  take: () => GameInput,
-  view: () => GameView,
-  onOver: (won: boolean) => void,
-): () => void {
-  const rng = Math.random;
-  let state = def.init(rng);
-  let raf = 0;
-  let last: number | null = null;
-  const frame = (now: number) => {
-    const dt = last === null ? 0 : Math.min(MAX_DT_MS, now - last);
-    last = now;
-    state = def.step(state, dt, take(), rng);
-    def.render(ctx, state, view());
-    if (def.isOver(state)) onOver(def.won(state));
-    else raf = requestAnimationFrame(frame);
-  };
-  raf = requestAnimationFrame(frame);
-  return () => cancelAnimationFrame(raf);
-}
-
-/** A ref that always holds the latest value, for callbacks read inside the RAF loop. */
-function useLatest<T>(value: T): { readonly current: T } {
-  const ref = useRef(value);
-  ref.current = value;
-  return ref;
-}
-
-/** Starts loading the pet sprite once per URL; the returned getter is stable and cheap per frame. */
-function usePlayerSprite(url: string | undefined): () => CanvasImageSource | null {
-  const latest = useLatest(useMemo(() => loadSprite(url ?? null), [url]));
-  return useCallback(() => latest.current(), [latest]);
 }
 
 export function MiniGameHost({ game, playerUrl, onFinish, onCancel, onResult }: Props) {
@@ -73,7 +35,8 @@ export function MiniGameHost({ game, playerUrl, onFinish, onCancel, onResult }: 
     let timer: ReturnType<typeof setTimeout> | undefined;
     setReady(true);
     const view = (): GameView => ({ player: player() });
-    const stop = startLoop(def, ctx, () => takeRef.current(), view, (won) => {
+    const stop = startLoop(def, ctx, () => takeRef.current(), view, (state) => {
+      const won = def.won(state);
       setResult(won);
       resultRef.current?.(won);
       timer = setTimeout(() => finishRef.current(won), RESULT_MS);

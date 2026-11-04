@@ -4,13 +4,13 @@ import { describe, expect, test } from 'vitest';
 import { checkImage, requiredSpritePaths } from '../../scripts/art/lib';
 import { FOODS } from '@/data/foods';
 import { FORMS } from '@/data/forms';
-import { BACKGROUND_IDS, EFFECT_IDS, GAME_ART_IDS, ICON_IDS } from '@/ui/assets';
+import { BACKGROUND_IDS, EFFECT_IDS, GAME_ART_IDS, ICON_IDS, OUTING_ART_IDS, OUTING_ART_SIZE } from '@/ui/assets';
 import palette from './palette.json';
 
 const sprite = { width: 32, height: 32, palette, transparentCorners: true };
 const sized = (n: number) => ({ width: n, height: n, palette, transparentCorners: true });
 const SMALL_ICONS = new Set<string>([
-  'feed', 'play', 'clean', 'medicine', 'lights', 'zukan', 'settings', 'back',
+  'feed', 'play', 'outing', 'clean', 'medicine', 'lights', 'zukan', 'settings', 'back',
   'heart_full', 'heart_half', 'heart_empty',
 ]);
 const GAME_ART_SIZE: Record<string, number> = { rock: 16, cup: 32, treat: 16 };
@@ -33,6 +33,7 @@ function checkedPngs(): Set<string> {
     ...ICON_IDS.map((id) => `src/assets/ui/icons/${id}.png`),
     ...EFFECT_IDS.map((id) => `src/assets/ui/effects/${id}.png`),
     ...GAME_ART_IDS.map((id) => `src/assets/ui/game/${id}.png`),
+    ...OUTING_ART_IDS.map((id) => `src/assets/ui/outing/${id}.png`),
     ...BACKGROUND_IDS.map((id) => `src/assets/ui/bg/${id}.png`),
     ...BITTEN_FOODS,
     'src/assets/ui/frame.png',
@@ -54,6 +55,9 @@ describe('shipped art is complete and on-palette', () => {
   });
   test.each(GAME_ART_IDS)('game art %s', (id) => {
     expect(checkImage(`src/assets/ui/game/${id}.png`, sized(GAME_ART_SIZE[id] ?? 0))).toEqual([]);
+  });
+  test.each(OUTING_ART_IDS)('outing art %s', (id) => {
+    expect(checkImage(`src/assets/ui/outing/${id}.png`, sized(OUTING_ART_SIZE[id]))).toEqual([]);
   });
   test.each(BACKGROUND_IDS)('background %s', (id) => {
     const opts = { width: 88, height: 68, palette, transparentCorners: false };

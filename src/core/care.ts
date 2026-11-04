@@ -3,6 +3,7 @@ import { BASE_WEIGHT, PET_ACTION, PLAY, POOP, SUGAR } from './constants';
 import { becomeSick } from './hygiene';
 import type {
   CareAction,
+  CareOutcome,
   CareResult,
   FoodDef,
   GameEvent,
@@ -96,7 +97,7 @@ function pat(pet: PetState, action: CareAction): CareResult {
   return ok({ ...next, lastPetAt: pet.awakeMinutes }, action);
 }
 
-const RESCUE_KINDS: ReadonlySet<CareAction['kind']> = new Set(['feed', 'play', 'clean', 'medicine']);
+const RESCUE_KINDS: ReadonlySet<CareOutcome['action']> = new Set(['feed', 'play', 'clean', 'medicine']);
 
 /** Real care re-arms the death grace: dying again needs a fresh critical-banner view (spec 4.4). */
 function rearmGrace(r: CareResult): CareResult {

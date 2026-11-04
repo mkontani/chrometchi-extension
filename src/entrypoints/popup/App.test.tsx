@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/preact
 import { afterEach, expect, test, vi } from 'vitest';
 import type { CareOutcome } from '@/core/types';
 import { createEgg } from '@/core/factory';
+import { EMPTY_KITCHEN } from '@/core/kitchen';
 import type { UseGame } from '@/ui/useGame';
 import { App } from './App';
 
@@ -11,6 +12,7 @@ vi.mock('@/ui/assets', () => ({
   effectUrl: () => null,
   backgroundUrl: () => null,
   iconUrl: () => null,
+  assetUrl: () => null,
   gameArtUrl: () => null,
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
 }));
@@ -24,6 +26,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
   ({
     game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
+    kitchen: EMPTY_KITCHEN,
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -524,4 +527,78 @@ test('no sound plays when the sound setting is off', () => {
   ui.rerender(<App />);
   expect(freqs).toEqual([]);
   vi.unstubAllGlobals();
+});
+
+test('the outing button opens the outing panel', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_outing'));
+  expect(screen.getByText('panel_outing_title')).toBeTruthy();
+});
+
+test('choosing fishing closes the panel and starts the fishing outing', () => {
+  const { send } = setup();
+  fireEvent.click(screen.getByLabelText('action_outing'));
+  fireEvent.click(screen.getByText('outing_fishing'));
+  expect(screen.queryByText('panel_outing_title')).toBeNull();
+  expect(send).not.toHaveBeenCalled();
+});
+
+test('the food panel shows the pantry counts', () => {
+  setup(null, {}, { kitchen: { ...EMPTY_KITCHEN, pantry: { fish: 5 } } });
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  expect(screen.getByText('×5')).toBeTruthy();
+});
+
+function startFishing(send: ReturnType<typeof vi.fn>) {
+  vi.useFakeTimers({
+    toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval',
+      'requestAnimationFrame', 'cancelAnimationFrame', 'performance'],
+  });
+  HTMLCanvasElement.prototype.getContext = vi.fn(() => ({ fillRect: vi.fn(), fillText: vi.fn() })) as never;
+  fireEvent.click(screen.getByLabelText('action_outing'));
+  fireEvent.click(screen.getByText('outing_fishing'));
+  expect(send).not.toHaveBeenCalled();
+}
+
+test('an active outing shows the outing game', () => {
+  const { send } = setup();
+  startFishing(send);
+  expect(screen.getByRole('dialog', { name: 'outing_fishing' })).toBeTruthy();
+  expect(screen.getByText('outing_hint_fishing')).toBeTruthy();
+});
+
+test('finishing an outing shows what was gained and plays the get sound', async () => {
+  const freqs = stubAudio();
+  const { send } = setup();
+  send.mockResolvedValue({ ok: true, gained: { fish: 2 } });
+  startFishing(send);
+  await act(async () => void vi.advanceTimersByTime(15_000 + 1500 + 200));
+  expect(send).toHaveBeenCalledWith({ type: 'forage', kind: 'fishing', score: 0 });
+  expect(screen.getByText('gained_title')).toBeTruthy();
+  expect(screen.getByText('×2')).toBeTruthy();
+  expect(freqs.slice(-2)).toEqual([784, 1047]);
+  await act(async () => void vi.advanceTimersByTime(2500));
+  expect(screen.queryByText('gained_title')).toBeNull();
+  vi.unstubAllGlobals();
+});
+
+test('an empty haul shows nothing and plays no sound', async () => {
+  const freqs = stubAudio();
+  const { send } = setup();
+  send.mockResolvedValue({ ok: true, gained: {} });
+  startFishing(send);
+  await act(async () => void vi.advanceTimersByTime(15_000 + 1500 + 200));
+  expect(send).toHaveBeenCalled();
+  expect(screen.queryByText('gained_title')).toBeNull();
+  expect(freqs).toEqual([]);
+  vi.unstubAllGlobals();
+});
+
+test('closing the game mid-way sends nothing', async () => {
+  const { send } = setup();
+  startFishing(send);
+  fireEvent.click(screen.getByText('game_quit'));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  await act(async () => void vi.advanceTimersByTime(20_000));
+  expect(send).not.toHaveBeenCalled();
 });

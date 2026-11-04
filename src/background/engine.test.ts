@@ -39,7 +39,7 @@ function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0, over: Overrides
     reportError: (err, context) => void errors.push([err, context]),
   });
   const stored = () => area.data.get(SAVE_KEY) as SaveV1;
-  return { engine, clock, stored, notifyCalls, badgeLevels, errors };
+  return { engine, clock, stored, area, notifyCalls, badgeLevels, errors };
 }
 
 describe('engine', () => {
@@ -60,6 +60,87 @@ describe('engine', () => {
     const res = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'rice' } });
     expect(res).toMatchObject({ ok: true, outcome: { action: 'feed', result: 'ok' } });
     expect(stored().game.pet.stats.hunger).toBeGreaterThan(40);
+  });
+
+  test('a care feed uses the pantry in the save', async () => {
+    const { engine, stored, area } = setup({ pet: makePet({ stats: { hunger: 40 } }) });
+    const seeded = stored();
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, pantry: { fish: 1 } } });
+    const first = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'fish' } });
+    expect(first).toMatchObject({ ok: true, outcome: { result: 'ok' } });
+    expect(stored().kitchen.pantry).toEqual({ fish: 0 });
+    const second = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'fish' } });
+    expect(second).toMatchObject({ ok: true, outcome: { result: 'refused', reason: 'noStock' } });
+  });
+
+  test('forage adds the haul to the pantry and returns gained', async () => {
+    const { engine, stored } = setup();
+    const res = await engine.handle({ type: 'forage', kind: 'fishing', score: 100 });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'forage', result: 'ok' } });
+    if (!res.ok) throw new Error('unreachable');
+    expect(res.gained?.fish).toBe(4);
+    expect(stored().kitchen.pantry.fish).toBe(4);
+    expect(stored().kitchen.outings.used.fishing).toBe(1);
+  });
+
+  test('a refused forage returns the outcome and changes nothing', async () => {
+    const { engine, stored } = setup({ pet: makePet({ asleep: true }) });
+    const before = stored().kitchen;
+    const res = await engine.handle({ type: 'forage', kind: 'fishing', score: 50 });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'forage', result: 'refused', reason: 'asleep' } });
+    if (!res.ok) throw new Error('unreachable');
+    expect(res.gained).toBeUndefined();
+    expect(stored().kitchen).toEqual(before);
+  });
+
+  test('farm requests return gained on harvest', async () => {
+    const { engine, stored, area } = setup();
+    const seeded = stored();
+    const farm = { crop: 'veggie' as const, growMinLeft: 0, watered: true };
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, farm } });
+    const res = await engine.handle({ type: 'farm', action: { op: 'harvest' } });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'farm', result: 'ok' } });
+    if (!res.ok) throw new Error('unreachable');
+    expect(res.gained).toEqual({ veggie: 4 });
+    expect(stored().kitchen.pantry.veggie).toBe(4);
+    expect(stored().kitchen.farm).toEqual({ crop: null, growMinLeft: 0, watered: false });
+  });
+
+  test('plant and water return no gained, and a refusal changes nothing', async () => {
+    const { engine, stored } = setup();
+    const planted = await engine.handle({ type: 'farm', action: { op: 'plant', crop: 'fruit' } });
+    expect(planted).toMatchObject({ ok: true, outcome: { action: 'farm', result: 'ok' } });
+    expect(planted).not.toHaveProperty('gained');
+    const watered = await engine.handle({ type: 'farm', action: { op: 'water' } });
+    expect(watered).not.toHaveProperty('gained');
+    const before = stored().kitchen;
+    const early = await engine.handle({ type: 'farm', action: { op: 'harvest' } });
+    expect(early).toMatchObject({ outcome: { result: 'refused', reason: 'farmNotReady' } });
+    expect(early).not.toHaveProperty('gained');
+    expect(stored().kitchen).toEqual(before);
+  });
+
+  test('a tick grows the farm by game minutes only', async () => {
+    const { engine, stored, area, clock } = setup();
+    const seeded = stored();
+    const farm = { crop: 'veggie' as const, growMinLeft: 100, watered: false };
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, farm } });
+    clock.now = T0 + 3 * MIN;
+    await engine.tick();
+    expect(stored().kitchen.farm.growMinLeft).toBe(97);
+    clock.now = T0 + 3 * MIN + 60 * MIN;
+    await engine.tick();
+    expect(stored().kitchen.farm.growMinLeft).toBe(97);
+  });
+
+  test('a harvest request sees the field grown by the elapsed minutes', async () => {
+    const { engine, stored, area, clock } = setup();
+    const seeded = stored();
+    const farm = { crop: 'fruit' as const, growMinLeft: 2, watered: false };
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, farm } });
+    clock.now = T0 + 2 * MIN;
+    const res = await engine.handle({ type: 'farm', action: { op: 'harvest' } });
+    expect(res).toMatchObject({ ok: true, gained: { fruit: 2 } });
   });
 
   test('ackCritical stamps criticalSeenAt', async () => {
@@ -111,6 +192,19 @@ describe('engine', () => {
     expect(res.ok).toBe(true);
     expect(stored().game.generation).toBe(2);
     expect(stored().zukan.memories).toHaveLength(0);
+  });
+
+  test('a new egg (restart) keeps the kitchen', async () => {
+    const { engine, stored, area } = setup();
+    const kitchen = {
+      pantry: { fish: 4 },
+      outings: { day: '2026-01-01', used: { fishing: 2, hunting: 0, gathering: 1 } },
+      farm: { crop: 'veggie' as const, growMinLeft: 5, watered: true },
+    };
+    area.data.set(SAVE_KEY, { ...stored(), kitchen });
+    await engine.handle({ type: 'restart' });
+    expect(stored().game.generation).toBe(2);
+    expect(stored().kitchen).toEqual(kitchen);
   });
 
   test('dismissNotice clears the flag', async () => {

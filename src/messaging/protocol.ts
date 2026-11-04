@@ -1,11 +1,16 @@
 import { z } from 'zod';
-import type { CareAction, CareOutcome, Settings } from '@/core/types';
+import type { FarmOp } from '@/core/farm';
+import type { CareAction, CareOutcome, Gained, OutingKind, Settings } from '@/core/types';
+import { FOOD_IDS } from '@/data/foods';
+import { OUTING_KINDS } from '@/data/outings';
 import type { RoamFrames } from '@/roam/frames';
 import { hostnameSchema, settingsSchema, type SaveV1 } from '@/storage/schema';
 
 export type EngineRequest =
   | { type: 'sync' }
   | { type: 'care'; action: CareAction }
+  | { type: 'forage'; kind: OutingKind; score: number }
+  | { type: 'farm'; action: FarmOp }
   | { type: 'ackCritical' }
   | { type: 'updateSettings'; patch: Partial<Settings> }
   | { type: 'restart' }
@@ -20,13 +25,13 @@ export type RoamFramesResponse =
   | { ok: false; error: string };
 
 export type EngineResponse =
-  | { ok: true; save: SaveV1; outcome?: CareOutcome }
+  | { ok: true; save: SaveV1; outcome?: CareOutcome; gained?: Gained }
   | { ok: false; error: string };
 
 const careActionSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('feed'),
-    food: z.enum(['rice', 'meat', 'fish', 'veggie', 'cake', 'candy']),
+    food: z.enum(FOOD_IDS),
   }),
   z.object({
     kind: z.literal('play'),
@@ -39,9 +44,21 @@ const careActionSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('pet') }),
 ]);
 
+const farmOpSchema = z.discriminatedUnion('op', [
+  z.object({ op: z.literal('plant'), crop: z.enum(['veggie', 'fruit']) }),
+  z.object({ op: z.literal('water') }),
+  z.object({ op: z.literal('harvest') }),
+]);
+
 const requestSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('sync') }),
   z.object({ type: z.literal('care'), action: careActionSchema }),
+  z.object({
+    type: z.literal('forage'),
+    kind: z.enum(OUTING_KINDS as [OutingKind, ...OutingKind[]]),
+    score: z.number().int().min(0).max(100),
+  }),
+  z.object({ type: z.literal('farm'), action: farmOpSchema }),
   z.object({ type: z.literal('ackCritical') }),
   z.object({ type: z.literal('updateSettings'), patch: settingsSchema.partial() }),
   z.object({ type: z.literal('restart') }),

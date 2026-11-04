@@ -15,9 +15,9 @@ export interface AdvanceInput {
 export function advanceTime(
   game: GameState,
   { now, settings, idle, rng }: AdvanceInput,
-): { game: GameState; events: GameEvent[] } {
+): { game: GameState; events: GameEvent[]; minutes: number } {
   if (idle === 'locked' || game.pet.lifecycle !== 'alive') {
-    return { game: { ...game, lastTickAt: now }, events: [] };
+    return { game: { ...game, lastTickAt: now }, events: [], minutes: 0 };
   }
   const { minutes, nextTickAt } = consumeElapsed(game.lastTickAt, now, TICK_MAX_GAP_MS);
   let pet = game.pet;
@@ -29,5 +29,5 @@ export function advanceTime(
     pet = step.pet;
     events.push(...step.events);
   }
-  return { game: { ...game, pet, lastTickAt: nextTickAt }, events };
+  return { game: { ...game, pet, lastTickAt: nextTickAt }, events, minutes };
 }

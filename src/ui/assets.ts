@@ -1,6 +1,7 @@
 import { eggPattern } from '@/data/eggs';
 import { FOODS } from '@/data/foods';
 import { GAMES } from '@/data/games';
+import type { OutingArtId } from '@/outings/types';
 import type { FoodId, FormId, GameId, Pose } from '@/core/types';
 
 const FILES = import.meta.glob('/src/assets/**/*.png', {
@@ -10,7 +11,7 @@ const FILES = import.meta.glob('/src/assets/**/*.png', {
 }) as Record<string, string>;
 
 export type IconId =
-  | 'feed' | 'play' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'settings'
+  | 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'settings'
   | 'heart_full' | 'heart_half' | 'heart_empty' | 'back'
   | `food_${FoodId}`
   | `game_${GameId}`;
@@ -21,7 +22,7 @@ export type BackgroundId = 'room_day' | 'room_night';
 export type GameArtId = 'rock' | 'cup' | 'treat';
 
 export const ICON_IDS: readonly IconId[] = [
-  'feed', 'play', 'clean', 'medicine', 'lights', 'zukan', 'settings',
+  'feed', 'play', 'outing', 'clean', 'medicine', 'lights', 'zukan', 'settings',
   'heart_full', 'heart_half', 'heart_empty', 'back',
   ...FOODS.map((f) => `food_${f.id}` as const),
   ...GAMES.map((g) => `game_${g}` as const),
@@ -30,6 +31,17 @@ export const EFFECT_IDS: readonly EffectId[] = [
   'poop', 'zzz', 'sweat', 'sparkle', 'note', 'skull', 'pill',
   'crumb', 'dust0', 'dust1', 'dust2', 'star',
 ];
+/** Art the outing games and the farm row draw (`src/assets/ui/outing/<id>.png`). */
+export const OUTING_ART_IDS: readonly OutingArtId[] = [
+  'float', 'grass', 'bush', 'sprout', 'sprout_wet', 'can',
+  'hud_fish', 'hud_meat', 'hud_nuts', 'hud_bush',
+  'boar', 'chicken',
+];
+export const OUTING_ART_SIZE: Readonly<Record<OutingArtId, number>> = {
+  float: 16, grass: 32, bush: 32, sprout: 16, sprout_wet: 16, can: 16,
+  hud_fish: 16, hud_meat: 16, hud_nuts: 16, hud_bush: 16,
+  boar: 24, chicken: 24,
+};
 export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
 export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];
 

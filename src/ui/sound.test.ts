@@ -91,3 +91,10 @@ test.each([
   createSfx(() => true, () => asCtx(ctx)).play(name);
   expect(oscillators.map((o) => o.frequency.value)).toEqual(notes);
 });
+
+test('get is a short two-note rising chime', () => {
+  const { ctx, oscillators } = fakeContext();
+  createSfx(() => true, () => asCtx(ctx)).play('get');
+  expect(oscillators.map((o) => o.frequency.value)).toEqual([784, 1047]);
+  expect(oscillators[1]!.start.mock.calls[0]![0]).toBeCloseTo(0.06);
+});

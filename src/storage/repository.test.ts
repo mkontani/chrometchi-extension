@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { EMPTY_KITCHEN } from '@/core/kitchen';
 import { makeGame } from '@/core/__fixtures__/pet';
 import { createFreshSave, createSaveRepository } from './repository';
 import { LEGACY_KEYS, NOTIFY_KINDS, SAVE_KEY, saveSchema } from './schema';
@@ -127,4 +128,8 @@ describe('save repository', () => {
     };
     await expect(createSaveRepository(area, () => NOW).load()).rejects.toThrow('boom');
   });
+});
+
+test('a fresh save has an empty kitchen', () => {
+  expect(createFreshSave(NOW).kitchen).toEqual(EMPTY_KITCHEN);
 });

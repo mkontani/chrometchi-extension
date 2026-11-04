@@ -1,6 +1,17 @@
 export type Stage = 'egg' | 'baby' | 'child' | 'young' | 'adult';
 export type FormId = string;
-export type FoodId = 'rice' | 'meat' | 'fish' | 'veggie' | 'cake' | 'candy';
+export type IngredientId =
+  | 'fish'
+  | 'shrimp'
+  | 'meat'
+  | 'egg'
+  | 'nuts'
+  | 'mushroom'
+  | 'veggie'
+  | 'fruit';
+export type FoodId = 'rice' | 'candy' | 'cake' | IngredientId;
+export type Pantry = Partial<Record<FoodId, number>>;
+export type Gained = Pantry;
 export type FoodTag = 'grain' | 'meat' | 'fish' | 'veggie' | 'sweet';
 export type GameId = 'catch' | 'cups' | 'stop';
 export type Family =
@@ -96,6 +107,28 @@ export interface Memory {
   endedAt: number;
 }
 
+export type OutingKind = 'fishing' | 'hunting' | 'gathering';
+export type Crop = 'veggie' | 'fruit';
+
+/** Outings played on one local day; a new day starts the counts over. */
+export interface OutingLog {
+  day: string;
+  used: Record<OutingKind, number>;
+}
+
+export interface Farm {
+  crop: Crop | null;
+  growMinLeft: number;
+  watered: boolean;
+}
+
+/** What the pet has gathered and grown; lives beside the game so a new egg keeps it. */
+export interface Kitchen {
+  pantry: Pantry;
+  outings: OutingLog;
+  farm: Farm;
+}
+
 export interface Zukan {
   discovered: FormId[];
   memories: Memory[];
@@ -168,10 +201,13 @@ export type RefuseReason =
   | 'notAlive'
   | 'egg'
   | 'cooldown'
-  | 'noPoop';
+  | 'noPoop'
+  | 'noStock'
+  | 'outingLimit'
+  | 'farmNotReady';
 
 export interface CareOutcome {
-  action: CareAction['kind'];
+  action: CareAction['kind'] | 'forage' | 'farm';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }

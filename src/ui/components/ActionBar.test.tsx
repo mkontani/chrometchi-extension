@@ -48,3 +48,21 @@ test('clicking calls onSelect with the kind', () => {
 });
 
 afterEach(cleanup);
+
+test('there are 8 buttons and outing is third', () => {
+  render(<ActionBar pet={makePet()} onSelect={() => {}} />);
+  const labels = screen.getAllByRole('button').map((b) => b.getAttribute('aria-label'));
+  expect(labels).toHaveLength(8);
+  expect(labels[2]).toBe('action_outing');
+});
+
+test('outing is disabled for an egg and while asleep', () => {
+  render(<ActionBar pet={makePet({ stage: 'egg' })} onSelect={() => {}} />);
+  expect(isDisabled('action_outing')).toBe(true);
+  cleanup();
+  render(<ActionBar pet={makePet({ asleep: true })} onSelect={() => {}} />);
+  expect(isDisabled('action_outing')).toBe(true);
+  cleanup();
+  render(<ActionBar pet={makePet()} onSelect={() => {}} />);
+  expect(isDisabled('action_outing')).toBe(false);
+});

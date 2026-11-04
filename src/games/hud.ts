@@ -18,6 +18,27 @@ export function drawCounter(ctx: CanvasRenderingContext2D, x: number, color: str
   ctx.fillText(label, x + ICON + GAP, BASELINE);
 }
 
+/** Size of the art icons in the outing games' counters; drawn at native size so they stay crisp. */
+export const ART_ICON = 16;
+/** Top of the taller HUD strip the outing games use so the 16px art fits; their play areas end above it. */
+export const ART_HUD_TOP = SIZE - 4 - ART_ICON;
+
+/** Like drawCounter, but shows `art` (a 16x16 icon) instead of the square; the square is the fallback. */
+export function drawArtCounter(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  art: CanvasImageSource | null,
+  fallbackColor: string,
+  label: string,
+): void {
+  if (!art) return drawCounter(ctx, x, fallbackColor, label);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(art, x, BASELINE - ART_ICON, ART_ICON, ART_ICON);
+  ctx.fillStyle = INK;
+  ctx.font = FONT;
+  ctx.fillText(label, x + ART_ICON + GAP, BASELINE);
+}
+
 /** A wordless remaining-time bar; `remaining` is the fraction of time left (clamped to 0..1). */
 export function drawTimeBar(ctx: CanvasRenderingContext2D, x: number, width: number, remaining: number): void {
   const left = Math.min(1, Math.max(0, remaining));

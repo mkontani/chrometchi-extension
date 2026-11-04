@@ -62,4 +62,13 @@ describe('advanceTime', () => {
       expect(r.game.pet.awakeMinutes).toBeLessThanOrEqual(1003);
     }
   });
+
+  test('advanceTime reports the minutes it consumed (0 when locked)', () => {
+    const game = makeGame({ lastTickAt: NOON });
+    expect(advanceTime(game, { ...base, now: NOON + 150_000 }).minutes).toBe(2);
+    expect(advanceTime(game, { ...base, idle: 'locked', now: NOON + 120_000 }).minutes).toBe(0);
+    const dead = makeGame({ lastTickAt: NOON, pet: makePet({ lifecycle: 'dead' }) });
+    expect(advanceTime(dead, { ...base, now: NOON + 120_000 }).minutes).toBe(0);
+    expect(advanceTime(game, { ...base, now: NOON + 10 * 60_000 }).minutes).toBe(0);
+  });
 });

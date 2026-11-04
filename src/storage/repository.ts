@@ -1,4 +1,5 @@
 import { DEFAULT_SETTINGS } from '@/core/constants';
+import { EMPTY_KITCHEN } from '@/core/kitchen';
 import { createGame, createZukan } from '@/core/factory';
 import {
   LEGACY_KEYS,
@@ -19,6 +20,7 @@ export function createFreshSave(now: number, flags: Partial<SaveMeta> = {}): Sav
     version: 1,
     game: createGame(now),
     zukan: createZukan(),
+    kitchen: EMPTY_KITCHEN,
     settings: { ...DEFAULT_SETTINGS },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false, ...flags },
   };

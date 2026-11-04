@@ -1,11 +1,15 @@
 import { advanceTime } from '@/core/advance';
 import { applyCare } from '@/core/care';
 import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/lifecycle';
+import { feedFromPantry } from '@/core/pantry';
+import { farmAction, growFarm } from '@/core/farm';
+import { forage } from '@/core/outings';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
   CareOutcome,
   GameEvent,
+  Gained,
   IdleState,
   Rng,
   Settings,
@@ -54,6 +58,7 @@ interface Mutation {
   save: SaveV1;
   events: GameEvent[];
   outcome?: CareOutcome;
+  gained?: Gained;
 }
 
 type Mutator = (save: SaveV1, now: number) => Mutation;
@@ -65,15 +70,41 @@ const withPet = (save: SaveV1, pet: SaveV1['game']['pet']): SaveV1 => ({
   game: { ...save.game, pet },
 });
 
-function mutatorFor(req: EngineRequest): Mutator {
+function forageMutator(req: Extract<EngineRequest, { type: 'forage' }>, rng: Rng): Mutator {
+  return (save, now) => {
+    const r = forage({ pet: save.game.pet, kitchen: save.kitchen, kind: req.kind, score: req.score, now, rng });
+    const gained = r.outcome.result === 'ok' ? r.gained : undefined;
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained };
+  };
+}
+
+function farmMutator(req: Extract<EngineRequest, { type: 'farm' }>): Mutator {
+  return (save) => {
+    const r = farmAction({ pet: save.game.pet, kitchen: save.kitchen, action: req.action });
+    const gained = r.outcome.result === 'ok' && req.action.op === 'harvest' ? r.gained : undefined;
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained };
+  };
+}
+
+function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
   switch (req.type) {
     case 'sync':
       return noMutation;
     case 'care':
       return (save) => {
-        const r = applyCare(save.game.pet, req.action);
+        const { action } = req;
+        if (action.kind === 'feed') {
+          const fed = feedFromPantry(save.game.pet, save.kitchen.pantry, action);
+          const next = { ...withPet(save, fed.result.pet), kitchen: { ...save.kitchen, pantry: fed.pantry } };
+          return { save: next, events: fed.result.events, outcome: fed.result.outcome };
+        }
+        const r = applyCare(save.game.pet, action);
         return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome };
       };
+    case 'forage':
+      return forageMutator(req, rng);
+    case 'farm':
+      return farmMutator(req);
     case 'ackCritical':
       return (save) => ({ save: withPet(save, acknowledgeCritical(save.game.pet)), events: [] });
     case 'updateSettings':
@@ -157,7 +188,12 @@ export function createEngine(deps: EngineDeps): Engine {
       idle,
       rng: deps.rng,
     });
-    const afterAdvance = bookkeepZukan({ ...loaded, game: advanced.game }, advanced.events, now);
+    const grown = { ...loaded.kitchen, farm: growFarm(loaded.kitchen.farm, advanced.minutes) };
+    const afterAdvance = bookkeepZukan(
+      { ...loaded, game: advanced.game, kitchen: grown },
+      advanced.events,
+      now,
+    );
     const mutation = mutate(afterAdvance, now);
     const events = [...advanced.events, ...mutation.events];
     const withZukan = unlockOnly(mutation.save, mutation.events);
@@ -174,8 +210,15 @@ export function createEngine(deps: EngineDeps): Engine {
       const req = parseEngineRequest(raw);
       if (req === null) return { ok: false, error: 'invalid request' };
       try {
-        const { save, outcome } = await enqueue(() => runOperation(mutatorFor(req)));
-        return outcome === undefined ? { ok: true, save } : { ok: true, save, outcome };
+        const { save, outcome, gained } = await enqueue(() =>
+          runOperation(mutatorFor(req, deps.rng)),
+        );
+        return {
+          ok: true,
+          save,
+          ...(outcome === undefined ? {} : { outcome }),
+          ...(gained === undefined ? {} : { gained }),
+        };
       } catch (err) {
         return { ok: false, error: err instanceof Error ? err.message : String(err) };
       }
