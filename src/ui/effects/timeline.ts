@@ -1,5 +1,6 @@
 import type { SfxName } from '@/ui/sound';
 import { CLEAN } from './clean';
+import { COOK } from './cook';
 import { FEED } from './feed';
 import { LIGHTS } from './lights';
 import { MEDICINE } from './medicine';
@@ -34,6 +35,8 @@ function timelineOf(effect: CareEffect): BoundTimeline {
       return bind(MEDICINE, effect);
     case 'lights':
       return bind(LIGHTS, effect);
+    case 'cook':
+      return bind(COOK, effect);
   }
 }
 

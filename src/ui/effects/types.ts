@@ -1,4 +1,4 @@
-import type { FoodId, Pose } from '@/core/types';
+import type { CookedDish, FoodId, Pose } from '@/core/types';
 import type { EffectId } from '@/ui/assets';
 import type { SfxName } from '@/ui/sound';
 
@@ -7,13 +7,15 @@ export type CareEffect =
   | { readonly kind: 'feed'; readonly food: FoodId }
   | { readonly kind: 'clean'; readonly poops: number }
   | { readonly kind: 'medicine'; readonly cured: boolean }
-  | { readonly kind: 'lights'; readonly on: boolean };
+  | { readonly kind: 'lights'; readonly on: boolean }
+  | { readonly kind: 'cook'; readonly dish: CookedDish };
 export type EffectOf<K extends CareEffect['kind']> = Extract<CareEffect, { kind: K }>;
 
 export type PropArt =
   | { readonly kind: 'food'; readonly food: FoodId; readonly bites: 0 | 1 | 2 }
   | { readonly kind: 'effect'; readonly id: EffectId }
-  | { readonly kind: 'icon'; readonly id: 'clean' | 'lights' };
+  | { readonly kind: 'icon'; readonly id: 'clean' | 'lights' }
+  | { readonly kind: 'cook'; readonly id: 'pot' };
 
 /** One picture on the stage: top-left in stage px, drawn at `scale` × the art's own size. */
 export interface Prop {

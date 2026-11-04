@@ -10,6 +10,7 @@ vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
 vi.mock('@/ui/assets', () => ({
   spriteUrl: (_f: string, pose: string) => `sprite-${pose}.png`,
   effectUrl: () => null,
+  cookUrl: () => 'pot.png',
   backgroundUrl: () => null,
   iconUrl: () => null,
   assetUrl: () => null,
@@ -86,6 +87,17 @@ test('choosing a food sends care feed with that food and closes the panel', () =
   fireEvent.click(screen.getByLabelText('action_feed'));
   fireEvent.click(screen.getByText('food_meat'));
   expect(send).toHaveBeenCalledWith({ type: 'care', action: { kind: 'feed', food: 'meat' } });
+  expect(screen.queryByText('panel_food_title')).toBeNull();
+});
+
+test('cooking from the food panel sends the pot and closes the panel', () => {
+  const { send } = setup(null, {}, { kitchen: { ...EMPTY_KITCHEN, pantry: { egg: 2 } } });
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  fireEvent.click(screen.getByRole('tab', { name: 'tab_cook' }));
+  fireEvent.click(screen.getByText('food_rice'));
+  fireEvent.click(screen.getByText('food_egg'));
+  fireEvent.click(screen.getByText('cook_make'));
+  expect(send).toHaveBeenCalledWith({ type: 'cook', items: ['rice', 'egg'] });
   expect(screen.queryByText('panel_food_title')).toBeNull();
 });
 
@@ -302,6 +314,20 @@ test('zukan opens as an overlay, closing the food panel, and closes again', () =
   expect(screen.getByText('zukan_title')).toBeTruthy();
   fireEvent.click(screen.getByLabelText('close'));
   expect(screen.queryByText('zukan_title')).toBeNull();
+});
+
+test('the zukan has Pets and Recipes tabs; Pets shows today\'s zukan first', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  const tabs = screen.getAllByRole('tab');
+  expect(tabs.map((b) => b.textContent)).toEqual(['zukan_tab_pets', 'zukan_tab_recipes']);
+  expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
+  expect(document.querySelector('.zukan__grid')).not.toBeNull();
+  expect(document.querySelector('.recipes')).toBeNull();
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_recipes' }));
+  expect(screen.getByRole('tab', { name: 'zukan_tab_recipes' }).getAttribute('aria-selected')).toBe('true');
+  expect(document.querySelector('.recipes')).not.toBeNull();
+  expect(document.querySelector('.zukan__grid')).toBeNull();
 });
 
 test('roam stays off when site access is refused', async () => {
@@ -601,4 +627,30 @@ test('closing the game mid-way sends nothing', async () => {
   expect(screen.queryByRole('dialog')).toBeNull();
   await act(async () => void vi.advanceTimersByTime(20_000));
   expect(send).not.toHaveBeenCalled();
+});
+
+test('an ok cook plays the pot effect, then the ready note', async () => {
+  vi.useFakeTimers();
+  const freqs = stubAudio();
+  const { send, ui } = setup(null, {}, { kitchen: { ...EMPTY_KITCHEN, pantry: { egg: 2 } } });
+  send.mockResolvedValueOnce({ ok: true, save: fullSave(), outcome: { action: 'cook', result: 'ok' }, cooked: { dish: 'omurice', first: true } });
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  fireEvent.click(screen.getByRole('tab', { name: 'tab_cook' }));
+  fireEvent.click(screen.getByText('food_rice'));
+  fireEvent.click(screen.getByText('food_egg'));
+  fireEvent.click(screen.getByText('cook_make'));
+  await flush();
+  expect(ui.container.querySelector('img.fx-prop--cook')).not.toBeNull();
+  expect(freqs.slice(0, 4)).toEqual([262, 294, 262, 294]);
+  expect(screen.queryByText('cooked_title')).toBeNull();
+  advance(1599);
+  expect(screen.queryByText('cooked_title')).toBeNull();
+  advance(1);
+  expect(ui.container.querySelector('.fx-prop')).toBeNull();
+  expect(screen.getByText('cooked_title')).toBeTruthy();
+  expect(screen.getByText('cooked_first')).toBeTruthy();
+  expect(freqs.slice(-4)).toEqual([659, 784, 988, 1319]);
+  advance(2500);
+  expect(screen.queryByText('cooked_title')).toBeNull();
+  vi.unstubAllGlobals();
 });

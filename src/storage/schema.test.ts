@@ -27,6 +27,7 @@ describe('saveSchema kitchen', () => {
       pantry: { fish: 3, cake: 99, egg: 0 },
       outings: { day: '2026-01-05', used: { fishing: 1, hunting: 3, gathering: 0 } },
       farm: { crop: 'fruit', growMinLeft: 12, watered: true },
+      recipes: ['steak', 'cake'],
     };
     const parsed = saveSchema.safeParse(withKitchen(kitchen));
     expect(parsed.success && parsed.data.kitchen).toEqual(kitchen);
@@ -55,5 +56,18 @@ describe('saveSchema kitchen', () => {
     expect(saveSchema.safeParse(withKitchen(badUsed)).success).toBe(false);
     const badCrop = { ...EMPTY_KITCHEN, farm: { ...EMPTY_KITCHEN.farm, crop: 'rice' } };
     expect(saveSchema.safeParse(withKitchen(badCrop)).success).toBe(false);
+  });
+
+  test('a kitchen without recipes loads with an empty recipe book and keeps the pantry', () => {
+    const plan1 = { pantry: { fish: 4 }, outings: EMPTY_KITCHEN.outings, farm: EMPTY_KITCHEN.farm };
+    const parsed = saveSchema.safeParse(withKitchen(plan1));
+    expect(parsed.success && parsed.data.kitchen.recipes).toEqual([]);
+    expect(parsed.success && parsed.data.kitchen.pantry).toEqual({ fish: 4 });
+  });
+
+  test('unknown or repeated recipe ids are dropped', () => {
+    const k = { ...EMPTY_KITCHEN, recipes: ['steak', 'pizza', 'steak'] };
+    const parsed = saveSchema.safeParse(withKitchen(k));
+    expect(parsed.success && parsed.data.kitchen.recipes).toEqual(['steak']);
   });
 });

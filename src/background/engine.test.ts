@@ -93,6 +93,49 @@ describe('engine', () => {
     expect(stored().kitchen).toEqual(before);
   });
 
+  test('cook requests with a bad pot are rejected and change nothing', async () => {
+    const { engine, stored } = setup();
+    const before = stored();
+    const bad = [[], ['rice', 'rice', 'rice', 'rice', 'rice'], ['candy'], ['steak'], ['beef'], 'meat'];
+    for (const items of bad) {
+      expect(await engine.handle({ type: 'cook', items })).toEqual({ ok: false, error: 'invalid request' });
+    }
+    expect(stored()).toEqual(before);
+  });
+
+  test('cooking steak saves the dish and the recipe and returns cooked', async () => {
+    const { engine, stored, area } = setup();
+    const seeded = stored();
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, pantry: { meat: 2, veggie: 1 } } });
+    const res = await engine.handle({ type: 'cook', items: ['meat', 'veggie', 'meat'] });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'cook', result: 'ok' } });
+    if (!res.ok) throw new Error('unreachable');
+    expect(res.cooked).toEqual({ dish: 'steak', first: true });
+    expect(stored().kitchen.pantry).toEqual({ meat: 0, veggie: 0, steak: 1 });
+    expect(stored().kitchen.recipes).toContain('steak');
+  });
+
+  test('a refused cook returns no cooked and leaves the save unchanged', async () => {
+    const { engine, stored } = setup({ pet: makePet({ asleep: true }) });
+    const before = stored().kitchen;
+    const res = await engine.handle({ type: 'cook', items: ['rice'] });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'cook', result: 'refused', reason: 'asleep' } });
+    expect(res).not.toHaveProperty('cooked');
+    expect(stored().kitchen).toEqual(before);
+  });
+
+  test('cooking the last ingredients twice refuses the second with noStock', async () => {
+    const { engine, stored, area } = setup();
+    const seeded = stored();
+    area.data.set(SAVE_KEY, { ...seeded, kitchen: { ...seeded.kitchen, pantry: { meat: 2, veggie: 1 } } });
+    const req = { type: 'cook', items: ['meat', 'meat', 'veggie'] };
+    const [first, second] = await Promise.all([engine.handle(req), engine.handle(req)]);
+    expect(first).toMatchObject({ ok: true, outcome: { result: 'ok' } });
+    expect(second).toMatchObject({ ok: true, outcome: { result: 'refused', reason: 'noStock' } });
+    expect(second).not.toHaveProperty('cooked');
+    expect(stored().kitchen.pantry).toEqual({ meat: 0, veggie: 0, steak: 1 });
+  });
+
   test('farm requests return gained on harvest', async () => {
     const { engine, stored, area } = setup();
     const seeded = stored();
@@ -200,6 +243,7 @@ describe('engine', () => {
       pantry: { fish: 4 },
       outings: { day: '2026-01-01', used: { fishing: 2, hunting: 0, gathering: 1 } },
       farm: { crop: 'veggie' as const, growMinLeft: 5, watered: true },
+      recipes: ['steak' as const],
     };
     area.data.set(SAVE_KEY, { ...stored(), kitchen });
     await engine.handle({ type: 'restart' });

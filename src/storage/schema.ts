@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import type { GameState, Kitchen, Pantry, PetState, Settings, Zukan } from '@/core/types';
+import type { DishId, GameState, Kitchen, Pantry, PetState, Settings, Zukan } from '@/core/types';
 import { DEFAULT_SETTINGS, MAX_HIDDEN_SITES, PANTRY_MAX } from '@/core/constants';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
-import { FOOD_IDS } from '@/data/foods';
+import { DISH_IDS, FOOD_IDS } from '@/data/foods';
 import { OUTING_KINDS } from '@/data/outings';
 
 /** The single list of notification kinds; the type and the save schema both derive from it. */
@@ -129,6 +129,16 @@ const pantrySchema = z
   .record(z.string(), z.number().int().min(0).max(PANTRY_MAX))
   .transform((counts): Pantry => Object.fromEntries(Object.entries(counts).filter(([f]) => KNOWN_FOODS.has(f))));
 
+const KNOWN_DISHES = new Set<string>(DISH_IDS);
+
+/** Unknown recipe ids and repeats are dropped (first kept) rather than failing the save. */
+const recipesSchema = z
+  .array(z.string())
+  .default([])
+  .transform((ids): DishId[] =>
+    [...new Set(ids)].filter((id): id is DishId => KNOWN_DISHES.has(id)),
+  );
+
 const outingCount = z.number().int().min(0);
 
 const kitchenSchema: z.ZodType<Kitchen> = z.object({
@@ -147,6 +157,7 @@ const kitchenSchema: z.ZodType<Kitchen> = z.object({
     growMinLeft: z.number().int().min(0),
     watered: z.boolean(),
   }),
+  recipes: recipesSchema,
 });
 
 /** Saves written before the kitchen existed get an empty one instead of failing (and resetting). */

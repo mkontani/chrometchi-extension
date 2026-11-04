@@ -1,8 +1,8 @@
-import { effectUrl, foodUrl, iconUrl } from '@/ui/assets';
+import { cookUrl, effectUrl, foodUrl, iconUrl } from '@/ui/assets';
 import type { Prop, PropArt } from '@/ui/effects/types';
 
 /** The art's own size in px, before `scale`. */
-const ART_PX: Readonly<Record<PropArt['kind'], number>> = { food: 32, effect: 16, icon: 16 };
+const ART_PX: Readonly<Record<PropArt['kind'], number>> = { food: 32, effect: 16, icon: 16, cook: 32 };
 
 function propUrl(art: PropArt): string | null {
   switch (art.kind) {
@@ -12,6 +12,8 @@ function propUrl(art: PropArt): string | null {
       return effectUrl(art.id);
     case 'icon':
       return iconUrl(art.id);
+    case 'cook':
+      return cookUrl(art.id);
   }
 }
 

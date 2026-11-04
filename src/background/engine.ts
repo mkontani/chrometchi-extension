@@ -2,11 +2,13 @@ import { advanceTime } from '@/core/advance';
 import { applyCare } from '@/core/care';
 import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/lifecycle';
 import { feedFromPantry } from '@/core/pantry';
+import { cook, type Cooked } from '@/core/cooking';
 import { farmAction, growFarm } from '@/core/farm';
 import { forage } from '@/core/outings';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
+  CareAction,
   CareOutcome,
   GameEvent,
   Gained,
@@ -59,6 +61,7 @@ interface Mutation {
   events: GameEvent[];
   outcome?: CareOutcome;
   gained?: Gained;
+  cooked?: Cooked;
 }
 
 type Mutator = (save: SaveV1, now: number) => Mutation;
@@ -86,25 +89,41 @@ function farmMutator(req: Extract<EngineRequest, { type: 'farm' }>): Mutator {
   };
 }
 
+function careMutator(action: CareAction): Mutator {
+  return (save) => {
+    const r = applyCare(save.game.pet, action);
+    return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome };
+  };
+}
+
+function cookMutator(req: Extract<EngineRequest, { type: 'cook' }>): Mutator {
+  return (save) => {
+    const r = cook({ pet: save.game.pet, kitchen: save.kitchen, items: req.items });
+    const cooked = r.outcome.result === 'ok' && r.cooked !== null ? r.cooked : undefined;
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, cooked };
+  };
+}
+
+function feedMutator(food: Extract<CareAction, { kind: 'feed' }>): Mutator {
+  return (save) => {
+    const fed = feedFromPantry(save.game.pet, save.kitchen.pantry, food);
+    const next = { ...withPet(save, fed.result.pet), kitchen: { ...save.kitchen, pantry: fed.pantry } };
+    return { save: next, events: fed.result.events, outcome: fed.result.outcome };
+  };
+}
+
 function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
   switch (req.type) {
     case 'sync':
       return noMutation;
     case 'care':
-      return (save) => {
-        const { action } = req;
-        if (action.kind === 'feed') {
-          const fed = feedFromPantry(save.game.pet, save.kitchen.pantry, action);
-          const next = { ...withPet(save, fed.result.pet), kitchen: { ...save.kitchen, pantry: fed.pantry } };
-          return { save: next, events: fed.result.events, outcome: fed.result.outcome };
-        }
-        const r = applyCare(save.game.pet, action);
-        return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome };
-      };
+      return req.action.kind === 'feed' ? feedMutator(req.action) : careMutator(req.action);
     case 'forage':
       return forageMutator(req, rng);
     case 'farm':
       return farmMutator(req);
+    case 'cook':
+      return cookMutator(req);
     case 'ackCritical':
       return (save) => ({ save: withPet(save, acknowledgeCritical(save.game.pet)), events: [] });
     case 'updateSettings':
@@ -210,7 +229,7 @@ export function createEngine(deps: EngineDeps): Engine {
       const req = parseEngineRequest(raw);
       if (req === null) return { ok: false, error: 'invalid request' };
       try {
-        const { save, outcome, gained } = await enqueue(() =>
+        const { save, outcome, gained, cooked } = await enqueue(() =>
           runOperation(mutatorFor(req, deps.rng)),
         );
         return {
@@ -218,6 +237,7 @@ export function createEngine(deps: EngineDeps): Engine {
           save,
           ...(outcome === undefined ? {} : { outcome }),
           ...(gained === undefined ? {} : { gained }),
+          ...(cooked === undefined ? {} : { cooked }),
         };
       } catch (err) {
         return { ok: false, error: err instanceof Error ? err.message : String(err) };

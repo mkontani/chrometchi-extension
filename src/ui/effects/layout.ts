@@ -6,6 +6,8 @@ export const STAGE = { w: 352, h: 272 } as const;
 export const PET = { x: 112, y: 100, size: 128 } as const;
 /** The food (32 px art at 2×) beside the pet's mouth. */
 export const FOOD_AT = { x: 208, y: 148 } as const;
+/** The cooking pot (32 px art at 2×) stands where the food does. */
+export const POT_AT = FOOD_AT;
 /** Where the pill (16 px art at 2×) ends up: the pet's mouth. */
 export const MOUTH_AT = { x: 160, y: 164 } as const;
 export const PILL_FROM = { x: 248, y: 84 } as const;

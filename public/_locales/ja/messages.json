@@ -164,6 +164,42 @@
   "food_fruit": {
     "message": "くだもの"
   },
+  "food_steak": {
+    "message": "ステーキ"
+  },
+  "food_acquapazza": {
+    "message": "アクアパッツァ"
+  },
+  "food_onigiri": {
+    "message": "おにぎり"
+  },
+  "food_omurice": {
+    "message": "オムライス"
+  },
+  "food_seafoodbowl": {
+    "message": "かいせんどん"
+  },
+  "food_friedshrimp": {
+    "message": "えびフライ"
+  },
+  "food_hamburg": {
+    "message": "ハンバーグ"
+  },
+  "food_stirfry": {
+    "message": "やさいいため"
+  },
+  "food_mushroomsoup": {
+    "message": "きのこスープ"
+  },
+  "food_nutcookie": {
+    "message": "きのみクッキー"
+  },
+  "food_fruittart": {
+    "message": "フルーツタルト"
+  },
+  "food_mystery": {
+    "message": "ふしぎなりょうり"
+  },
   "game_catch": {
     "message": "キャッチ"
   },
@@ -271,6 +307,9 @@
   },
   "refuse_noStock": {
     "message": "もっていないよ"
+  },
+  "refuse_pantryFull": {
+    "message": "しょくりょうこが いっぱいだよ"
   },
   "refuse_outingLimit": {
     "message": "きょうはもうおしまい"
@@ -646,5 +685,90 @@
   },
   "outing_hint_gathering": {
     "message": "ゆれているしげみをさがそう"
+  },
+  "tab_eat": {
+    "message": "たべる"
+  },
+  "tab_cook": {
+    "message": "りょうりする"
+  },
+  "cook_make": {
+    "message": "つくる"
+  },
+  "cook_pot": {
+    "message": "なべ"
+  },
+  "cook_pot_empty": {
+    "message": "しょくざいを タップして なべに いれよう"
+  },
+  "cooked_title": {
+    "message": "$P1$ ができた！",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "cooked_first": {
+    "message": "はじめて！"
+  },
+  "zukan_tab_pets": {
+    "message": "ペット"
+  },
+  "zukan_tab_recipes": {
+    "message": "レシピ"
+  },
+  "recipes_count": {
+    "message": "みつけたレシピ $P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "recipe_unknown": {
+    "message": "？？？"
+  },
+  "recipe_join": {
+    "message": "・"
+  },
+  "recipe_hint_steak": {
+    "message": "おにくが しゅやく…"
+  },
+  "recipe_hint_acquapazza": {
+    "message": "おさかなを やさいと にこむ…"
+  },
+  "recipe_hint_cake": {
+    "message": "くだものが いっぱい…"
+  },
+  "recipe_hint_onigiri": {
+    "message": "ごはんで なにかを つつむ…"
+  },
+  "recipe_hint_omurice": {
+    "message": "ごはんを たまごで つつむ…"
+  },
+  "recipe_hint_seafoodbowl": {
+    "message": "ごはんに うみのものを のせる…"
+  },
+  "recipe_hint_friedshrimp": {
+    "message": "えびに ころもを つける…"
+  },
+  "recipe_hint_hamburg": {
+    "message": "おにくを こねて まるめる…"
+  },
+  "recipe_hint_stirfry": {
+    "message": "やさいだけで いためる…"
+  },
+  "recipe_hint_mushroomsoup": {
+    "message": "きのこが はいった スープ…"
+  },
+  "recipe_hint_nutcookie": {
+    "message": "きのみを つかった おかし…"
+  },
+  "recipe_hint_fruittart": {
+    "message": "くだものと きのみの おかし…"
   }
 }

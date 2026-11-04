@@ -164,6 +164,42 @@
   "food_fruit": {
     "message": "Fruit"
   },
+  "food_steak": {
+    "message": "Steak"
+  },
+  "food_acquapazza": {
+    "message": "Acqua pazza"
+  },
+  "food_onigiri": {
+    "message": "Rice ball"
+  },
+  "food_omurice": {
+    "message": "Omelet rice"
+  },
+  "food_seafoodbowl": {
+    "message": "Seafood bowl"
+  },
+  "food_friedshrimp": {
+    "message": "Fried shrimp"
+  },
+  "food_hamburg": {
+    "message": "Hamburg steak"
+  },
+  "food_stirfry": {
+    "message": "Veggie stir-fry"
+  },
+  "food_mushroomsoup": {
+    "message": "Mushroom soup"
+  },
+  "food_nutcookie": {
+    "message": "Nut cookie"
+  },
+  "food_fruittart": {
+    "message": "Fruit tart"
+  },
+  "food_mystery": {
+    "message": "Mystery dish"
+  },
   "game_catch": {
     "message": "Catch"
   },
@@ -271,6 +307,9 @@
   },
   "refuse_noStock": {
     "message": "You don't have any."
+  },
+  "refuse_pantryFull": {
+    "message": "Your pantry is full."
   },
   "refuse_outingLimit": {
     "message": "That's enough for today."
@@ -646,5 +685,90 @@
   },
   "outing_hint_gathering": {
     "message": "Find the bushes that shake."
+  },
+  "tab_eat": {
+    "message": "Eat"
+  },
+  "tab_cook": {
+    "message": "Cook"
+  },
+  "cook_make": {
+    "message": "Cook it"
+  },
+  "cook_pot": {
+    "message": "Pot"
+  },
+  "cook_pot_empty": {
+    "message": "Tap ingredients to put them in the pot"
+  },
+  "cooked_title": {
+    "message": "$P1$ is ready!",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "cooked_first": {
+    "message": "New recipe!"
+  },
+  "zukan_tab_pets": {
+    "message": "Pets"
+  },
+  "zukan_tab_recipes": {
+    "message": "Recipes"
+  },
+  "recipes_count": {
+    "message": "Recipes found $P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "recipe_unknown": {
+    "message": "???"
+  },
+  "recipe_join": {
+    "message": " · "
+  },
+  "recipe_hint_steak": {
+    "message": "Meat is the star…"
+  },
+  "recipe_hint_acquapazza": {
+    "message": "Fish simmered with veggies…"
+  },
+  "recipe_hint_cake": {
+    "message": "Lots of fruit…"
+  },
+  "recipe_hint_onigiri": {
+    "message": "Rice wrapped around something…"
+  },
+  "recipe_hint_omurice": {
+    "message": "Rice wrapped in egg…"
+  },
+  "recipe_hint_seafoodbowl": {
+    "message": "Rice topped with things from the sea…"
+  },
+  "recipe_hint_friedshrimp": {
+    "message": "Shrimp in a crispy coat…"
+  },
+  "recipe_hint_hamburg": {
+    "message": "Meat kneaded into a patty…"
+  },
+  "recipe_hint_stirfry": {
+    "message": "Only veggies, stir-fried…"
+  },
+  "recipe_hint_mushroomsoup": {
+    "message": "A soup with mushrooms…"
+  },
+  "recipe_hint_nutcookie": {
+    "message": "A snack made with nuts…"
+  },
+  "recipe_hint_fruittart": {
+    "message": "A snack of fruit and nuts…"
   }
 }

@@ -86,6 +86,8 @@ test.each([
   ['sweep', [330, 262]],
   ['gulp', [392, 262]],
   ['click', [1318]],
+  ['simmer', [262, 294, 262, 294]],
+  ['cooked', [659, 784, 988, 1319]],
 ] as const)('%s plays its notes', (name, notes) => {
   const { ctx, oscillators } = fakeContext();
   createSfx(() => true, () => asCtx(ctx)).play(name);

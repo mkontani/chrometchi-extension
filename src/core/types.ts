@@ -9,7 +9,21 @@ export type IngredientId =
   | 'mushroom'
   | 'veggie'
   | 'fruit';
-export type FoodId = 'rice' | 'candy' | 'cake' | IngredientId;
+export type DishId =
+  | 'steak'
+  | 'acquapazza'
+  | 'cake'
+  | 'onigiri'
+  | 'omurice'
+  | 'seafoodbowl'
+  | 'friedshrimp'
+  | 'hamburg'
+  | 'stirfry'
+  | 'mushroomsoup'
+  | 'nutcookie'
+  | 'fruittart';
+export type CookedDish = DishId | 'mystery';
+export type FoodId = 'rice' | 'candy' | IngredientId | CookedDish;
 export type Pantry = Partial<Record<FoodId, number>>;
 export type Gained = Pantry;
 export type FoodTag = 'grain' | 'meat' | 'fish' | 'veggie' | 'sweet';
@@ -127,6 +141,8 @@ export interface Kitchen {
   pantry: Pantry;
   outings: OutingLog;
   farm: Farm;
+  /** Recipes found so far, in discovery order, no repeats. */
+  recipes: DishId[];
 }
 
 export interface Zukan {
@@ -204,10 +220,11 @@ export type RefuseReason =
   | 'noPoop'
   | 'noStock'
   | 'outingLimit'
-  | 'farmNotReady';
+  | 'farmNotReady'
+  | 'pantryFull';
 
 export interface CareOutcome {
-  action: CareAction['kind'] | 'forage' | 'farm';
+  action: CareAction['kind'] | 'forage' | 'farm' | 'cook';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }
