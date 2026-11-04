@@ -164,6 +164,42 @@
   "food_fruit": {
     "message": "Fruit"
   },
+  "food_steak": {
+    "message": "Steak"
+  },
+  "food_acquapazza": {
+    "message": "Acqua pazza"
+  },
+  "food_onigiri": {
+    "message": "Rice ball"
+  },
+  "food_omurice": {
+    "message": "Omelet rice"
+  },
+  "food_seafoodbowl": {
+    "message": "Seafood bowl"
+  },
+  "food_friedshrimp": {
+    "message": "Fried shrimp"
+  },
+  "food_hamburg": {
+    "message": "Hamburg steak"
+  },
+  "food_stirfry": {
+    "message": "Veggie stir-fry"
+  },
+  "food_mushroomsoup": {
+    "message": "Mushroom soup"
+  },
+  "food_nutcookie": {
+    "message": "Nut cookie"
+  },
+  "food_fruittart": {
+    "message": "Fruit tart"
+  },
+  "food_mystery": {
+    "message": "Mystery dish"
+  },
   "game_catch": {
     "message": "Catch"
   },

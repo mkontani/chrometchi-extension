@@ -164,6 +164,42 @@
   "food_fruit": {
     "message": "くだもの"
   },
+  "food_steak": {
+    "message": "ステーキ"
+  },
+  "food_acquapazza": {
+    "message": "アクアパッツァ"
+  },
+  "food_onigiri": {
+    "message": "おにぎり"
+  },
+  "food_omurice": {
+    "message": "オムライス"
+  },
+  "food_seafoodbowl": {
+    "message": "かいせんどん"
+  },
+  "food_friedshrimp": {
+    "message": "えびフライ"
+  },
+  "food_hamburg": {
+    "message": "ハンバーグ"
+  },
+  "food_stirfry": {
+    "message": "やさいいため"
+  },
+  "food_mushroomsoup": {
+    "message": "きのこスープ"
+  },
+  "food_nutcookie": {
+    "message": "きのみクッキー"
+  },
+  "food_fruittart": {
+    "message": "フルーツタルト"
+  },
+  "food_mystery": {
+    "message": "ふしぎなりょうり"
+  },
   "game_catch": {
     "message": "キャッチ"
   },

@@ -9,8 +9,10 @@ afterEach(cleanup);
 test('lists all foods with a meal or snack tag', () => {
   render(<FoodPanel pantry={{ cake: 1 }} onPick={vi.fn()} onClose={vi.fn()} />);
   for (const f of FOODS) expect(screen.getByText(`food_${f.id}`)).toBeTruthy();
-  expect(screen.getAllByText('food_kind_meal')).toHaveLength(9);
-  expect(screen.getAllByText('food_kind_snack')).toHaveLength(2);
+  expect(screen.getAllByText('food_kind_meal')).toHaveLength(FOODS.filter((f) => f.kind === 'meal').length);
+  expect(screen.getAllByText('food_kind_snack')).toHaveLength(
+    FOODS.filter((f) => f.kind === 'snack').length,
+  );
 });
 
 test('picking a food calls onPick with its id', () => {

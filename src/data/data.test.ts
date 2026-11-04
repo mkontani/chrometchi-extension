@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import type { RefuseReason, Stage } from '@/core/types';
-import { FOODS } from './foods';
+import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
 import { FORMS } from './forms';
 import { GAMES } from './games';
 
@@ -74,6 +74,54 @@ describe('new ingredients', () => {
   });
 });
 
+describe('dishes', () => {
+  // id, tag, kind, hunger, mood, weight, vitality
+  const table = [
+    ['steak', 'meat', 'meal', 60, 15, 2, 3],
+    ['acquapazza', 'fish', 'meal', 60, 15, 1, 6],
+    ['onigiri', 'grain', 'meal', 55, 10, 1, 2],
+    ['omurice', 'meat', 'meal', 60, 15, 2, 3],
+    ['seafoodbowl', 'fish', 'meal', 65, 15, 1, 5],
+    ['friedshrimp', 'fish', 'meal', 55, 20, 2, 2],
+    ['hamburg', 'meat', 'meal', 65, 20, 2, 3],
+    ['stirfry', 'veggie', 'meal', 50, 10, 0, 8],
+    ['mushroomsoup', 'veggie', 'meal', 45, 10, 0, 8],
+    ['nutcookie', 'grain', 'snack', 15, 25, 2, 0],
+    ['fruittart', 'sweet', 'snack', 15, 35, 2, 2],
+    ['mystery', 'grain', 'meal', 20, 5, 1, 0],
+  ] as const;
+
+  test('the dishes and the mystery dish are foods with the planned values', () => {
+    for (const [id, tag, kind, hunger, mood, weight, vitality] of table) {
+      expect(FOODS.find((f) => f.id === id), id).toEqual({
+        id, tag, kind, hunger, mood, weight, vitality,
+      });
+    }
+    expect(FOODS.map((f) => f.id).slice(0, 11)).toEqual([
+      'rice', 'candy', 'fish', 'shrimp', 'meat', 'egg', 'nuts', 'mushroom', 'veggie', 'fruit', 'cake',
+    ]);
+    expect(FOODS.map((f) => f.id).slice(11)).toEqual(table.map((r) => r[0]));
+  });
+
+  test('DISH_IDS lists the 12 dishes in spec order, and isDish is true only for them and mystery', () => {
+    expect(DISH_IDS).toEqual([
+      'steak', 'acquapazza', 'cake', 'onigiri', 'omurice', 'seafoodbowl',
+      'friedshrimp', 'hamburg', 'stirfry', 'mushroomsoup', 'nutcookie', 'fruittart',
+    ]);
+    for (const id of DISH_IDS) expect(isDish(id), id).toBe(true);
+    expect(isDish('mystery')).toBe(true);
+    expect(isDish('fish')).toBe(false);
+    expect(isDish('rice')).toBe(false);
+    expect(isDish('candy')).toBe(false);
+  });
+
+  test('INGREDIENT_IDS lists the 8 ingredients', () => {
+    expect(INGREDIENT_IDS).toEqual([
+      'fish', 'shrimp', 'meat', 'egg', 'nuts', 'mushroom', 'veggie', 'fruit',
+    ]);
+  });
+});
+
 describe('i18n', () => {
   test('ja and en messages have identical key sets', () => {
     expect(Object.keys(ja).sort()).toEqual(Object.keys(en).sort());
@@ -85,7 +133,7 @@ describe('i18n', () => {
       ...FOODS.map((f) => `food_${f.id}`),
       ...GAMES.map((g) => `game_${g}`),
     ];
-    expect(keys).toHaveLength(42 + 11 + 3);
+    expect(keys).toHaveLength(42 + 23 + 3);
     for (const key of keys) {
       expect(ja[key]?.message, `ja ${key}`).toBeTruthy();
       expect(en[key]?.message, `en ${key}`).toBeTruthy();

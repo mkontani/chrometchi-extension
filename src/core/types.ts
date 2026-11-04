@@ -9,7 +9,21 @@ export type IngredientId =
   | 'mushroom'
   | 'veggie'
   | 'fruit';
-export type FoodId = 'rice' | 'candy' | 'cake' | IngredientId;
+export type DishId =
+  | 'steak'
+  | 'acquapazza'
+  | 'cake'
+  | 'onigiri'
+  | 'omurice'
+  | 'seafoodbowl'
+  | 'friedshrimp'
+  | 'hamburg'
+  | 'stirfry'
+  | 'mushroomsoup'
+  | 'nutcookie'
+  | 'fruittart';
+export type CookedDish = DishId | 'mystery';
+export type FoodId = 'rice' | 'candy' | IngredientId | CookedDish;
 export type Pantry = Partial<Record<FoodId, number>>;
 export type Gained = Pantry;
 export type FoodTag = 'grain' | 'meat' | 'fish' | 'veggie' | 'sweet';
