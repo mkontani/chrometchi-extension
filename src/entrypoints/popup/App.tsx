@@ -9,6 +9,7 @@ import { ActionBar, type ActionKind } from '@/ui/components/ActionBar';
 import { CriticalBanner } from '@/ui/components/CriticalBanner';
 import { EndingView } from '@/ui/components/EndingView';
 import { FoodPanel } from '@/ui/components/FoodPanel';
+import { CookedNote } from '@/ui/components/CookedNote';
 import { GainedNote } from '@/ui/components/GainedNote';
 import { MiniGameHost } from '@/ui/components/MiniGameHost';
 import { NoticeDialog } from '@/ui/components/NoticeDialog';
@@ -27,6 +28,8 @@ import { useGame, type UseGame } from '@/ui/useGame';
 import { useReaction } from '@/ui/useReaction';
 import { useCare } from '@/ui/useCare';
 import { useCooking } from '@/ui/useCooking';
+import { effectDurationMs } from '@/ui/effects/timeline';
+import type { CareEffect } from '@/ui/effects/types';
 import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
@@ -106,11 +109,18 @@ interface MainProps {
 
 function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo, onFarm, gained, onGainedDone, playSfx }: MainProps) {
   const { reaction, fromPlay } = useReaction(outcome);
-  const effects = useCareEffect({ reduced: useReducedMotion(), onCue: playSfx });
+  const reduced = useReducedMotion();
+  const effects = useCareEffect({ reduced, onCue: playSfx });
   const ackCritical = useCallback(() => void send({ type: 'ackCritical' }), [send]);
   const pet = save.game.pet;
   const { stagePet, care } = useCare(pet, send, effects.play);
   const cooking = useCooking(send);
+  const { cooked, clearCooked } = cooking;
+  const { play } = effects;
+  const cookEffect: CareEffect | null = cooked && { kind: 'cook', dish: cooked.dish };
+  useEffect(() => {
+    if (cookEffect) play(cookEffect);
+  }, [cooked, play]);
   const onSelect = (kind: ActionKind) => {
     if (kind === 'clean' || kind === 'medicine') care({ kind });
     else if (kind === 'lights') care({ kind, on: !pet.lightsOn });
@@ -135,6 +145,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
         <div class="stage-area__overlay stage-area__overlay--top">
           <CriticalBanner pet={pet} onAck={ackCritical} />
           <GainedNote gained={gained} onDone={onGainedDone} />
+          <CookedNote cooked={cooked} delayMs={cookEffect ? effectDurationMs(cookEffect, reduced) : 0} onDone={clearCooked} />
         </div>
         {panel && <div class="stage-area__overlay stage-area__overlay--bottom">{choice}</div>}
       </div>

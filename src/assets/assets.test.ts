@@ -4,7 +4,7 @@ import { describe, expect, test } from 'vitest';
 import { checkImage, requiredSpritePaths } from '../../scripts/art/lib';
 import { FOODS } from '@/data/foods';
 import { FORMS } from '@/data/forms';
-import { BACKGROUND_IDS, EFFECT_IDS, GAME_ART_IDS, ICON_IDS, OUTING_ART_IDS, OUTING_ART_SIZE } from '@/ui/assets';
+import { BACKGROUND_IDS, COOK_ART_IDS, EFFECT_IDS, GAME_ART_IDS, ICON_IDS, OUTING_ART_IDS, OUTING_ART_SIZE } from '@/ui/assets';
 import palette from './palette.json';
 
 const sprite = { width: 32, height: 32, palette, transparentCorners: true };
@@ -34,6 +34,7 @@ function checkedPngs(): Set<string> {
     ...EFFECT_IDS.map((id) => `src/assets/ui/effects/${id}.png`),
     ...GAME_ART_IDS.map((id) => `src/assets/ui/game/${id}.png`),
     ...OUTING_ART_IDS.map((id) => `src/assets/ui/outing/${id}.png`),
+    ...COOK_ART_IDS.map((id) => `src/assets/ui/cook/${id}.png`),
     ...BACKGROUND_IDS.map((id) => `src/assets/ui/bg/${id}.png`),
     ...BITTEN_FOODS,
     'src/assets/ui/frame.png',
@@ -55,6 +56,9 @@ describe('shipped art is complete and on-palette', () => {
   });
   test.each(GAME_ART_IDS)('game art %s', (id) => {
     expect(checkImage(`src/assets/ui/game/${id}.png`, sized(GAME_ART_SIZE[id] ?? 0))).toEqual([]);
+  });
+  test.each(COOK_ART_IDS)('cook art %s', (id) => {
+    expect(checkImage(`src/assets/ui/cook/${id}.png`, sized(32))).toEqual([]);
   });
   test.each(OUTING_ART_IDS)('outing art %s', (id) => {
     expect(checkImage(`src/assets/ui/outing/${id}.png`, sized(OUTING_ART_SIZE[id]))).toEqual([]);

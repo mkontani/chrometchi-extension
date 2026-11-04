@@ -10,6 +10,7 @@ vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
 vi.mock('@/ui/assets', () => ({
   spriteUrl: (_f: string, pose: string) => `sprite-${pose}.png`,
   effectUrl: () => null,
+  cookUrl: () => 'pot.png',
   backgroundUrl: () => null,
   iconUrl: () => null,
   assetUrl: () => null,
@@ -612,4 +613,30 @@ test('closing the game mid-way sends nothing', async () => {
   expect(screen.queryByRole('dialog')).toBeNull();
   await act(async () => void vi.advanceTimersByTime(20_000));
   expect(send).not.toHaveBeenCalled();
+});
+
+test('an ok cook plays the pot effect, then the ready note', async () => {
+  vi.useFakeTimers();
+  const freqs = stubAudio();
+  const { send, ui } = setup(null, {}, { kitchen: { ...EMPTY_KITCHEN, pantry: { egg: 2 } } });
+  send.mockResolvedValueOnce({ ok: true, save: fullSave(), outcome: { action: 'cook', result: 'ok' }, cooked: { dish: 'omurice', first: true } });
+  fireEvent.click(screen.getByLabelText('action_feed'));
+  fireEvent.click(screen.getByRole('tab', { name: 'tab_cook' }));
+  fireEvent.click(screen.getByText('food_rice'));
+  fireEvent.click(screen.getByText('food_egg'));
+  fireEvent.click(screen.getByText('cook_make'));
+  await flush();
+  expect(ui.container.querySelector('img.fx-prop--cook')).not.toBeNull();
+  expect(freqs.slice(0, 4)).toEqual([262, 294, 262, 294]);
+  expect(screen.queryByText('cooked_title')).toBeNull();
+  advance(1599);
+  expect(screen.queryByText('cooked_title')).toBeNull();
+  advance(1);
+  expect(ui.container.querySelector('.fx-prop')).toBeNull();
+  expect(screen.getByText('cooked_title')).toBeTruthy();
+  expect(screen.getByText('cooked_first')).toBeTruthy();
+  expect(freqs.slice(-4)).toEqual([659, 784, 988, 1319]);
+  advance(2500);
+  expect(screen.queryByText('cooked_title')).toBeNull();
+  vi.unstubAllGlobals();
 });

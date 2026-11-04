@@ -700,5 +700,16 @@
   },
   "cook_pot_empty": {
     "message": "しょくざいを タップして なべに いれよう"
+  },
+  "cooked_title": {
+    "message": "$P1$ ができた！",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "cooked_first": {
+    "message": "はじめて！"
   }
 }

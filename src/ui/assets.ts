@@ -18,6 +18,7 @@ export type IconId =
 export type EffectId =
   | 'poop' | 'zzz' | 'sweat' | 'sparkle' | 'note' | 'skull' | 'pill'
   | 'crumb' | 'dust0' | 'dust1' | 'dust2' | 'star';
+export type CookArtId = 'pot';
 export type BackgroundId = 'room_day' | 'room_night';
 export type GameArtId = 'rock' | 'cup' | 'treat';
 
@@ -42,6 +43,8 @@ export const OUTING_ART_SIZE: Readonly<Record<OutingArtId, number>> = {
   hud_fish: 16, hud_meat: 16, hud_nuts: 16, hud_bush: 16,
   boar: 24, chicken: 24,
 };
+/** Art for the cooking effect (`src/assets/ui/cook/<id>.png`, 32×32). */
+export const COOK_ART_IDS: readonly CookArtId[] = ['pot'];
 export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
 export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];
 
@@ -62,6 +65,7 @@ export function spriteUrl(formId: FormId, pose: Pose, generation = 1): string {
 
 export const iconUrl = (id: IconId): string | null => lookup(`ui/icons/${id}`);
 export const effectUrl = (id: EffectId): string | null => lookup(`ui/effects/${id}`);
+export const cookUrl = (id: CookArtId): string | null => lookup(`ui/cook/${id}`);
 export const backgroundUrl = (id: BackgroundId): string | null => lookup(`ui/bg/${id}`);
 export const gameArtUrl = (id: GameArtId): string | null => lookup(`ui/game/${id}`);
 

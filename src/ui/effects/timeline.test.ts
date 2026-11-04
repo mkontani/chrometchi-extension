@@ -11,6 +11,8 @@ const EFFECTS: CareEffect[] = [
   { kind: 'medicine', cured: true },
   { kind: 'lights', on: false },
   { kind: 'lights', on: true },
+  { kind: 'cook', dish: 'steak' },
+  { kind: 'cook', dish: 'mystery' },
 ];
 const frames = (e: CareEffect, reduced: boolean): EffectFrame[] =>
   Array.from({ length: Math.ceil(effectDurationMs(e, reduced) / 50) }, (_, i) => effectFrame(e, i * 50, reduced));

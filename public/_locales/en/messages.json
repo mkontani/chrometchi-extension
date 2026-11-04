@@ -700,5 +700,16 @@
   },
   "cook_pot_empty": {
     "message": "Tap ingredients to put them in the pot"
+  },
+  "cooked_title": {
+    "message": "$P1$ is ready!",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "cooked_first": {
+    "message": "New recipe!"
   }
 }

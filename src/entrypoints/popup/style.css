@@ -250,3 +250,7 @@ body {
 .gained-note__row { display: flex; align-items: center; gap: 8px; }
 .gained-note__row img { image-rendering: pixelated; }
 .gained-note__row span:first-of-type { flex: 1; }
+.cooked-note__row { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.cooked-note__row p { margin: 0; }
+.cooked-note__row img { image-rendering: pixelated; }
+.cooked-note__first { color: var(--ink); font-weight: bold; }
