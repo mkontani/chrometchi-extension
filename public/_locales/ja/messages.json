@@ -711,5 +711,64 @@
   },
   "cooked_first": {
     "message": "はじめて！"
+  },
+  "zukan_tab_pets": {
+    "message": "ペット"
+  },
+  "zukan_tab_recipes": {
+    "message": "レシピ"
+  },
+  "recipes_count": {
+    "message": "みつけたレシピ $P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "recipe_unknown": {
+    "message": "？？？"
+  },
+  "recipe_join": {
+    "message": "・"
+  },
+  "recipe_hint_steak": {
+    "message": "おにくが しゅやく…"
+  },
+  "recipe_hint_acquapazza": {
+    "message": "おさかなを やさいと にこむ…"
+  },
+  "recipe_hint_cake": {
+    "message": "くだものが いっぱい…"
+  },
+  "recipe_hint_onigiri": {
+    "message": "ごはんで なにかを つつむ…"
+  },
+  "recipe_hint_omurice": {
+    "message": "ごはんを たまごで つつむ…"
+  },
+  "recipe_hint_seafoodbowl": {
+    "message": "ごはんに うみのものを のせる…"
+  },
+  "recipe_hint_friedshrimp": {
+    "message": "えびに ころもを つける…"
+  },
+  "recipe_hint_hamburg": {
+    "message": "おにくを こねて まるめる…"
+  },
+  "recipe_hint_stirfry": {
+    "message": "やさいだけで いためる…"
+  },
+  "recipe_hint_mushroomsoup": {
+    "message": "きのこが はいった スープ…"
+  },
+  "recipe_hint_nutcookie": {
+    "message": "きのみを つかった おかし…"
+  },
+  "recipe_hint_fruittart": {
+    "message": "くだものと きのみの おかし…"
   }
 }

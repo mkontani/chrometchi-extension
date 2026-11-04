@@ -316,6 +316,20 @@ test('zukan opens as an overlay, closing the food panel, and closes again', () =
   expect(screen.queryByText('zukan_title')).toBeNull();
 });
 
+test('the zukan has Pets and Recipes tabs; Pets shows today\'s zukan first', () => {
+  setup();
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  const tabs = screen.getAllByRole('tab');
+  expect(tabs.map((b) => b.textContent)).toEqual(['zukan_tab_pets', 'zukan_tab_recipes']);
+  expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
+  expect(document.querySelector('.zukan__grid')).not.toBeNull();
+  expect(document.querySelector('.recipes')).toBeNull();
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_recipes' }));
+  expect(screen.getByRole('tab', { name: 'zukan_tab_recipes' }).getAttribute('aria-selected')).toBe('true');
+  expect(document.querySelector('.recipes')).not.toBeNull();
+  expect(document.querySelector('.zukan__grid')).toBeNull();
+});
+
 test('roam stays off when site access is refused', async () => {
   requestRoamAccess.mockResolvedValueOnce(false);
   const { send } = setup();

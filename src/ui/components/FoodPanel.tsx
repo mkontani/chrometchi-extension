@@ -8,6 +8,7 @@ import { iconUrl } from '@/ui/assets';
 import { useScrollCue } from '@/ui/useScrollCue';
 import { CookTab } from './CookTab';
 import { Panel } from './Panel';
+import { TabBar } from './TabBar';
 
 interface Props {
   pantry: Pantry;
@@ -20,28 +21,10 @@ interface Props {
 const FOOD_ROW_PX = 50;
 
 type Tab = 'eat' | 'cook';
-const TABS: readonly Tab[] = ['eat', 'cook'];
+const tabDefs = (): readonly { id: Tab; label: string }[] =>
+  (['eat', 'cook'] as const).map((id) => ({ id, label: t(`tab_${id}`) }));
 
 const countLabel = (n: number) => (n === Infinity ? '∞' : `×${n}`);
-
-function Tabs({ tab, onTab }: { tab: Tab; onTab(next: Tab): void }) {
-  return (
-    <div class="panel__tabs" role="tablist">
-      {TABS.map((id) => (
-        <button
-          key={id}
-          type="button"
-          role="tab"
-          class="panel__tab"
-          aria-selected={tab === id}
-          onClick={() => onTab(id)}
-        >
-          {t(`tab_${id}`)}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 function EatTab({ pantry, onPick }: Pick<Props, 'pantry' | 'onPick'>) {
   const [listRef, more] = useScrollCue<HTMLDivElement>();
@@ -96,7 +79,7 @@ export function FoodPanel({ pantry, onPick, onCook, onClose }: Props) {
     <Panel
       title={t('panel_food_title')}
       onClose={onClose}
-      headerExtra={<Tabs tab={tab} onTab={setTab} />}
+      headerExtra={<TabBar<Tab> tabs={tabDefs()} active={tab} onTab={setTab} />}
     >
       {tab === 'eat' ? (
         <EatTab pantry={pantry} onPick={onPick} />

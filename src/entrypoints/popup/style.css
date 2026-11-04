@@ -254,3 +254,13 @@ body {
 .cooked-note__row p { margin: 0; }
 .cooked-note__row img { image-rendering: pixelated; }
 .cooked-note__first { color: var(--ink); font-weight: bold; }
+.overlay__body > .panel__tabs { margin-bottom: 4px; }
+.recipes__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 3px; }
+.recipes__row { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border: 2px solid var(--ink); background: var(--cream); min-width: 0; }
+.recipes__row img { flex: none; image-rendering: pixelated; }
+.recipes__unknown-icon {
+  flex: none; box-sizing: border-box; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--ink); background: #fff; font-size: 14px;
+}
+.recipes__text { display: flex; flex-direction: column; min-width: 0; font-size: 11px; }
+.recipes__detail { font-size: 9px; color: #6b5d78; }

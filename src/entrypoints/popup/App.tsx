@@ -17,6 +17,8 @@ import { OutingHost } from '@/ui/components/OutingHost';
 import { OutingPanel } from '@/ui/components/OutingPanel';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
+import { RecipeBook } from '@/ui/components/RecipeBook';
+import { TabBar } from '@/ui/components/TabBar';
 import { PetStage } from '@/ui/components/PetStage';
 import { PlayPanel } from '@/ui/components/PlayPanel';
 import { SettingsView } from '@/ui/components/SettingsView';
@@ -163,12 +165,28 @@ async function toggleRoam(next: boolean, send: UseGame['send']): Promise<void> {
   await send({ type: 'updateSettings', patch: { roam: next } });
 }
 
+type ZukanTab = 'pets' | 'recipes';
+
+function ZukanTabs({ save }: { save: SaveV1 }) {
+  const [tab, setTab] = useState<ZukanTab>('pets');
+  const tabs: readonly { id: ZukanTab; label: string }[] = [
+    { id: 'pets', label: t('zukan_tab_pets') },
+    { id: 'recipes', label: t('zukan_tab_recipes') },
+  ];
+  return (
+    <>
+      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} />
+      {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : <RecipeBook recipes={save.kitchen.recipes} />}
+    </>
+  );
+}
+
 function InfoOverlay(props: { kind: 'zukan' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
   const { kind, save, send, onClose } = props;
   if (kind === 'zukan') {
     return (
       <Overlay title={t('zukan_title')} onClose={onClose}>
-        <ZukanView zukan={save.zukan} />
+        <ZukanTabs save={save} />
       </Overlay>
     );
   }

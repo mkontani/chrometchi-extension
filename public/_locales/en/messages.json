@@ -711,5 +711,64 @@
   },
   "cooked_first": {
     "message": "New recipe!"
+  },
+  "zukan_tab_pets": {
+    "message": "Pets"
+  },
+  "zukan_tab_recipes": {
+    "message": "Recipes"
+  },
+  "recipes_count": {
+    "message": "Recipes found $P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "recipe_unknown": {
+    "message": "???"
+  },
+  "recipe_join": {
+    "message": " · "
+  },
+  "recipe_hint_steak": {
+    "message": "Meat is the star…"
+  },
+  "recipe_hint_acquapazza": {
+    "message": "Fish simmered with veggies…"
+  },
+  "recipe_hint_cake": {
+    "message": "Lots of fruit…"
+  },
+  "recipe_hint_onigiri": {
+    "message": "Rice wrapped around something…"
+  },
+  "recipe_hint_omurice": {
+    "message": "Rice wrapped in egg…"
+  },
+  "recipe_hint_seafoodbowl": {
+    "message": "Rice topped with things from the sea…"
+  },
+  "recipe_hint_friedshrimp": {
+    "message": "Shrimp in a crispy coat…"
+  },
+  "recipe_hint_hamburg": {
+    "message": "Meat kneaded into a patty…"
+  },
+  "recipe_hint_stirfry": {
+    "message": "Only veggies, stir-fried…"
+  },
+  "recipe_hint_mushroomsoup": {
+    "message": "A soup with mushrooms…"
+  },
+  "recipe_hint_nutcookie": {
+    "message": "A snack made with nuts…"
+  },
+  "recipe_hint_fruittart": {
+    "message": "A snack of fruit and nuts…"
   }
 }
