@@ -308,6 +308,9 @@
   "refuse_noStock": {
     "message": "もっていないよ"
   },
+  "refuse_pantryFull": {
+    "message": "しょくりょうこが いっぱいだよ"
+  },
   "refuse_outingLimit": {
     "message": "きょうはもうおしまい"
   },

@@ -200,6 +200,7 @@ describe('engine', () => {
       pantry: { fish: 4 },
       outings: { day: '2026-01-01', used: { fishing: 2, hunting: 0, gathering: 1 } },
       farm: { crop: 'veggie' as const, growMinLeft: 5, watered: true },
+      recipes: ['steak' as const],
     };
     area.data.set(SAVE_KEY, { ...stored(), kitchen });
     await engine.handle({ type: 'restart' });

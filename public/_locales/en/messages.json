@@ -308,6 +308,9 @@
   "refuse_noStock": {
     "message": "You don't have any."
   },
+  "refuse_pantryFull": {
+    "message": "Your pantry is full."
+  },
   "refuse_outingLimit": {
     "message": "That's enough for today."
   },

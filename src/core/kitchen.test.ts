@@ -18,6 +18,7 @@ describe('EMPTY_KITCHEN', () => {
       pantry: {},
       outings: { day: '', used: { fishing: 0, hunting: 0, gathering: 0 } },
       farm: { crop: null, growMinLeft: 0, watered: false },
+      recipes: [],
     });
   });
 });

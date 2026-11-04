@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { applyCare } from './care';
 import { MEDICINE_DOSES, STAGE_MINUTES } from './constants';
+import { cook } from './cooking';
 import { dominant, weightClass } from './evolution';
 import { createEgg } from './factory';
 import { farmAction, growFarm } from './farm';
@@ -9,7 +10,7 @@ import { forage, outingsLeft } from './outings';
 import { feedFromPantry } from './pantry';
 import { createRng } from './rng';
 import { stepMinute } from './step';
-import type { CareAction, FoodId, FoodTag, Kitchen, PetState } from './types';
+import type { CareAction, Crop, FoodId, FoodTag, Kitchen, PetState } from './types';
 import { FOODS } from '@/data/foods';
 import { OUTING_KINDS } from '@/data/outings';
 
@@ -135,27 +136,39 @@ function foodsOfTag(tag: FoodTag): FoodId[] {
   return FOODS.filter((f) => f.tag === tag && f.id !== 'candy').map((f) => f.id);
 }
 
-/** Outings left today at score 50, then the field: harvest, plant fruit, water. */
-function gather(pet: PetState, start: Kitchen, now: number, rng: ReturnType<typeof createRng>): Kitchen {
+/** Outings left today at score 50, then the field: harvest, plant a crop (fruit), water. */
+function gather(
+  pet: PetState,
+  start: Kitchen,
+  now: number,
+  rng: ReturnType<typeof createRng>,
+  crop: Crop = 'fruit',
+): Kitchen {
   let kitchen = start;
   for (const kind of OUTING_KINDS) {
     while (outingsLeft(kitchen.outings, kind, now) > 0) {
       kitchen = forage({ pet, kitchen, kind, score: OUTING_SCORE, now, rng }).kitchen;
     }
   }
-  for (const op of [{ op: 'harvest' }, { op: 'plant', crop: 'fruit' }, { op: 'water' }] as const) {
+  for (const op of [{ op: 'harvest' }, { op: 'plant', crop }, { op: 'water' }] as const) {
     kitchen = farmAction({ pet, kitchen, action: op }).kitchen;
   }
   return kitchen;
 }
 
-function mealOrder(kitchen: Kitchen, route: Route | null): FoodId[] {
-  const preferred = route === null ? [] : foodsOfTag(route);
+function mealOrder(kitchen: Kitchen, route: Route | null, firstFood: FoodId | null = null): FoodId[] {
+  const tagged = route === null ? [] : foodsOfTag(route);
+  const preferred = firstFood === null ? tagged : [firstFood, ...tagged.filter((f) => f !== firstFood)];
   return [...preferred.filter((f) => (kitchen.pantry[f] ?? 0) > 0), 'rice'];
 }
 
 /** Up to 3 meals from the pantry (route foods first, then rice); sweet adds at most 1 candy. */
-function eat(start: PetState, startKitchen: Kitchen, route: Route | null): { pet: PetState; kitchen: Kitchen } {
+function eat(
+  start: PetState,
+  startKitchen: Kitchen,
+  route: Route | null,
+  firstFood: FoodId | null = null,
+): { pet: PetState; kitchen: Kitchen } {
   let pet = start;
   let kitchen = startKitchen;
   const feedOne = (food: FoodId): boolean => {
@@ -171,19 +184,29 @@ function eat(start: PetState, startKitchen: Kitchen, route: Route | null): { pet
   };
   for (let i = 0; i < MAX_MEALS; i++) {
     // Re-pick from the updated pantry so a spent stock falls back to the next food, then rice.
-    if (!feedOne(mealOrder(kitchen, route)[0] ?? 'rice')) break;
+    if (!feedOne(mealOrder(kitchen, route, firstFood)[0] ?? 'rice')) break;
   }
   if (route === 'sweet') feedOne('candy');
   return { pet, kitchen };
 }
 
+/** Cooks steak while the pantry holds 2 meat and 1 veggie. */
+function cookSteaks(pet: PetState, start: Kitchen): Kitchen {
+  let kitchen = start;
+  while ((kitchen.pantry.meat ?? 0) >= 2 && (kitchen.pantry.veggie ?? 0) >= 1) {
+    kitchen = cook({ pet, kitchen, items: ['meat', 'meat', 'veggie'] }).kitchen;
+  }
+  return kitchen;
+}
+
 function kitchenVisit(
   start: PetState,
   kitchen: Kitchen,
-  ctx: { route: Route | null; now: number; rng: ReturnType<typeof createRng> },
+  ctx: { route: Route | null; now: number; rng: ReturnType<typeof createRng>; steak?: boolean },
 ): { pet: PetState; kitchen: Kitchen } {
-  const stocked = gather(start, kitchen, ctx.now, ctx.rng);
-  const fed = eat(start, stocked, ctx.route);
+  const gathered = gather(start, kitchen, ctx.now, ctx.rng, ctx.steak ? 'veggie' : 'fruit');
+  const stocked = ctx.steak ? cookSteaks(start, gathered) : gathered;
+  const fed = eat(start, stocked, ctx.route, ctx.steak ? 'steak' : null);
   const pet = tend(fed.pet);
   return { pet, kitchen: fed.kitchen };
 }
@@ -194,7 +217,11 @@ interface RouteRun {
 }
 
 /** Sparse care (a visit every 160 awake minutes) with outings and farm, until the child stage ends. */
-function simulateRoute(route: Route | null, extraVisits: readonly number[] = []): RouteRun {
+function simulateRoute(
+  route: Route | null,
+  extraVisits: readonly number[] = [],
+  steak = false,
+): RouteRun {
   const rng = createRng(1);
   const forageRng = createRng(7);
   const hatch = STAGE_MINUTES.egg;
@@ -216,7 +243,7 @@ function simulateRoute(route: Route | null, extraVisits: readonly number[] = [])
     const next =
       route === null
         ? { pet: visit(pet), kitchen }
-        : kitchenVisit(pet, { ...kitchen, farm }, { route, now, rng: forageRng });
+        : kitchenVisit(pet, { ...kitchen, farm }, { route, now, rng: forageRng, steak });
     pet = next.pet;
     kitchen = next.kitchen;
   }
@@ -249,5 +276,11 @@ describe('evolution routes under outing limits (spec 7.1)', () => {
     const { lastBaby } = simulateRoute('meat', [BABY_EXTRA_VISIT]);
     expect(lastBaby.stage).toBe('baby');
     expect(weightClass(lastBaby)).toBe('heavy');
+  });
+
+  test('a player who cooks steak from the haul still ends the child stage meat-dominant', () => {
+    const { lastChild } = simulateRoute('meat', [], true);
+    expect(lastChild.stage).toBe('child');
+    expect(dominant(lastChild.history.foodCounts)).toBe('meat');
   });
 });

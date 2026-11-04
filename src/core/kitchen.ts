@@ -4,6 +4,7 @@ export const EMPTY_KITCHEN: Kitchen = {
   pantry: {},
   outings: { day: '', used: { fishing: 0, hunting: 0, gathering: 0 } },
   farm: { crop: null, growMinLeft: 0, watered: false },
+  recipes: [],
 };
 
 /** The local calendar date as `YYYY-MM-DD`. */

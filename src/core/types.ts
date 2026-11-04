@@ -141,6 +141,8 @@ export interface Kitchen {
   pantry: Pantry;
   outings: OutingLog;
   farm: Farm;
+  /** Recipes found so far, in discovery order, no repeats. */
+  recipes: DishId[];
 }
 
 export interface Zukan {
@@ -218,10 +220,11 @@ export type RefuseReason =
   | 'noPoop'
   | 'noStock'
   | 'outingLimit'
-  | 'farmNotReady';
+  | 'farmNotReady'
+  | 'pantryFull';
 
 export interface CareOutcome {
-  action: CareAction['kind'] | 'forage' | 'farm';
+  action: CareAction['kind'] | 'forage' | 'farm' | 'cook';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }

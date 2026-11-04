@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import type { RefuseReason, Stage } from '@/core/types';
 import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
+import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
 
@@ -122,6 +123,54 @@ describe('dishes', () => {
   });
 });
 
+describe('recipes', () => {
+  const key = (items: Readonly<Record<string, number | undefined>>) =>
+    Object.entries(items).filter(([, n]) => n).sort().join('|');
+
+  test('there are 12 recipes, one per dish, in dish order', () => {
+    expect(RECIPES.map((r) => r.id)).toEqual(DISH_IDS);
+    expect(POT_ITEMS).toEqual(['rice', ...INGREDIENT_IDS]);
+  });
+
+  test('no two recipes share the same ingredients', () => {
+    expect(new Set(RECIPES.map((r) => key(r.items))).size).toBe(RECIPES.length);
+  });
+
+  test('every recipe uses 1 to 4 pot items and only pot items', () => {
+    for (const r of RECIPES) {
+      const entries = Object.entries(r.items);
+      const total = entries.reduce((sum, [, n]) => sum + n, 0);
+      expect(total, r.id).toBeGreaterThanOrEqual(1);
+      expect(total, r.id).toBeLessThanOrEqual(4);
+      for (const [item, n] of entries) {
+        expect(POT_ITEMS as readonly string[], r.id).toContain(item);
+        expect(Number.isInteger(n) && n > 0, r.id).toBe(true);
+      }
+    }
+  });
+
+  test("every recipe's dish is a food whose tag is the tag of one of its ingredients", () => {
+    for (const r of RECIPES) {
+      const tag = FOODS.find((f) => f.id === r.id)?.tag;
+      const tags = Object.keys(r.items).map((i) => FOODS.find((f) => f.id === i)?.tag);
+      expect(tag, r.id).toBeDefined();
+      expect(tags, r.id).toContain(tag);
+    }
+  });
+
+  test("every dish restores more hunger plus mood than any raw ingredient in its recipe", () => {
+    const worth = (id: string) => {
+      const f = FOODS.find((x) => x.id === id);
+      return (f?.hunger ?? 0) + (f?.mood ?? 0);
+    };
+    for (const r of RECIPES) {
+      for (const item of Object.keys(r.items)) {
+        expect(worth(r.id), `${r.id} vs ${item}`).toBeGreaterThan(worth(item));
+      }
+    }
+  });
+});
+
 describe('i18n', () => {
   test('ja and en messages have identical key sets', () => {
     expect(Object.keys(ja).sort()).toEqual(Object.keys(en).sort());
@@ -153,7 +202,7 @@ describe('i18n', () => {
     const reasons: Record<RefuseReason, true> = {
       full: true, notSick: true, asleep: true, awake: true,
       notAlive: true, egg: true, cooldown: true, noPoop: true, noStock: true, outingLimit: true,
-      farmNotReady: true,
+      farmNotReady: true, pantryFull: true,
     };
     for (const reason of Object.keys(reasons)) {
       expect(ja[`refuse_${reason}`]?.message, `ja ${reason}`).toBeTruthy();
