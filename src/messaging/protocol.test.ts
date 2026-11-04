@@ -62,6 +62,30 @@ describe('forage request', () => {
   });
 });
 
+describe('cook request', () => {
+  test('accepts a pot of 1 to 4 pot items', () => {
+    const good = [
+      { type: 'cook', items: ['rice'] },
+      { type: 'cook', items: ['meat', 'meat', 'veggie'] },
+      { type: 'cook', items: ['rice', 'fish', 'egg', 'fruit'] },
+    ];
+    for (const raw of good) expect(parseEngineRequest(raw)).toEqual(raw);
+  });
+
+  test('cook requests with a bad pot are rejected', () => {
+    const bad = [
+      { type: 'cook', items: [] },
+      { type: 'cook', items: ['rice', 'rice', 'rice', 'rice', 'rice'] },
+      { type: 'cook', items: ['candy'] },
+      { type: 'cook', items: ['steak'] },
+      { type: 'cook', items: ['beef'] },
+      { type: 'cook', items: 'meat' },
+      { type: 'cook' },
+    ];
+    for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
+  });
+});
+
 describe('farm request', () => {
   test('accepts plant, water and harvest', () => {
     const good = [
