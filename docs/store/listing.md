@@ -59,7 +59,7 @@ Chrometchi は、Chrome のツールバーに住むドット絵のバーチャ�
 ・アカウント登録は不要です。
 ・データはすべてお使いのパソコンの Chrome の中に保存され、外部には送信されません。広告もありません。
 
-不具合の報告やご意見は、サポートページ(GitHub)までお寄せください。
+不具合の報告やご意見は、サポートページまでお寄せください。
 ```
 
 ### 説明(English)
@@ -100,7 +100,7 @@ Chrometchi is a pixel-art virtual pet that lives in your Chrome toolbar. Hatch a
 • No account needed.
 • Everything is saved in Chrome on your own computer and never sent anywhere. No ads, no tracking.
 
-Found a bug or have an idea? Let us know on the support page (GitHub).
+Found a bug or have an idea? Let us know on the support page.
 ```
 
 ### そのほかの欄
@@ -110,8 +110,8 @@ Found a bug or have an idea? Let us know on the support page (GitHub).
 | カテゴリ | ライフスタイル › ゲーム(Lifestyle › Games) |
 | 言語 | 英語(既定)。日本語の説明は「ローカライズ」で日本語を選んで貼る |
 | 公式 URL | なし(Google Search Console で確認したサイトがないため) |
-| ホームページ URL | https://github.com/mkontani/chrometchi-extension |
-| サポート URL | https://github.com/mkontani/chrometchi-extension/issues |
+| ホームページ URL | https://mkontani.github.io/chrometchi/ |
+| サポート URL | https://mkontani.github.io/chrometchi/support.html |
 | 成人向けコンテンツ | オフ |
 
 ## 3. プライバシーへの取り組みタブ
@@ -190,5 +190,5 @@ Optional. Requested only when the player turns on "Walk on web pages", so the pe
 ### プライバシー ポリシー
 
 ```text
-https://github.com/mkontani/chrometchi-extension/blob/main/docs/store/privacy-policy.md
+https://mkontani.github.io/chrometchi/privacy.html
 ```
