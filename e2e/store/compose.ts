@@ -8,8 +8,8 @@ import type { Lang, Slide, Theme, Visual } from './copy';
 export const STORE = { width: 1280, height: 800 } as const;
 export const POPUP = { width: 360, height: 462, captureScale: 3, showScale: 1.5 } as const;
 
-const INK = '#2b2233';
-const THEMES: Record<Theme, { bg: string; dot: string; blob: string; text: string; sub: string; mark: string }> = {
+export const INK = '#2b2233';
+export const THEMES: Record<Theme, { bg: string; dot: string; blob: string; text: string; sub: string; mark: string }> = {
   pink: { bg: '#ffe3ea', dot: '#ffc9d6', blob: '#fff4e0', text: INK, sub: '#5b4d66', mark: '#ffb0c5' },
   mint: { bg: '#dcf4e7', dot: '#bfe8d2', blob: '#fff4e0', text: INK, sub: '#4a5a52', mark: '#9fe0bd' },
   yellow: { bg: '#fff0c4', dot: '#ffe08f', blob: '#fff9ea', text: INK, sub: '#5f5340', mark: '#ffd25e' },
@@ -18,11 +18,11 @@ const THEMES: Record<Theme, { bg: string; dot: string; blob: string; text: strin
 };
 
 const esc = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const px = (src: string, size: number, cls = 'px', css = ''): string =>
+export const px = (src: string, size: number, cls = 'px', css = ''): string =>
   `<img class="${cls}" src="/art/${src}" width="${size}" height="${size}" alt="" style="${css}">`;
 
 /** "[word]" in a headline line becomes a highlighted span. */
-function titleLine(line: string): string {
+export function titleLine(line: string): string {
   return esc(line).replace(/\[(.+?)\]/g, '<mark>$1</mark>');
 }
 

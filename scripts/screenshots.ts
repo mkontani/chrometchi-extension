@@ -1,5 +1,5 @@
 /**
- * Store screenshots in every shipped language: `npm run screenshots`.
+ * Store screenshots and promo tiles in every shipped language: `npm run screenshots`.
  *
  * Chrome picks the extension's language from its own UI language, which Playwright cannot set on
  * macOS. So each run loads a copy of the build that ships only one locale (made the default), and

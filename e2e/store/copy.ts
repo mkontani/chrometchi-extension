@@ -117,3 +117,20 @@ export const SLIDES: readonly Slide[] = [
     deco: ['zzz'],
   },
 ];
+
+/**
+ * Promo tile copy (same rules as the slides). Each string is one line; text inside [brackets]
+ * gets the marker highlight.
+ */
+export const PROMO_COPY = {
+  marquee: {
+    title: { ja: ['ブラウザで、', '[ペットを飼おう。]'], en: ['Keep a tiny pet', '[in your browser]'] },
+    sub: { ja: ['育てて、集めて、ずかんをうめよう。'], en: ['Raise it, meet new forms,', 'fill your collection.'] },
+  },
+  small: {
+    tagline: { ja: ['ブラウザで飼って、', '[集めよう。]'], en: ['Raise pets in your browser.', '[Collect them all.]'] },
+  },
+} as const satisfies {
+  marquee: { title: Record<Lang, readonly string[]>; sub: Record<Lang, readonly string[]> };
+  small: { tagline: Record<Lang, readonly string[]> };
+};
