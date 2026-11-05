@@ -47,7 +47,7 @@ Built with [WXT](https://wxt.dev), TypeScript and Preact.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript type check |
 | `npm run zip` | Package `.output/*-chrome.zip` for release |
-| `npm run screenshots` | Regenerate the store screenshots in `screenshots/{ja,en}` |
+| `npm run screenshots` | Regenerate the store screenshots and promo tiles in `screenshots/{ja,en}` |
 
 Before the first e2e run: `npx playwright install chromium`.
 

@@ -9,10 +9,12 @@ import type { SaveV1 } from '../src/storage/schema';
 import { expect, seedSave, test } from './fixtures';
 import { POPUP, STORE, composeHtml } from './store/compose';
 import { SLIDES, type Lang } from './store/copy';
+import { PROMOS, promoHtml, type PromoKind } from './store/promo';
 
 /**
- * Store screenshots: run `npm run screenshots` (excluded from `npm run e2e`). Each scene is the
- * real popup, captured at 3× and placed on a 1280×800 slide with copy from ./store/copy.ts.
+ * Store screenshots and promo tiles: run `npm run screenshots` (excluded from `npm run e2e`). Each
+ * scene is the real popup, captured at 3× and placed on a 1280×800 slide with copy from
+ * ./store/copy.ts; the first scene also goes into the promo tiles (./store/promo.ts).
  * SHOT_LANG picks the copy language; scripts/screenshots.ts sets it together with a build that
  * ships only that locale, so the popup and the copy always match.
  */
@@ -117,20 +119,43 @@ function serve(route: Route, html: string, shot: Buffer): Promise<void> {
   return route.fulfill({ path: path.join(ROOT, dir, ...rest) });
 }
 
-async function compose(context: BrowserContext, shot: Buffer, n: number, lang: Lang): Promise<void> {
-  const slide = SLIDES[n - 1];
-  if (!slide) throw new Error(`No copy for slide ${n}`);
-  const file = path.join(OUT, lang, `store_${n}.png`);
+/** PNG colour type 2: RGB without alpha. The store wants 24-bit images with no transparency. */
+const PNG_RGB = 2;
+
+function pngHeader(png: Buffer): { width: number; height: number; bitDepth?: number; colorType?: number } {
+  return { width: png.readUInt32BE(16), height: png.readUInt32BE(20), bitDepth: png[24], colorType: png[25] };
+}
+
+/** Renders `html` (where /shot.png is `shot`) at `size` into `file`, and checks the PNG fits the store. */
+async function render(
+  context: BrowserContext,
+  html: string,
+  shot: Buffer,
+  size: { width: number; height: number },
+  file: string,
+): Promise<void> {
   mkdirSync(path.dirname(file), { recursive: true });
   const page = await context.newPage();
-  await page.setViewportSize(STORE);
-  const html = composeHtml(slide, lang);
+  await page.setViewportSize(size);
   await page.route(`${ORIGIN}/**`, (route) => serve(route, html, shot));
   await page.goto(`${ORIGIN}/`);
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(150);
-  await page.screenshot({ path: file });
+  const png = await page.screenshot({ path: file });
   await page.close();
+  expect(pngHeader(png), file).toEqual({ ...size, bitDepth: 8, colorType: PNG_RGB });
+}
+
+async function compose(context: BrowserContext, shot: Buffer, n: number, lang: Lang): Promise<void> {
+  const slide = SLIDES[n - 1];
+  if (!slide) throw new Error(`No copy for slide ${n}`);
+  await render(context, composeHtml(slide, lang), shot, STORE, path.join(OUT, lang, `store_${n}.png`));
+}
+
+async function composePromos(context: BrowserContext, shot: Buffer, lang: Lang): Promise<void> {
+  for (const kind of Object.keys(PROMOS) as PromoKind[]) {
+    await render(context, promoHtml(kind, lang), shot, PROMOS[kind], path.join(OUT, lang, `promo_${kind}.png`));
+  }
 }
 
 function shotLang(msg: (key: string) => string): Lang {
@@ -144,7 +169,9 @@ test('store screenshots @screenshots', async ({ context, extensionId, msg }) => 
 
   let page = await open(context, extensionId, scene({ formId: 'adult_dragon', stage: 'adult' }));
   await page.getByRole('button', { name: `${msg('action_pet')}: ${msg('form_adult_dragon')}` }).click();
-  await compose(context, await capture(page), 1, lang);
+  const petted = await capture(page);
+  await compose(context, petted, 1, lang);
+  await composePromos(context, petted, lang);
 
   page = await open(context, extensionId, scene({ formId: 'child_dango', stage: 'child', stats: { hunger: 40 } }));
   await page.getByRole('button', { name: msg('action_feed'), exact: true }).click();
