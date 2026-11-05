@@ -2,8 +2,11 @@
   "appName": {
     "message": "Chrometchi"
   },
+  "extName": {
+    "message": "Chrometchi - ブラウザで育てるドット絵ペット"
+  },
   "appDescription": {
-    "message": "ブラウザで育てるドット絵のバーチャルペット"
+    "message": "ツールバーに住む、ドット絵のちいさなペット。たまごから育てて、お世話とミニゲームで進化させ、出会った姿をずかんに集めよう。"
   },
   "form_egg": {
     "message": "タマゴ"

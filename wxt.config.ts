@@ -11,7 +11,7 @@ export default defineConfig({
     build: { assetsInlineLimit: (file: string) => (file.includes('/src/assets/sprites/') ? false : undefined) },
   }),
   manifest: ({ mode }) => ({
-    name: '__MSG_appName__',
+    name: '__MSG_extName__',
     description: '__MSG_appDescription__',
     default_locale: 'en',
     // Array.prototype.toSorted (src/core/evolution.ts) needs Chrome 110.
