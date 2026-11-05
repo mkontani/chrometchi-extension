@@ -3,6 +3,8 @@
 A pixel-art virtual pet that lives in your Chrome toolbar. Hatch an egg, raise it through
 its life stages, and discover every form it can grow into.
 
+Website: https://mkontani.github.io/chrometchi/
+
 ![Keep a tiny pet in your browser](screenshots/en/store_1.png)
 
 | | |

@@ -2,6 +2,8 @@
 
 最終更新日 / Last updated: 2026-11-06
 
+公開版 / Published at: https://mkontani.github.io/chrometchi/privacy.html (mkontani/mkontani.github.io の `chrometchi/privacy.html`。内容をこのファイルとそろえること / keep it in sync with this file)
+
 [日本語](#日本語) · [English](#english)
 
 ## 日本語
@@ -17,6 +19,8 @@ Chrometchi(以下「本拡張機能」)は、Chrome のツールバーで遊ぶ�
 - 「このサイトでは隠れる」を選んだサイトのホスト名(例: `example.com`)
 
 本拡張機能はインターネットに接続しません。これらのデータを開発者を含む第三者に送ることも、販売することもありません。広告、アクセス解析、トラッキングは使っていません。アカウント登録も不要です。
+
+本拡張機能が受け取る情報の扱いは、[Chrome ウェブストアのユーザーデータに関するポリシー](https://developer.chrome.com/docs/webstore/program-policies/policies)(Limited Use の要件を含む)に従います。
 
 ### Web ページでの動作(オプション)
 
@@ -43,7 +47,7 @@ Chrometchi(以下「本拡張機能」)は、Chrome のツールバーで遊ぶ�
 
 ### お問い合わせ
 
-https://github.com/mkontani/chrometchi-extension/issues
+[itoama@gmail.com](mailto:itoama@gmail.com) または [GitHub の Issues](https://github.com/mkontani/chrometchi-extension/issues) までお寄せください。
 
 ## English
 
@@ -58,6 +62,8 @@ The extension stores the following in Chrome's extension storage (`chrome.storag
 - The hostnames of sites where you chose "Hide on this site" (for example, `example.com`)
 
 The extension never connects to the internet. It does not send this data to anyone, including the developer, and it does not sell it. There are no ads, no analytics and no tracking. No account is needed.
+
+The use of information received by the extension adheres to the [Chrome Web Store User Data Policy](https://developer.chrome.com/docs/webstore/program-policies/policies), including the Limited Use requirements.
 
 ### On web pages (optional)
 
@@ -84,4 +90,4 @@ When this policy changes, this page is updated along with the date at the top.
 
 ### Contact
 
-https://github.com/mkontani/chrometchi-extension/issues
+Email [itoama@gmail.com](mailto:itoama@gmail.com) or open an issue on [GitHub](https://github.com/mkontani/chrometchi-extension/issues).
