@@ -10,7 +10,9 @@ its life stages, and discover every form it can grow into.
 | ![Care](screenshots/en/store_2.png) | ![Mini-games](screenshots/en/store_3.png) |
 | ![Evolution](screenshots/en/store_4.png) | ![Night](screenshots/en/store_5.png) |
 
-Japanese versions are in [`screenshots/ja`](screenshots/ja).
+Japanese versions are in [`screenshots/ja`](screenshots/ja). The store listing text (English and
+Japanese) is in [`docs/store/listing.md`](docs/store/listing.md), and the privacy policy is in
+[`docs/store/privacy-policy.md`](docs/store/privacy-policy.md).
 
 ## Features
 

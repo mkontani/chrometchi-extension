@@ -2,8 +2,11 @@
   "appName": {
     "message": "Chrometchi"
   },
+  "extName": {
+    "message": "Chrometchi - Pixel Pet for Your Browser"
+  },
   "appDescription": {
-    "message": "A pixel-art virtual pet you raise in your browser"
+    "message": "A tiny pixel-art pet that lives in your toolbar. Hatch an egg, care for it, play mini-games, and collect every form it grows into."
   },
   "form_egg": {
     "message": "Egg"
