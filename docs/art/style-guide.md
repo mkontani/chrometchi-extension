@@ -57,6 +57,12 @@ Every form except the egg has `side.png` (right-facing profile) and `walk0`–`w
   - trot: `trotting in place on all four legs, legs moving in a diagonal walking gait, … staying centered in the frame like on a treadmill`;
   - hop: `squashing and stretching in place as if hopping … staying on the ground in the center of the frame`;
   - float, legless: `floating in place, hovering with a gentle up and down bob …, no legs, no walking`.
+- **The side view keeps the front's shape** (owner review of all 41 forms). `child_mochi`, `adult_unicorn` and `adult_nexus` were remade:
+  - `child_mochi` had become a sitting cat. Its new side view says "round like a ball (not a cat, not sitting)".
+  - `adult_nexus` had lost its ring and grown feet. Its new side view names the ring and says "no legs, no feet".
+  - `adult_unicorn` had a small head and long legs, unlike its chibi front. Editing `idle0` stood it on two legs. Editing the old `side.png` ("make it a cute chibi baby pony: a much bigger round head as big as the body … still standing on all four legs") kept all four legs.
+  - Round bodies (mochi, poyo) got a dark vertical line down the middle of the body on every seed. A second `edit_image_pixen` on the side view removed it: "remove the dark vertical line in the middle of the body so the body is one smooth round … ball, keep the tiny feet at the very bottom".
+  - Hop loops can still drift: one of two poyo seeds slid out of the frame, and one mochi seed lost its ear mid-hop. Make 2–3 loops and pick one.
 
 ## Effects (care)
 
