@@ -390,6 +390,7 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
   - flowercrown + heartglasses + necklace.
 
   Hats should sit on the head, glasses on the eyes, and neck items under the face.
+  This is the stage-4 check. The stage-5 forms were tuned by hand at Gate R2 instead; see the stage-5 rows in the anchor table below.
 - **Rules the check added:**
   - The head point goes on the head itself, not on what sticks out of it: antennae, sprouts, fins, crests, halos, ear tips or floating gems. The hat then covers them.
   - Between ears, the head point is 2–3 px below the top of the skull, not the ear tips.
