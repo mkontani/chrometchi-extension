@@ -46,6 +46,7 @@ export function DecorateOverlay({ save, outcome, send, onClose }: Props) {
           generation={save.game.generation}
           room={room}
           decor={placedIn(save.home, room)}
+          worn={save.home.worn}
           reaction={null}
         >
           {tab === 'decor' && <DecorSlots room={room} placed={placed} selected={slot} onSelect={setChosen} />}

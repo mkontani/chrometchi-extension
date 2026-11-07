@@ -204,7 +204,7 @@ const answered = (outcome: CareOutcome, petPatch: object = {}) =>
   ({ ok: true, save: fullSave(petPatch), outcome }) as const;
 const flush = () => act(async () => void (await Promise.resolve()));
 const advance = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
-const petSrc = (c: Element) => c.querySelector('img.pet')?.getAttribute('src') ?? '';
+const petSrc = (c: Element) => c.querySelector('img.pet__img')?.getAttribute('src') ?? '';
 
 async function feedRice(send: ReturnType<typeof vi.fn>) {
   send.mockResolvedValueOnce(answered({ action: 'feed', result: 'ok' }));

@@ -154,6 +154,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
           generation={save.game.generation}
           room={stageRoom}
           decor={placedIn(save.home, stageRoom)}
+          worn={save.home.worn}
           reaction={reaction}
           fromPlay={fromPlay}
           effect={effects.frame}
