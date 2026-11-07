@@ -19,6 +19,7 @@ import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
 import { RecipeBook } from '@/ui/components/RecipeBook';
 import { TabBar, type TabDef } from '@/ui/components/TabBar';
+import { shownRoom } from '@/core/rooms';
 import { PetStage } from '@/ui/components/PetStage';
 import { PlayPanel } from '@/ui/components/PlayPanel';
 import { ShopView } from '@/ui/components/ShopView';
@@ -146,6 +147,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
         <PetStage
           pet={stagePet}
           generation={save.game.generation}
+          room={shownRoom(save.home.room, save.progress.claimed)}
           reaction={reaction}
           fromPlay={fromPlay}
           effect={effects.frame}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import type { PetState, Pose } from '@/core/types';
+import type { PetState, Pose, RoomId } from '@/core/types';
 import { deriveWarning } from '@/core/warnings';
 import { t } from '@/i18n/t';
 import { backgroundUrl, effectUrl, spriteUrl, type EffectId } from '@/ui/assets';
@@ -14,6 +14,8 @@ interface Props {
   pet: PetState;
   /** picks the egg's shell pattern */
   generation: number;
+  /** the room drawn behind the pet */
+  room: RoomId;
   reaction: Reaction;
   /** true when the happy reaction comes from playing (shows notes) */
   fromPlay?: boolean;
@@ -88,9 +90,9 @@ function Darkness({ level }: { level: number }) {
   );
 }
 
-export function PetStage({ pet, generation, reaction, fromPlay = false, effect = null, onPetClick }: Props) {
+export function PetStage({ pet, generation, room, reaction, fromPlay = false, effect = null, onPetClick }: Props) {
   const frame = useIdleFrame();
-  const bg = backgroundUrl(pet.asleep ? 'home_night' : 'home_day');
+  const bg = backgroundUrl(`${room}_${pet.asleep ? 'night' : 'day'}`);
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
   const style = bg ? { backgroundImage: `url(${bg})` } : undefined;
   // A sleeping pet stays asleep: clean and medicine still play their props around it.

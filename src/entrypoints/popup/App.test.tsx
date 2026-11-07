@@ -14,12 +14,13 @@ vi.mock('@/ui/assets', () => ({
   spriteUrl: (_f: string, pose: string) => `sprite-${pose}.png`,
   effectUrl: () => null,
   cookUrl: () => 'pot.png',
-  backgroundUrl: () => null,
+  backgroundUrl: (id: string) => backgroundUrl(id),
   iconUrl: () => null,
   assetUrl: () => null,
   gameArtUrl: () => null,
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
 }));
+const backgroundUrl = vi.hoisted(() => vi.fn<(id: string) => string | null>(() => null));
 const useGame = vi.fn<() => UseGame>();
 vi.mock('@/ui/useGame', () => ({ useGame: () => useGame() }));
 const requestRoamAccess = vi.fn<() => Promise<boolean>>();
@@ -32,6 +33,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
     kitchen: EMPTY_KITCHEN,
     progress: EMPTY_PROGRESS,
+    home: { room: 'home' },
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -55,6 +57,13 @@ test('shows only the localized generic error; the raw detail goes to the console
   expect(screen.queryByText('boom')).toBeNull();
   expect(warn).toHaveBeenCalledWith(expect.any(String), 'boom');
   warn.mockRestore();
+});
+
+test('a current room that is not owned shows home', () => {
+  useGame.mockReturnValue({ save: fullSave({}, { home: { room: 'castle' } }), outcome: null, error: null, send: vi.fn() });
+  render(<App />);
+  expect(backgroundUrl).toHaveBeenCalledWith('home_day');
+  expect(backgroundUrl).not.toHaveBeenCalledWith('castle_day');
 });
 
 test('clicking clean sends the care request', () => {
