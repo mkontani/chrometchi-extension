@@ -631,6 +631,7 @@ describe('ZUKAN_ORDER', () => {
     const adult = (id: string) => FORMS.find((f) => f.id === id);
     for (const { family, adults } of ZUKAN_ORDER.families) {
       const forms = adults.map((id) => adult(id));
+      expect(forms.map((f) => f?.id), `${family} adults are all forms`).toEqual(adults);
       expect(forms[6]?.priority, `${family} rare`).toBe(100);
       expect(forms[3]?.when.dominantGame, `${family} stop`).toBe('stop');
       expect(forms[4]?.when.weight, `${family} light`).toBe('light');
