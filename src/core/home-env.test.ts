@@ -21,4 +21,15 @@ describe('evolutionEnv', () => {
     expect(env.decorIn('beach')).toEqual([]);
     expect(env.worn).toEqual({ neck: 'necklace' });
   });
+
+  test('the shown room is the chosen room when its reward is claimed', () => {
+    const beach: Home = { ...home, room: 'beach', decor: { beach: { floorL: 'candle' } } };
+    const env = evolutionEnv(beach, ['zukan:10']);
+    expect(env.room).toBe('beach');
+    expect(env.decorIn('beach')).toEqual(['candle']);
+  });
+
+  test('the shown room falls back to home when the room is not unlocked', () => {
+    expect(evolutionEnv({ ...home, room: 'beach' }, []).room).toBe('home');
+  });
 });

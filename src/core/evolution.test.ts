@@ -248,13 +248,27 @@ describe('the environment conditions', () => {
   });
   test('the old outcomes are unchanged without the new inputs', () => {
     const meat = { grain: 0, meat: 4, fish: 1, veggie: 0, sweet: 0 };
-    const table: [string, PetState, string][] = [
-      ['messy baby', pet('baby_puni', 'baby', { history: history({ stageMistakes: 3 }) }), 'child_kemu'],
-      ['perfect baby', pet('baby_puni', 'baby'), 'child_hoshi'],
-      ['plain baby', pet('baby_puni', 'baby', { history: history({ stageMistakes: 1 }) }), 'child_mochi'],
-      ['meat child', pet('child_mochi', 'child', { history: history({ foodCounts: meat }) }), 'young_hinoko'],
-      ['messy child', pet('child_mochi', 'child', { history: history({ stageMistakes: 1 }) }), 'young_gear'],
+    const cups: Record<GameId, number> = { catch: 1, cups: 4, stop: 0 };
+    const catches: Record<GameId, number> = { catch: 4, cups: 1, stop: 0 };
+    const hour = (h: number, r: number) => ({ rng: () => r, hour: h, env: makeEnv() });
+    const table: [string, PetState, EvolutionContext, string][] = [
+      ['messy baby', pet('baby_puni', 'baby', { history: history({ stageMistakes: 3 }) }), ctx, 'child_kemu'],
+      ['perfect baby', pet('baby_puni', 'baby'), ctx, 'child_hoshi'],
+      ['plain baby', pet('baby_puni', 'baby', { history: history({ stageMistakes: 1 }) }), ctx, 'child_mochi'],
+      ['meat child', pet('child_mochi', 'child', { history: history({ foodCounts: meat }) }), ctx, 'young_hinoko'],
+      ['messy child', pet('child_mochi', 'child', { history: history({ stageMistakes: 1 }) }), ctx, 'young_gear'],
+      ['kemu with mistakes', pet('child_kemu', 'child', { history: history({ stageMistakes: 3 }) }), ctx, 'young_kage'],
+      ['kemu without', pet('child_kemu', 'child', { history: history({ stageMistakes: 1 }) }), ctx, 'young_gear'],
+      ['hinoko catch', pet('young_hinoko', 'young', { history: history({ gameCounts: catches, stageMistakes: 1 }) }), ctx, 'adult_dragon'],
+      ['hinoko cups', pet('young_hinoko', 'young', { history: history({ gameCounts: cups, stageMistakes: 1 }) }), ctx, 'adult_beast'],
+      ['hinoko plain', pet('young_hinoko', 'young', { history: history({ stageMistakes: 1 }) }), ctx, 'adult_salamander'],
+      ['poyo', pet('young_poyo', 'young'), ctx, 'adult_pudding'],
+      ['heavy poyo, lucky', pet('young_poyo', 'young', { stats: { weight: BASE_WEIGHT.young * 1.5 } }), hour(12, 0.1), 'adult_grandpudding'],
+      ['kage in the evening', pet('young_kage', 'young', { history: history({ stageMistakes: 6 }) }), hour(19, 0.5), 'adult_vampire'],
+      ['kage at noon', pet('young_kage', 'young', { history: history({ stageMistakes: 6 }) }), hour(12, 0.5), 'adult_bat'],
+      ['kirari, lucky', pet('young_kirari', 'young'), hour(12, 0.4), 'adult_astra'],
+      ['kirari, unlucky', pet('young_kirari', 'young'), hour(12, 0.6), 'adult_nexus'],
     ];
-    for (const [, p, expected] of table) expect(next(p)).toBe(expected);
+    for (const [label, p, c, expected] of table) expect(next(p, c), label).toBe(expected);
   });
 });

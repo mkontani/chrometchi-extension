@@ -648,9 +648,24 @@ describe('care counts', () => {
   });
 
   test('awake minutes are counted in the room that is shown', async () => {
-    const { engine, clock, stored } = setup({ pet: makePet({ stage: 'baby', formId: 'baby_puni' }) }, morning);
+    const { engine, clock, stored, area } = setup({ pet: makePet({ stage: 'baby', formId: 'baby_puni' }) }, morning);
+    const seeded = stored();
+    area.data.set(SAVE_KEY, {
+      ...seeded,
+      home: { ...seeded.home, room: 'beach' },
+      progress: { ...seeded.progress, claimed: ['zukan:10'] },
+    });
     clock.now = morning + 3 * MIN;
     await engine.tick();
-    expect(stored().game.pet.history.roomMinutes).toEqual({ home: 3 });
+    expect(stored().game.pet.history.roomMinutes).toEqual({ beach: 3 });
+  });
+
+  test('morning care wraps past midnight from a late wake-up time', async () => {
+    const late = new Date(2026, 0, 2, 0, 30, 0).getTime();
+    const { engine, stored, area } = setup({ pet: hungry(), lastTickAt: late }, late);
+    const seeded = stored();
+    area.data.set(SAVE_KEY, { ...seeded, settings: { ...seeded.settings, sleepEndMin: 23 * 60 } });
+    await engine.handle(feed);
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 1 });
   });
 });
