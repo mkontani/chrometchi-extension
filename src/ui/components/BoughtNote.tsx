@@ -1,24 +1,23 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
-import type { CareOutcome } from '@/core/types';
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { t } from '@/i18n/t';
 
 const NOTE_MS = 2500;
 
-/** A brief hint after a successful buy: where to place the new furniture. */
-export function BoughtNote({ outcome }: { outcome: CareOutcome | null }) {
+/** Whether the bought hint is up, and a way to raise it for a moment. A new call restarts the time. */
+export function useBoughtNote(): [boolean, () => void] {
   const [shown, setShown] = useState(false);
-  // The outcome already there when the shop opens is an old buy, not a new one.
-  const stale = useRef(outcome);
-  useEffect(() => {
-    if (outcome === stale.current) return undefined;
-    if (outcome?.action !== 'buy' || outcome.result !== 'ok') {
-      setShown(false);
-      return undefined;
-    }
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const flash = useCallback(() => {
+    clearTimeout(timer.current);
     setShown(true);
-    const id = setTimeout(() => setShown(false), NOTE_MS);
-    return () => clearTimeout(id);
-  }, [outcome]);
+    timer.current = setTimeout(() => setShown(false), NOTE_MS);
+  }, []);
+  return [shown, flash];
+}
+
+/** A brief hint after a successful buy: where to place the new furniture. */
+export function BoughtNote({ shown }: { shown: boolean }) {
   return shown ? (
     <div class="toast" role="status">
       {t('shop_bought')}

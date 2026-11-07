@@ -9,7 +9,6 @@ import { ActionBar, isActionDisabled, type ActionKind } from '@/ui/components/Ac
 import { CriticalBanner } from '@/ui/components/CriticalBanner';
 import { EndingView } from '@/ui/components/EndingView';
 import { FoodPanel } from '@/ui/components/FoodPanel';
-import { BoughtNote } from '@/ui/components/BoughtNote';
 import { CookedNote } from '@/ui/components/CookedNote';
 import { GainedNote } from '@/ui/components/GainedNote';
 import { MiniGameHost } from '@/ui/components/MiniGameHost';
@@ -229,10 +228,12 @@ function InfoOverlay(props: InfoProps) {
           coins={save.progress.coins}
           ownedDecor={save.home.ownedDecor}
           onSell={(food, amount) => void send({ type: 'sell', food, amount })}
-          onBuy={(decor) => void send({ type: 'buyDecor', decor })}
+          onBuy={async (decor) => {
+            const r = await send({ type: 'buyDecor', decor });
+            return r.ok && r.outcome?.action === 'buy' && r.outcome.result === 'ok';
+          }}
         />
         <OutcomeToast outcome={outcome?.action === 'buy' ? outcome : null} />
-        <BoughtNote outcome={outcome} />
       </Overlay>
     );
   }

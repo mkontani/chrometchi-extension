@@ -4,6 +4,7 @@ import { SELL_PRICE } from '@/data/economy';
 import { INGREDIENT_IDS } from '@/data/foods';
 import { t } from '@/i18n/t';
 import { iconUrl } from '@/ui/assets';
+import { BoughtNote, useBoughtNote } from '@/ui/components/BoughtNote';
 import { CoinAmount } from '@/ui/components/CoinAmount';
 import { DecorShop } from '@/ui/components/DecorShop';
 import { countLabel } from '@/ui/components/foodGrid';
@@ -15,7 +16,8 @@ interface Props {
   coins: number;
   ownedDecor: readonly DecorId[];
   onSell(food: IngredientId, amount: number): void;
-  onBuy(decor: DecorId): void;
+  /** Resolves to true when the buy went through. */
+  onBuy(decor: DecorId): Promise<boolean>;
 }
 
 type Tab = 'decor' | 'sell';
@@ -62,6 +64,10 @@ function Row({ food, stock, onSell }: RowProps) {
 /** The shop: furniture to buy, and the ingredients to sell. A refused sell changes nothing. */
 export function ShopView({ pantry, coins, ownedDecor, onSell, onBuy }: Props) {
   const [tab, setTab] = useState<Tab>('decor');
+  const [bought, flashBought] = useBoughtNote();
+  const buy = async (decor: DecorId) => {
+    if (await onBuy(decor)) flashBought();
+  };
   const tabs: readonly TabDef<Tab>[] = [
     { id: 'decor', label: t('shop_tab_decor') },
     { id: 'sell', label: t('shop_tab_sell') },
@@ -70,7 +76,8 @@ export function ShopView({ pantry, coins, ownedDecor, onSell, onBuy }: Props) {
     <div class="shop">
       <p class="shop__coins">{t('shop_coins', String(coins))}</p>
       <TabBar<Tab> tabs={tabs} active={tab} onTab={setTab} />
-      {tab === 'decor' ? <DecorShop owned={ownedDecor} coins={coins} onBuy={onBuy} /> : null}
+      {tab === 'decor' ? <DecorShop owned={ownedDecor} coins={coins} onBuy={(decor) => void buy(decor)} /> : null}
+      <BoughtNote shown={bought} />
       {tab === 'sell' ? (
         <ScrollList class="shop__list">
           {INGREDIENT_IDS.map((food) => (

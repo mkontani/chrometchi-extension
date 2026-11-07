@@ -822,14 +822,33 @@ test('the shop opens on the furniture tab and the sell list is one tab away', ()
   expect(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' })).toBeTruthy();
 });
 
-test('a bought item shows its hint and a refused buy shows its reason, inside the shop only', () => {
+const BOUGHT = { ok: true, save, outcome: { action: 'buy', result: 'ok' } } as const;
+
+test('a bought item shows its hint even if a sync clears the outcome, and hides it on its own', async () => {
+  vi.useFakeTimers();
+  const send = vi.fn().mockResolvedValue(BOUGHT);
+  const progress = { ...EMPTY_PROGRESS, coins: 500 };
+  const rich = fullSave({}, { progress });
+  useGame.mockReturnValue({ save: rich, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy_aria:decor_candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy' }));
+  await act(async () => undefined);
+  await act(async () => undefined);
+  expect(send).toHaveBeenCalled();
+  expect(screen.getByText('shop_bought')).toBeTruthy();
+  ui.rerender(<App />);
+  act(() => void vi.advanceTimersByTime(2500));
+  expect(screen.queryByText('shop_bought')).toBeNull();
+  vi.useRealTimers();
+});
+
+test('a refused buy shows its reason inside the shop only', () => {
   const send = vi.fn().mockResolvedValue(NOT_APPLIED);
   useGame.mockReturnValue({ save, outcome: null, error: null, send });
   const ui = render(<App />);
   fireEvent.click(screen.getByLabelText('action_shop'));
-  useGame.mockReturnValue({ save, outcome: { action: 'buy', result: 'ok' }, error: null, send });
-  ui.rerender(<App />);
-  expect(screen.getByText('shop_bought')).toBeTruthy();
   useGame.mockReturnValue({ save, outcome: { action: 'buy', result: 'refused', reason: 'noCoins' }, error: null, send });
   ui.rerender(<App />);
   expect(screen.getByText('refuse_noCoins')).toBeTruthy();

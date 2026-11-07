@@ -1,12 +1,13 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/preact';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, expect, test, vi } from 'vitest';
 import en from '../../../public/_locales/en/messages.json';
 import { INGREDIENT_IDS } from '@/data/foods';
 import { ShopView } from './ShopView';
 
 const noop = () => undefined;
+const noBuy = () => Promise.resolve(false);
 const view = (props: Partial<Parameters<typeof ShopView>[0]> = {}) =>
-  render(<ShopView pantry={{}} coins={0} ownedDecor={[]} onSell={noop} onBuy={noop} {...props} />);
+  render(<ShopView pantry={{}} coins={0} ownedDecor={[]} onSell={noop} onBuy={noBuy} {...props} />);
 const sellTab = () => fireEvent.click(screen.getByRole('tab', { name: 'Sell' }));
 
 type Entry = { message: string; placeholders?: Record<string, { content: string }> };
@@ -24,7 +25,10 @@ vi.mock('@/i18n/t', () => ({
   },
 }));
 vi.mock('@/ui/assets', () => ({ iconUrl: (id: string) => `${id}.png`, decorUrl: (id: string) => `decor-${id}.png` }));
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 const rows = () => screen.getAllByRole('listitem');
 
@@ -84,9 +88,63 @@ test('opens on the furniture tab and the sell list is one tab away', () => {
 });
 
 test('buying from the furniture tab passes the item on', () => {
-  const onBuy = vi.fn();
+  const onBuy = vi.fn().mockResolvedValue(false);
   view({ coins: 500, onBuy });
   fireEvent.click(screen.getByRole('button', { name: 'Buy Candle' }));
   fireEvent.click(screen.getByRole('button', { name: 'Buy' }));
   expect(onBuy).toHaveBeenCalledWith('candle');
+});
+
+const buyCandle = async () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Buy Candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Buy' }));
+  await act(async () => undefined);
+};
+const HINT = 'Place it from Decorate';
+
+test('the bought hint shows after a successful buy and hides after its time', async () => {
+  vi.useFakeTimers();
+  view({ coins: 500, onBuy: () => Promise.resolve(true) });
+  await buyCandle();
+  expect(screen.getByText(HINT)).toBeTruthy();
+  act(() => void vi.advanceTimersByTime(2500));
+  expect(screen.queryByText(HINT)).toBeNull();
+});
+
+test('a refused buy shows no hint', async () => {
+  vi.useFakeTimers();
+  view({ coins: 500, onBuy: () => Promise.resolve(false) });
+  await buyCandle();
+  expect(screen.queryByText(HINT)).toBeNull();
+});
+
+test('the bought hint hides after its time even if a sync arrives meanwhile', async () => {
+  vi.useFakeTimers();
+  const props = { pantry: {}, coins: 500, ownedDecor: [], onSell: noop, onBuy: () => Promise.resolve(true) };
+  const ui = render(<ShopView {...props} />);
+  await buyCandle();
+  act(() => void vi.advanceTimersByTime(1000));
+  ui.rerender(<ShopView {...props} coins={450} ownedDecor={['candle']} />);
+  act(() => void vi.advanceTimersByTime(1500));
+  expect(screen.queryByText(HINT)).toBeNull();
+});
+
+test('reopening the shop after a buy shows no hint', async () => {
+  vi.useFakeTimers();
+  const onBuy = () => Promise.resolve(true);
+  const first = view({ coins: 500, onBuy });
+  await buyCandle();
+  first.unmount();
+  view({ coins: 450, ownedDecor: ['candle'], onBuy });
+  expect(screen.queryByText(HINT)).toBeNull();
+});
+
+test('a second buy shows the hint again', async () => {
+  vi.useFakeTimers();
+  view({ coins: 500, onBuy: () => Promise.resolve(true) });
+  await buyCandle();
+  act(() => void vi.advanceTimersByTime(2500));
+  expect(screen.queryByText(HINT)).toBeNull();
+  await buyCandle();
+  expect(screen.getByText(HINT)).toBeTruthy();
 });
