@@ -64,6 +64,34 @@ Every form except the egg has `side.png` (right-facing profile) and `walk0`–`w
   - Round bodies (mochi, poyo) got a dark vertical line down the middle of the body on every seed. A second `edit_image_pixen` on the side view removed it: "remove the dark vertical line in the middle of the body so the body is one smooth round … ball, keep the tiny feet at the very bottom".
   - Hop loops can still drift: one of two poyo seeds slid out of the frame, and one mochi seed lost its ear mid-hop. Make 2–3 loops and pick one.
 
+## Stage 5 art fixes (Gate R1)
+
+The 41 forms made on 2026-11-06 had weak frames. They were fixed before stage 5 copied them in. Most fixes are hand edits on the palette, made by scripts in `.superpowers/sdd/2026-11-07-new-forms/art/`. `fix.sh` rebuilds every fixed frame from the originals, which are kept as `<frame>_old.png`.
+
+- **Swirly sick eyes are hand-drawn.** 23 `sick` frames had only a pale face and tears.
+  - `edit_image_pixen` can't draw swirls at 32 px. Three edits from `idle0` gave plain eyes: the sick prompt plus "draw both eyes as clear black spiral swirls … keep the same body colors only a little paler, same shape, no tears". Three eyes-only edits on the old `sick` frame changed nothing.
+  - So `eyes.cjs` paints each eye over with a stamp: a black clockwise spiral, 6x6, 6x5 or 5x5 to fit the old eye, white inside and mirrored on the right eye. The pale tint and the tears stay.
+- **Happy poses.**
+  - `idle0` edits, seed 1, the happy prompt plus the fix:
+    - dandelion: "Both eyes fully closed as upward curved happy arcs, no open eyes, same white fluffy colors";
+    - ame: "arms up" replaced by "Keep the two twisted candy wrapper ends on its left and right sides exactly as they are, they are wrapper ends and not arms, no arms, same round candy shape";
+    - obake: "Still holding its tiny orange lantern in front of its body, keep the lantern".
+  - kingyo: an `idle0` edit turned it into a standing fish. An edit of the old `happy` worked instead: "Change only the eyes: close both eyes as upward curved happy arcs like ^ ^, no open eyes, keep everything else exactly the same".
+  - bunny: both kinds of edit kept its eyes open, so the arcs are drawn by hand. Each eye is a 3 px top with one pixel below each end.
+  - Each new pose was snapped with `idle0` in one `reduce_colors` call.
+- **Colours the snap lost.** These are exact colour maps (`recolor.cjs`) over every frame of the form. `idle1` was remade with `idle1.ts squash`.
+  - dandelion: each grey is one step lighter (`#e6e0dc`→`#ffffff`, `#8d9191`→`#e6e0dc`, `#56595b`→`#8d9191`), so the puff is white as in the source.
+  - drone: the source's lavender body is back (`#8d9191`→`#c9a3e6`, `#56595b`→`#5d2e6c`, highlights one step lighter). The navy underside stays. Its `sick` was already lavender, so it goes one step paler.
+  - awa: the grey blotch (`#8d9191`) becomes the bubble's `#c9a3e6`.
+  - balloon: the poses, side and walk had snapped to salmon `#ef8080`. They now use `idle0`'s pink `#f58fb0`. Its `sick` was nearly white and stood on legs. It is now pink with a lavender sick shade, and has `idle0`'s string (rows 27–31).
+  - seal `happy`: the `#e6e0dc` body becomes `#ffffff`, like its other frames.
+- **Side views bluer than the front** (side and walk):
+  - stormbird: `#3d82ba`→`#8d9191` and `#c9a3e6`→`#ffffff`. It is a white bird with grey shading, like its front.
+  - jellyfish: `#3d82ba`→`#c9a3e6`, `#65c4fb`→`#f58fb0`, `#8debf0`→`#ffffff`. The bell is pink and lavender again.
+- **tane** (side and walk): the snap had made the whole body the cap's dark brown. The 9 rows under the cap band are back to the front's light brown `#b4794d`, with a 1 px dark rim.
+- **kaminari floats** (side and walk): `nolegs.cjs` cuts the legs off below the body's closed bottom edge.
+- **Check the snap against `idle0`.** When the source sits between two palette colours, the snap can turn a whole frame grey or salmon. Compare each frame's mean colour with `idle0`'s before approving (`meancol.cjs`).
+
 ## Effects (care)
 
 Effects play on the popup stage after feed, clean, medicine and lights (`src/ui/effects/`). The owner approved all of them at Gate E (2026-11-04).
