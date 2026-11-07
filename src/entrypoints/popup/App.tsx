@@ -24,6 +24,7 @@ import { PlayPanel } from '@/ui/components/PlayPanel';
 import { ShopView } from '@/ui/components/ShopView';
 import { SettingsView } from '@/ui/components/SettingsView';
 import { StatusBar } from '@/ui/components/StatusBar';
+import { MissionList } from '@/ui/components/MissionList';
 import { ZukanView } from '@/ui/components/ZukanView';
 import { requestRoamAccess } from '@/ui/roamPermission';
 import { useSfx, type SfxName } from '@/ui/sound';
@@ -166,18 +167,25 @@ async function toggleRoam(next: boolean, send: UseGame['send']): Promise<void> {
   await send({ type: 'updateSettings', patch: { roam: next } });
 }
 
-type ZukanTab = 'pets' | 'recipes';
+type ZukanTab = 'pets' | 'recipes' | 'missions';
 
-function ZukanTabs({ save }: { save: SaveV1 }) {
+function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
   const [tab, setTab] = useState<ZukanTab>('pets');
   const tabs: readonly { id: ZukanTab; label: string }[] = [
     { id: 'pets', label: t('zukan_tab_pets') },
     { id: 'recipes', label: t('zukan_tab_recipes') },
+    { id: 'missions', label: t('zukan_tab_missions') },
   ];
+  const onTab = (next: ZukanTab) => {
+    setTab(next);
+    if (next === 'missions' && save.progress.unseen) void send({ type: 'seenRewards' });
+  };
   return (
     <>
-      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} />
-      {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : <RecipeBook recipes={save.kitchen.recipes} />}
+      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={onTab} />
+      {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : null}
+      {tab === 'recipes' ? <RecipeBook recipes={save.kitchen.recipes} /> : null}
+      {tab === 'missions' ? <MissionList progress={save.progress} /> : null}
     </>
   );
 }
@@ -187,7 +195,7 @@ function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1;
   if (kind === 'zukan') {
     return (
       <Overlay title={t('zukan_title')} onClose={onClose}>
-        <ZukanTabs save={save} />
+        <ZukanTabs save={save} send={send} />
       </Overlay>
     );
   }

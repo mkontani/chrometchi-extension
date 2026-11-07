@@ -826,5 +826,68 @@
         "content": "$1"
       }
     }
+  },
+  "zukan_tab_missions": {
+    "message": "Missions"
+  },
+  "mission_clean": {
+    "message": "Clean"
+  },
+  "mission_play": {
+    "message": "Play"
+  },
+  "mission_feed": {
+    "message": "Feed"
+  },
+  "mission_outing": {
+    "message": "Go out"
+  },
+  "mission_harvest": {
+    "message": "Harvest"
+  },
+  "mission_cook": {
+    "message": "Cook"
+  },
+  "mission_progress": {
+    "message": "$P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "mission_done": {
+    "message": "All done"
+  },
+  "rewards_recent": {
+    "message": "Recent rewards"
+  },
+  "reward_departed": {
+    "message": "A happy send-off"
+  },
+  "reward_dead": {
+    "message": "A farewell"
+  },
+  "reward_zukan": {
+    "message": "$P1$ in the zukan",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "reward_mission": {
+    "message": "$P1$ ×$P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   }
 }

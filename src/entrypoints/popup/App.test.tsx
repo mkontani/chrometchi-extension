@@ -324,7 +324,7 @@ test('the zukan has Pets and Recipes tabs; Pets shows today\'s zukan first', () 
   setup();
   fireEvent.click(screen.getByLabelText('action_zukan'));
   const tabs = screen.getAllByRole('tab');
-  expect(tabs.map((b) => b.textContent)).toEqual(['zukan_tab_pets', 'zukan_tab_recipes']);
+  expect(tabs.map((b) => b.textContent)).toEqual(['zukan_tab_pets', 'zukan_tab_recipes', 'zukan_tab_missions']);
   expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
   expect(document.querySelector('.zukan__grid')).not.toBeNull();
   expect(document.querySelector('.recipes')).toBeNull();
@@ -679,4 +679,25 @@ test('the shop button opens the shop overlay and selling sends a sell request', 
   expect(screen.getByText('shop_title')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' }));
   expect(send).toHaveBeenCalledWith({ type: 'sell', food: 'fish', amount: 3 });
+});
+
+test('opening the missions tab sends seenRewards when there is a dot', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
+  expect(send).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  expect(send).toHaveBeenCalledWith({ type: 'seenRewards' });
+  expect(document.querySelector('.missions')).not.toBeNull();
+});
+
+test('opening the missions tab sends nothing when there is no dot', () => {
+  const { send } = setup(null, {}, {});
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  expect(send).not.toHaveBeenCalled();
 });

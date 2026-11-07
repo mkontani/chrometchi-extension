@@ -3,22 +3,13 @@ import { SELL_PRICE } from '@/data/economy';
 import { INGREDIENT_IDS } from '@/data/foods';
 import { t } from '@/i18n/t';
 import { iconUrl } from '@/ui/assets';
+import { CoinAmount } from '@/ui/components/CoinAmount';
 import { countLabel } from '@/ui/components/foodGrid';
 
 interface Props {
   pantry: Pantry;
   coins: number;
   onSell(food: IngredientId, amount: number): void;
-}
-
-function CoinAmount({ amount }: { amount: number }) {
-  const url = iconUrl('coin');
-  return (
-    <span class="shop__coin" role="img" aria-label={t('coins_aria', String(amount))}>
-      {url ? <img src={url} width={16} height={16} alt="" /> : null}
-      <span aria-hidden="true">{amount}</span>
-    </span>
-  );
 }
 
 interface RowProps {
