@@ -7,6 +7,7 @@ import { EMPTY_KITCHEN } from '@/core/kitchen';
 import type { SaveV1 } from '@/storage/schema';
 import { SAVE_KEY } from '@/storage/schema';
 import { requestEngine } from '@/ui/api';
+import { EMPTY_PROGRESS } from '@/core/progress';
 import { useGame } from '@/ui/useGame';
 
 vi.mock('@/ui/api', () => ({ requestEngine: vi.fn() }));
@@ -17,6 +18,7 @@ const save: SaveV1 = {
   game: createGame(1_000),
   zukan: createZukan(),
   kitchen: EMPTY_KITCHEN,
+  progress: EMPTY_PROGRESS,
   settings: { ...DEFAULT_SETTINGS },
   meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
 };

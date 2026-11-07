@@ -4,6 +4,8 @@ import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/life
 import { feedFromPantry } from '@/core/pantry';
 import { cook, type Cooked } from '@/core/cooking';
 import { farmAction, growFarm } from '@/core/farm';
+import { markSeen } from '@/core/progress';
+import { sellFood } from '@/core/shop';
 import { forage } from '@/core/outings';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
@@ -13,6 +15,7 @@ import type {
   GameEvent,
   Gained,
   IdleState,
+  MissionKind,
   Rng,
   Settings,
   WarningLevel,
@@ -21,6 +24,7 @@ import { parseEngineRequest, type EngineRequest, type EngineResponse } from '@/m
 import { addHiddenSite } from '@/roam/sites';
 import { settingsSchema, type SaveMeta, type SaveV1 } from '@/storage/schema';
 import type { SaveRepository } from '@/storage/repository';
+import { bookkeepProgress } from './progress';
 import { createSerialQueue } from './queue';
 
 export interface Notifier {
@@ -62,11 +66,18 @@ interface Mutation {
   outcome?: CareOutcome;
   gained?: Gained;
   cooked?: Cooked;
+  /** the mission this operation counts toward; set only when the outcome is ok */
+  mission?: MissionKind;
+  /** the player has seen the rewards; applied after bookkeeping so a reward paid now does not relight the dot */
+  seen?: boolean;
 }
 
 type Mutator = (save: SaveV1, now: number) => Mutation;
 
 const noMutation: Mutator = (save) => ({ save, events: [] });
+
+const missionIfOk = (outcome: CareOutcome, mission: MissionKind): { mission?: MissionKind } =>
+  outcome.result === 'ok' ? { mission } : {};
 
 const withPet = (save: SaveV1, pet: SaveV1['game']['pet']): SaveV1 => ({
   ...save,
@@ -77,7 +88,7 @@ function forageMutator(req: Extract<EngineRequest, { type: 'forage' }>, rng: Rng
   return (save, now) => {
     const r = forage({ pet: save.game.pet, kitchen: save.kitchen, kind: req.kind, score: req.score, now, rng });
     const gained = r.outcome.result === 'ok' ? r.gained : undefined;
-    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained };
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained, ...missionIfOk(r.outcome, 'outing') };
   };
 }
 
@@ -85,14 +96,17 @@ function farmMutator(req: Extract<EngineRequest, { type: 'farm' }>): Mutator {
   return (save) => {
     const r = farmAction({ pet: save.game.pet, kitchen: save.kitchen, action: req.action });
     const gained = r.outcome.result === 'ok' && req.action.op === 'harvest' ? r.gained : undefined;
-    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained };
+    const mission = req.action.op === 'harvest' ? missionIfOk(r.outcome, 'harvest') : {};
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, gained, ...mission };
   };
 }
 
 function careMutator(action: CareAction): Mutator {
   return (save) => {
     const r = applyCare(save.game.pet, action);
-    return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome };
+    const kind = action.kind === 'clean' || action.kind === 'play' ? action.kind : null;
+    const mission = kind === null ? {} : missionIfOk(r.outcome, kind);
+    return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome, ...mission };
   };
 }
 
@@ -100,7 +114,7 @@ function cookMutator(req: Extract<EngineRequest, { type: 'cook' }>): Mutator {
   return (save) => {
     const r = cook({ pet: save.game.pet, kitchen: save.kitchen, items: req.items });
     const cooked = r.outcome.result === 'ok' && r.cooked !== null ? r.cooked : undefined;
-    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, cooked };
+    return { save: { ...save, kitchen: r.kitchen }, events: [], outcome: r.outcome, cooked, ...missionIfOk(r.outcome, 'cook') };
   };
 }
 
@@ -108,7 +122,15 @@ function feedMutator(food: Extract<CareAction, { kind: 'feed' }>): Mutator {
   return (save) => {
     const fed = feedFromPantry(save.game.pet, save.kitchen.pantry, food);
     const next = { ...withPet(save, fed.result.pet), kitchen: { ...save.kitchen, pantry: fed.pantry } };
-    return { save: next, events: fed.result.events, outcome: fed.result.outcome };
+    return { save: next, events: fed.result.events, outcome: fed.result.outcome, ...missionIfOk(fed.result.outcome, 'feed') };
+  };
+}
+
+function sellMutator(req: Extract<EngineRequest, { type: 'sell' }>): Mutator {
+  return (save) => {
+    const r = sellFood({ pantry: save.kitchen.pantry, progress: save.progress, food: req.food, amount: req.amount });
+    const next = { ...save, kitchen: { ...save.kitchen, pantry: r.pantry }, progress: r.progress };
+    return { save: next, events: [], outcome: r.outcome };
   };
 }
 
@@ -124,6 +146,10 @@ function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
       return farmMutator(req);
     case 'cook':
       return cookMutator(req);
+    case 'sell':
+      return sellMutator(req);
+    case 'seenRewards':
+      return (save) => ({ save, events: [], seen: true });
     case 'ackCritical':
       return (save) => ({ save: withPet(save, acknowledgeCritical(save.game.pet)), events: [] });
     case 'updateSettings':
@@ -167,6 +193,11 @@ function bookkeepZukan(save: SaveV1, events: GameEvent[], now: number): SaveV1 {
 function unlockOnly(save: SaveV1, events: GameEvent[]): SaveV1 {
   const zukan = unlockFromEvents(save.zukan, events);
   return zukan === save.zukan ? save : { ...save, zukan };
+}
+
+/** Clears the reward dot; returns `save` itself when it was already clear. */
+function withSeen(save: SaveV1): SaveV1 {
+  return save.progress.unseen ? { ...save, progress: markSeen(save.progress) } : save;
 }
 
 export function createEngine(deps: EngineDeps): Engine {
@@ -215,9 +246,11 @@ export function createEngine(deps: EngineDeps): Engine {
     );
     const mutation = mutate(afterAdvance, now);
     const events = [...advanced.events, ...mutation.events];
-    const withZukan = unlockOnly(mutation.save, mutation.events);
-    const lastNotified = await notifyBestEffort(withZukan, events, now);
-    const save: SaveV1 = { ...withZukan, meta: { ...withZukan.meta, lastNotified } };
+    const unlocked = unlockOnly(mutation.save, mutation.events);
+    const bookkept = bookkeepProgress(unlocked, { events, mission: mutation.mission, now });
+    const settled = mutation.seen ? withSeen(bookkept) : bookkept;
+    const lastNotified = await notifyBestEffort(settled, events, now);
+    const save: SaveV1 = { ...settled, meta: { ...settled.meta, lastNotified } };
     await deps.repo.save(save);
     await updateBadgeBestEffort(save);
     return { ...mutation, save };

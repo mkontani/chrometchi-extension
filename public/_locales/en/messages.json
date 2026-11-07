@@ -278,6 +278,15 @@
   "action_settings": {
     "message": "Settings"
   },
+  "action_shop": {
+    "message": "Shop"
+  },
+  "stat_coins": {
+    "message": "Coins"
+  },
+  "new_rewards": {
+    "message": "New rewards"
+  },
   "loading": {
     "message": "Loading..."
   },
@@ -773,5 +782,120 @@
   },
   "recipe_hint_fruittart": {
     "message": "A snack of fruit and nuts…"
+  },
+  "shop_title": {
+    "message": "Shop"
+  },
+  "shop_sell": {
+    "message": "Sell"
+  },
+  "shop_coins": {
+    "message": "Coins: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_one": {
+    "message": "Sell 1"
+  },
+  "shop_sell_all": {
+    "message": "Sell all"
+  },
+  "coins_aria": {
+    "message": "Coins: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_one_aria": {
+    "message": "Sell 1 $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_all_aria": {
+    "message": "Sell all $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "zukan_tab_missions": {
+    "message": "Missions"
+  },
+  "mission_clean": {
+    "message": "Clean"
+  },
+  "mission_play": {
+    "message": "Play"
+  },
+  "mission_feed": {
+    "message": "Feed"
+  },
+  "mission_outing": {
+    "message": "Go out"
+  },
+  "mission_harvest": {
+    "message": "Harvest"
+  },
+  "mission_cook": {
+    "message": "Cook"
+  },
+  "mission_progress": {
+    "message": "$P1$ / $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "mission_tier": {
+    "message": "Step $P1$/3",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "mission_done": {
+    "message": "All done"
+  },
+  "rewards_recent": {
+    "message": "Recent rewards"
+  },
+  "reward_departed": {
+    "message": "A happy send-off"
+  },
+  "reward_dead": {
+    "message": "A farewell"
+  },
+  "reward_zukan": {
+    "message": "$P1$ in the zukan",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "reward_mission": {
+    "message": "$P1$ ×$P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   }
 }

@@ -410,4 +410,97 @@ describe('engine', () => {
       expect(stored().zukan.memories[0]?.generation).toBe(1);
     },
   );
+
+  describe('progress', () => {
+    const seed = (area: ReturnType<typeof setup>['area'], stored: () => SaveV1, patch: Partial<SaveV1>) =>
+      area.data.set(SAVE_KEY, { ...stored(), ...patch });
+
+    test('cleaning counts toward the clean mission', async () => {
+      const { engine, stored } = setup({ pet: makePet({ poops: 1 }) });
+      await engine.handle({ type: 'care', action: { kind: 'clean' } });
+      expect(stored().progress.counts.clean).toBe(1);
+    });
+
+    test('refused care does not count toward a mission', async () => {
+      const { engine, stored } = setup({ pet: makePet({ poops: 0, stats: { hunger: 100 } }) });
+      await engine.handle({ type: 'care', action: { kind: 'clean' } });
+      const fed = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'rice' } });
+      expect(fed).toMatchObject({ outcome: { result: 'refused' } });
+      expect(stored().progress.counts).toEqual({ clean: 0, play: 0, feed: 0, outing: 0, harvest: 0, cook: 0 });
+    });
+
+    test('a harvest counts, planting does not', async () => {
+      const { engine, stored, area } = setup();
+      await engine.handle({ type: 'farm', action: { op: 'plant', crop: 'veggie' } });
+      expect(stored().progress.counts.harvest).toBe(0);
+      const farm = { crop: 'veggie' as const, growMinLeft: 0, watered: true };
+      seed(area, stored, { kitchen: { ...stored().kitchen, farm } });
+      await engine.handle({ type: 'farm', action: { op: 'harvest' } });
+      expect(stored().progress.counts.harvest).toBe(1);
+    });
+
+    test('a forage and a cook each count once', async () => {
+      const { engine, stored } = setup();
+      await engine.handle({ type: 'forage', kind: 'fishing', score: 100 });
+      await engine.handle({ type: 'cook', items: ['fish'] });
+      expect(stored().progress.counts).toMatchObject({ outing: 1, cook: 1 });
+    });
+
+    test('a zukan milestone is paid once across a tick and a request', async () => {
+      const { engine, stored, area, clock } = setup();
+      const discovered = Array.from({ length: 10 }, (_, i) => `f${i}`);
+      seed(area, stored, { zukan: { ...stored().zukan, discovered } });
+      clock.now = T0 + MIN;
+      await engine.tick();
+      await engine.handle({ type: 'sync' });
+      expect(stored().progress.coins).toBe(50);
+      expect(stored().progress.claimed).toEqual(['zukan:10']);
+    });
+
+    test('a pet that dies during a tick earns 30 coins once', async () => {
+      const dying = makePet({ stats: { hunger: 0, vitality: 0.5 }, awakeMinutes: 100, criticalSeenAt: 20 });
+      const { engine, stored, clock } = setup({ pet: dying });
+      clock.now = T0 + MIN;
+      await engine.tick();
+      await engine.tick();
+      expect(stored().game.pet.lifecycle).toBe('dead');
+      expect(stored().progress.coins).toBe(30);
+    });
+
+    test('a restart pays nothing and keeps the coins', async () => {
+      const { engine, stored, area } = setup();
+      seed(area, stored, { progress: { ...stored().progress, coins: 77 } });
+      await engine.handle({ type: 'restart' });
+      expect(stored().progress.coins).toBe(77);
+      expect(stored().progress.recent).toEqual([]);
+    });
+
+    test('selling returns the outcome and saves the coins and the pantry', async () => {
+      const { engine, stored, area } = setup({ pet: makePet({ asleep: true }) });
+      seed(area, stored, { kitchen: { ...stored().kitchen, pantry: { meat: 3 } } });
+      const res = await engine.handle({ type: 'sell', food: 'meat', amount: 2 });
+      expect(res).toMatchObject({ ok: true, outcome: { action: 'sell', result: 'ok' } });
+      expect(stored().progress.coins).toBe(6);
+      expect(stored().kitchen.pantry).toEqual({ meat: 1 });
+      const refused = await engine.handle({ type: 'sell', food: 'meat', amount: 5 });
+      expect(refused).toMatchObject({ outcome: { result: 'refused', reason: 'noStock' } });
+      expect(stored().progress.coins).toBe(6);
+    });
+
+    test('seenRewards clears the dot even when the same operation pays a reward', async () => {
+      const { engine, stored, area } = setup();
+      const discovered = Array.from({ length: 10 }, (_, i) => `f${i}`);
+      seed(area, stored, { zukan: { ...stored().zukan, discovered } });
+      await engine.handle({ type: 'seenRewards' });
+      expect(stored().progress.recent.map((r) => r.reason)).toContain('zukan:10');
+      expect(stored().progress.unseen).toBe(false);
+    });
+
+    test('seenRewards clears the dot', async () => {
+      const { engine, stored, area } = setup();
+      seed(area, stored, { progress: { ...stored().progress, unseen: true } });
+      await engine.handle({ type: 'seenRewards' });
+      expect(stored().progress.unseen).toBe(false);
+    });
+  });
 });

@@ -18,11 +18,13 @@ import { OutingPanel } from '@/ui/components/OutingPanel';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
 import { RecipeBook } from '@/ui/components/RecipeBook';
-import { TabBar } from '@/ui/components/TabBar';
+import { TabBar, type TabDef } from '@/ui/components/TabBar';
 import { PetStage } from '@/ui/components/PetStage';
 import { PlayPanel } from '@/ui/components/PlayPanel';
+import { ShopView } from '@/ui/components/ShopView';
 import { SettingsView } from '@/ui/components/SettingsView';
 import { StatusBar } from '@/ui/components/StatusBar';
+import { MissionList } from '@/ui/components/MissionList';
 import { ZukanView } from '@/ui/components/ZukanView';
 import { requestRoamAccess } from '@/ui/roamPermission';
 import { useSfx, type SfxName } from '@/ui/sound';
@@ -36,8 +38,13 @@ import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
+/** Selling is answered inside the shop, so it never sounds or shows on the home screen. */
+const isHomeOutcome = (outcome: CareOutcome | null): outcome is CareOutcome =>
+  outcome !== null && outcome.action !== 'sell';
+
 /** The sound for an outcome; null for care whose effect plays its own sounds as it goes. */
 function sfxFor(outcome: CareOutcome): SfxName | null {
+  if (outcome.action === 'sell') return null;
   if (outcome.result === 'refused') return 'alert';
   switch (outcome.action) {
     case 'play':
@@ -48,8 +55,8 @@ function sfxFor(outcome: CareOutcome): SfxName | null {
   }
 }
 
-type Panel = 'feed' | 'play' | 'outing' | 'zukan' | 'settings';
-const PANELS: readonly ActionKind[] = ['feed', 'play', 'outing', 'zukan', 'settings'];
+type Panel = 'feed' | 'play' | 'outing' | 'zukan' | 'shop' | 'settings';
+const PANELS: readonly ActionKind[] = ['feed', 'play', 'outing', 'zukan', 'shop', 'settings'];
 
 /** Raw engine/Chrome errors are not localized, so the UI shows only a generic message. */
 function ErrorNote({ error }: { error: string }) {
@@ -133,7 +140,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
   );
   return (
     <>
-      <StatusBar pet={pet} />
+      <StatusBar pet={pet} coins={save.progress.coins} />
       {/* The banner and panels overlay the stage so its size never changes. */}
       <div class="stage-area">
         <PetStage
@@ -152,7 +159,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
         {panel && <div class="stage-area__overlay stage-area__overlay--bottom">{choice}</div>}
       </div>
       <OutcomeToast outcome={outcome} />
-      <ActionBar pet={pet} onSelect={onSelect} />
+      <ActionBar pet={pet} badge={save.progress.unseen} onSelect={onSelect} />
       {error && <ErrorNote error={error} />}
     </>
   );
@@ -165,28 +172,46 @@ async function toggleRoam(next: boolean, send: UseGame['send']): Promise<void> {
   await send({ type: 'updateSettings', patch: { roam: next } });
 }
 
-type ZukanTab = 'pets' | 'recipes';
+type ZukanTab = 'pets' | 'recipes' | 'missions';
 
-function ZukanTabs({ save }: { save: SaveV1 }) {
+function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
   const [tab, setTab] = useState<ZukanTab>('pets');
-  const tabs: readonly { id: ZukanTab; label: string }[] = [
+  const tabs: readonly TabDef<ZukanTab>[] = [
     { id: 'pets', label: t('zukan_tab_pets') },
     { id: 'recipes', label: t('zukan_tab_recipes') },
+    { id: 'missions', label: t('zukan_tab_missions'), badge: save.progress.unseen },
   ];
+  const dot = tab === 'missions' && save.progress.unseen;
+  useEffect(() => {
+    if (dot) void send({ type: 'seenRewards' });
+  }, [dot, send]);
   return (
     <>
       <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} />
-      {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : <RecipeBook recipes={save.kitchen.recipes} />}
+      {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : null}
+      {tab === 'recipes' ? <RecipeBook recipes={save.kitchen.recipes} /> : null}
+      {tab === 'missions' ? <MissionList progress={save.progress} /> : null}
     </>
   );
 }
 
-function InfoOverlay(props: { kind: 'zukan' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
+function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
   const { kind, save, send, onClose } = props;
   if (kind === 'zukan') {
     return (
       <Overlay title={t('zukan_title')} onClose={onClose}>
-        <ZukanTabs save={save} />
+        <ZukanTabs save={save} send={send} />
+      </Overlay>
+    );
+  }
+  if (kind === 'shop') {
+    return (
+      <Overlay title={t('shop_title')} onClose={onClose}>
+        <ShopView
+          pantry={save.kitchen.pantry}
+          coins={save.progress.coins}
+          onSell={(food, amount) => void send({ type: 'sell', food, amount })}
+        />
       </Overlay>
     );
   }
@@ -206,7 +231,8 @@ function InfoOverlay(props: { kind: 'zukan' | 'settings'; save: SaveV1; send: Us
 }
 
 export function App() {
-  const { save, outcome, error, send } = useGame();
+  const { save, outcome: lastOutcome, error, send } = useGame();
+  const outcome = isHomeOutcome(lastOutcome) ? lastOutcome : null;
   const [panel, setPanel] = useState<Panel | null>(null);
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const alive = save?.game.pet.lifecycle === 'alive';
@@ -287,7 +313,7 @@ export function App() {
         onCancel={outings.cancel}
       />
     );
-  } else if (panel === 'zukan' || panel === 'settings') {
+  } else if (panel === 'zukan' || panel === 'shop' || panel === 'settings') {
     layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
   } else {
     layer = (

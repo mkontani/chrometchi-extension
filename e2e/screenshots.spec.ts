@@ -185,7 +185,8 @@ test('store screenshots @screenshots', async ({ context, extensionId, msg }) => 
   await compose(context, catchShot, 3, lang);
 
   page = await open(context, extensionId, scene({}, NEVER_ASLEEP, DISCOVERED));
-  await page.getByRole('button', { name: msg('action_zukan'), exact: true }).click();
+  // 12 discoveries pay their coins on the first tick and light the dot, which renames the button.
+  await page.getByRole('button', { name: new RegExp(`^${msg('action_zukan')}`) }).click();
   await expect(page.locator('.zukan__cell').first()).toBeVisible();
   await compose(context, await capture(page), 4, lang);
 

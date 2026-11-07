@@ -22,9 +22,10 @@ Japanese) is in [`docs/store/listing.md`](docs/store/listing.md), and the privac
 - **Care**: meals and treats, mini-games (Catch, Cups, Stop), cleaning up, medicine, lights out, and petting. Only rice and candy are free; everything else comes from the pantry.
 - **Outings**: fishing, hunting and gathering (three trips each a day) and a small farm fill the pantry.
 - **Cooking**: put up to four ingredients in the pot to discover 12 recipes; found recipes stay in the recipe book.
+- **Coins and missions**: coins come from each generation's send-off, zukan milestones, missions (cleaning, playing, feeding, outings, harvests, cooking) and selling ingredients in the shop.
 - **Time only runs while Chrome is open.** Your pet sleeps at night (configurable) and needs the lights off.
 - **Warnings before death**: notifications and an in-popup banner tell you when life is in danger.
-- **Zukan**: a collection of every form you have discovered, memories of past pets, and your recipe book.
+- **Zukan**: a collection of every form you have discovered, memories of past pets, your recipe book and your missions.
 - **Walks on web pages** (optional): your pet strolls along the bottom of the pages you browse. Click it to hear how it is doing, drag it aside, or hide it on a site. Site access is asked for only when you turn this on.
 - English and Japanese, optional chiptune sound effects (off by default).
 

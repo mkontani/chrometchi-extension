@@ -11,6 +11,7 @@ const sprite = { width: 32, height: 32, palette, transparentCorners: true };
 const sized = (n: number) => ({ width: n, height: n, palette, transparentCorners: true });
 const SMALL_ICONS = new Set<string>([
   'feed', 'play', 'outing', 'clean', 'medicine', 'lights', 'zukan', 'settings', 'back',
+  'shop', 'coin',
   'heart_full', 'heart_half', 'heart_empty',
 ]);
 const GAME_ART_SIZE: Record<string, number> = { rock: 16, cup: 32, treat: 16 };

@@ -42,6 +42,7 @@ Chrometchi は、Chrome のツールバーに住むドット絵のバーチャ�
 ・「つり」「かり」「さいしゅう」のミニゲームと「はたけ」で、食材を集めます。
 ・いつでもあげられるのは、ごはんとおやつだけ。ほかの食べ物は、集めた食材から用意します。
 ・なべに食材を入れて料理しましょう。見つけたレシピは「ずかん」に残ります。
+・お世話やミッションでコインがたまります。食材はお店で売ることもできます。
 
 ■ Web ページの上をおさんぽ(オプション)
 ・「せってい」でオンにすると、ペットが見ているページの下をてくてく歩きます。
@@ -83,6 +84,7 @@ Chrometchi is a pixel-art virtual pet that lives in your Chrome toolbar. Hatch a
 • Go fishing, hunting and gathering, and tend a small farm to fill your pantry.
 • Rice and candy are always on hand. Every other food comes from what you gather.
 • Put ingredients in the pot and cook. Every recipe you find is kept in your Zukan.
+• Earn coins from care and missions, and sell spare ingredients in the shop.
 
 ■ Walks on web pages (optional)
 • Turn it on in Settings and your pet strolls along the bottom of the pages you browse.

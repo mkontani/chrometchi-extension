@@ -1,5 +1,6 @@
 import { DEFAULT_SETTINGS } from '@/core/constants';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
+import { EMPTY_PROGRESS } from '@/core/progress';
 import { createGame, createZukan } from '@/core/factory';
 import {
   LEGACY_KEYS,
@@ -21,6 +22,7 @@ export function createFreshSave(now: number, flags: Partial<SaveMeta> = {}): Sav
     game: createGame(now),
     zukan: createZukan(),
     kitchen: EMPTY_KITCHEN,
+    progress: EMPTY_PROGRESS,
     settings: { ...DEFAULT_SETTINGS },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false, ...flags },
   };

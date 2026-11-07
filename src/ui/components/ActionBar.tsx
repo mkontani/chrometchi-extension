@@ -3,10 +3,12 @@ import { t } from '@/i18n/t';
 import type { IconId } from '@/ui/assets';
 import { IconButton } from './IconButton';
 
-export type ActionKind = 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'settings';
+export type ActionKind = 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'shop' | 'settings';
 
-const KINDS: readonly ActionKind[] = [
-  'feed', 'play', 'outing', 'clean', 'medicine', 'lights', 'zukan', 'settings',
+// null is the empty slot kept for the stage-2 dress-up button.
+const SLOTS: readonly (ActionKind | null)[] = [
+  'feed', 'play', 'outing', 'clean', null,
+  'medicine', 'lights', 'zukan', 'shop', 'settings',
 ];
 
 export function isActionDisabled(kind: ActionKind, pet: PetState): boolean {
@@ -26,21 +28,27 @@ export function isActionDisabled(kind: ActionKind, pet: PetState): boolean {
 
 interface Props {
   pet: PetState;
+  badge: boolean;
   onSelect(kind: ActionKind): void;
 }
 
-export function ActionBar({ pet, onSelect }: Props) {
+export function ActionBar({ pet, badge, onSelect }: Props) {
   return (
     <nav class="action-bar">
-      {KINDS.map((kind) => (
-        <IconButton
-          key={kind}
-          id={kind as IconId}
-          label={t(`action_${kind}`)}
-          disabled={isActionDisabled(kind, pet)}
-          onClick={() => onSelect(kind)}
-        />
-      ))}
+      {SLOTS.map((kind, i) =>
+        kind === null ? (
+          <div key={`slot-${i}`} class="action-bar__spacer" aria-hidden="true" />
+        ) : (
+          <IconButton
+            key={kind}
+            id={kind as IconId}
+            label={t(`action_${kind}`)}
+            disabled={isActionDisabled(kind, pet)}
+            badge={kind === 'zukan' && badge}
+            onClick={() => onSelect(kind)}
+          />
+        ),
+      )}
     </nav>
   );
 }

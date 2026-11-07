@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
+import { EMPTY_PROGRESS } from '@/core/progress';
 import type { Kitchen } from '@/core/types';
 import { createFreshSave } from './repository';
 import { saveSchema, type SaveV1 } from './schema';
@@ -69,5 +70,81 @@ describe('saveSchema kitchen', () => {
     const k = { ...EMPTY_KITCHEN, recipes: ['steak', 'pizza', 'steak'] };
     const parsed = saveSchema.safeParse(withKitchen(k));
     expect(parsed.success && parsed.data.kitchen.recipes).toEqual(['steak']);
+  });
+});
+
+function withProgress(progress: unknown) {
+  return { ...createFreshSave(NOW), progress };
+}
+
+describe('saveSchema progress', () => {
+  test('a save without progress loads with empty progress and keeps everything else', () => {
+    const fresh = createFreshSave(NOW);
+    const old: Partial<SaveV1> = { ...fresh };
+    delete old.progress;
+    const parsed = saveSchema.safeParse(old);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(parsed.data.progress).toEqual(EMPTY_PROGRESS);
+    expect(parsed.data.game).toEqual(fresh.game);
+    expect(parsed.data.zukan).toEqual(fresh.zukan);
+    expect(parsed.data.kitchen).toEqual(fresh.kitchen);
+    expect(parsed.data.meta).toEqual(fresh.meta);
+  });
+
+  test('progress with a missing mission count gets 0 for it', () => {
+    const parsed = saveSchema.safeParse(withProgress({ ...EMPTY_PROGRESS, counts: { clean: 4 } }));
+    expect(parsed.success && parsed.data.progress.counts).toEqual({ ...EMPTY_PROGRESS.counts, clean: 4 });
+  });
+
+  test('unknown claimed and recent ids are dropped', () => {
+    const progress = {
+      ...EMPTY_PROGRESS,
+      claimed: ['zukan:10', 'room:moon', 'zukan:10'],
+      recent: [{ reason: 'mission:clean:9', coins: 5, at: 1 }],
+    };
+    const parsed = saveSchema.safeParse(withProgress(progress));
+    expect(parsed.success && parsed.data.progress.claimed).toEqual(['zukan:10']);
+    expect(parsed.success && parsed.data.progress.recent).toEqual([]);
+  });
+
+  test('recent keeps good entries and is cut to RECENT_MAX', () => {
+    const good = { reason: 'ending:dead', coins: 30, at: 2 };
+    const recent = [good, { reason: 'x' }, ...Array.from({ length: 8 }, () => good)];
+    const parsed = saveSchema.safeParse(withProgress({ ...EMPTY_PROGRESS, recent }));
+    expect(parsed.success && parsed.data.progress.recent).toEqual(Array(5).fill(good));
+  });
+
+  test('coins outside 0..99999 or not whole are clamped and floored', () => {
+    const coins = (n: unknown) => {
+      const parsed = saveSchema.safeParse(withProgress({ ...EMPTY_PROGRESS, coins: n }));
+      return parsed.success && parsed.data.progress.coins;
+    };
+    expect(coins(-5)).toBe(0);
+    expect(coins(100000)).toBe(99999);
+    expect(coins(12.9)).toBe(12);
+    expect(coins('x')).toBe(0);
+  });
+
+  test('a malformed progress becomes empty progress without resetting the save', () => {
+    const fresh = createFreshSave(NOW);
+    for (const bad of ['oops', { coins: 'x', counts: 5 }]) {
+      const parsed = saveSchema.safeParse(withProgress(bad));
+      expect(parsed.success).toBe(true);
+      if (!parsed.success) continue;
+      expect(parsed.data.progress).toEqual(EMPTY_PROGRESS);
+      expect(parsed.data.game).toEqual(fresh.game);
+    }
+  });
+
+  test('bad counts and unseen fall back field by field', () => {
+    const parsed = saveSchema.safeParse(
+      withProgress({ ...EMPTY_PROGRESS, coins: 7, counts: { clean: -2, play: 'a', feed: 3 }, unseen: 'yes' }),
+    );
+    expect(parsed.success && parsed.data.progress).toEqual({
+      ...EMPTY_PROGRESS,
+      coins: 7,
+      counts: { ...EMPTY_PROGRESS.counts, feed: 3 },
+    });
   });
 });

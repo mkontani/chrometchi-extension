@@ -3,10 +3,13 @@ import { afterEach, expect, test, vi } from 'vitest';
 import type { CareOutcome } from '@/core/types';
 import { createEgg } from '@/core/factory';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
+import { EMPTY_PROGRESS } from '@/core/progress';
 import type { UseGame } from '@/ui/useGame';
 import { App } from './App';
 
-vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
+vi.mock('@/i18n/t', () => ({
+  t: (k: string, subs?: string | string[]) => (k.endsWith('_aria') && subs !== undefined ? `${k}:${[subs].flat().join(',')}` : k),
+}));
 vi.mock('@/ui/assets', () => ({
   spriteUrl: (_f: string, pose: string) => `sprite-${pose}.png`,
   effectUrl: () => null,
@@ -28,6 +31,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
     kitchen: EMPTY_KITCHEN,
+    progress: EMPTY_PROGRESS,
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -320,7 +324,7 @@ test('the zukan has Pets and Recipes tabs; Pets shows today\'s zukan first', () 
   setup();
   fireEvent.click(screen.getByLabelText('action_zukan'));
   const tabs = screen.getAllByRole('tab');
-  expect(tabs.map((b) => b.textContent)).toEqual(['zukan_tab_pets', 'zukan_tab_recipes']);
+  expect(tabs.map((b) => b.textContent)).toEqual(['zukan_tab_pets', 'zukan_tab_recipes', 'zukan_tab_missions']);
   expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
   expect(document.querySelector('.zukan__grid')).not.toBeNull();
   expect(document.querySelector('.recipes')).toBeNull();
@@ -653,4 +657,105 @@ test('an ok cook plays the pot effect, then the ready note', async () => {
   advance(2500);
   expect(screen.queryByText('cooked_title')).toBeNull();
   vi.unstubAllGlobals();
+});
+
+test('the status bar shows the coins and the clicking the shop sends no request', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, coins: 321, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  expect(screen.getByRole('img', { name: 'coins_aria:321' }).textContent).toContain('321');
+  expect(screen.getByLabelText('action_zukan new_rewards')).toBeTruthy();
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  expect(send).not.toHaveBeenCalled();
+});
+
+test('the shop button opens the shop overlay and selling sends a sell request', () => {
+  const kitchen = { ...EMPTY_KITCHEN, pantry: { ...EMPTY_KITCHEN.pantry, fish: 3 } };
+  const { send } = setup(null, {}, { kitchen });
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  expect(screen.getByText('shop_title')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' }));
+  expect(send).toHaveBeenCalledWith({ type: 'sell', food: 'fish', amount: 3 });
+});
+
+test('opening the missions tab sends seenRewards when there is a dot', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
+  expect(send).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' }));
+  expect(send).toHaveBeenCalledWith({ type: 'seenRewards' });
+  expect(document.querySelector('.missions')).not.toBeNull();
+});
+
+test('opening the missions tab sends nothing when there is no dot', () => {
+  const { send } = setup(null, {}, {});
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  expect(send).not.toHaveBeenCalled();
+});
+
+test('clicking the missions tab again does not send seenRewards twice', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' }));
+  expect(send).toHaveBeenCalledTimes(1);
+});
+
+test('a reward that arrives while the missions tab is open is marked seen', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  const game = (unseen: boolean): UseGame => ({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen } }),
+    outcome: null, error: null, send,
+  });
+  useGame.mockReturnValue(game(false));
+  const { rerender } = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  expect(send).not.toHaveBeenCalled();
+  useGame.mockReturnValue(game(true));
+  rerender(<App />);
+  expect(send).toHaveBeenCalledTimes(1);
+  expect(send).toHaveBeenCalledWith({ type: 'seenRewards' });
+});
+
+test('a refused sell plays no sound and shows no toast after the shop closes', () => {
+  const freqs = stubAudio();
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  const refused: CareOutcome = { action: 'sell', result: 'refused', reason: 'noStock' };
+  useGame.mockReturnValue({ save, outcome: refused, error: null, send });
+  ui.rerender(<App />);
+  expect(freqs).toEqual([]);
+  fireEvent.click(screen.getByLabelText('close'));
+  expect(screen.queryByText('refuse_noStock')).toBeNull();
+  vi.unstubAllGlobals();
+});
+
+test('the missions tab shows a dot while there are new rewards', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
+  const missions = screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' });
+  expect(missions.querySelector('.panel__tab-dot')).not.toBeNull();
+  expect(screen.getByRole('tab', { name: 'zukan_tab_pets' }).querySelector('.panel__tab-dot')).toBeNull();
 });

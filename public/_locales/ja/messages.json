@@ -278,6 +278,15 @@
   "action_settings": {
     "message": "せってい"
   },
+  "action_shop": {
+    "message": "おみせ"
+  },
+  "stat_coins": {
+    "message": "コイン"
+  },
+  "new_rewards": {
+    "message": "あたらしいごほうび"
+  },
   "loading": {
     "message": "よみこみちゅう…"
   },
@@ -773,5 +782,120 @@
   },
   "recipe_hint_fruittart": {
     "message": "くだものと きのみの おかし…"
+  },
+  "shop_title": {
+    "message": "おみせ"
+  },
+  "shop_sell": {
+    "message": "うる"
+  },
+  "shop_coins": {
+    "message": "もっているコイン $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_one": {
+    "message": "1つうる"
+  },
+  "shop_sell_all": {
+    "message": "ぜんぶうる"
+  },
+  "coins_aria": {
+    "message": "$P1$コイン",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_one_aria": {
+    "message": "$P1$を1つうる",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_all_aria": {
+    "message": "$P1$をぜんぶうる",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "zukan_tab_missions": {
+    "message": "ミッション"
+  },
+  "mission_clean": {
+    "message": "そうじ"
+  },
+  "mission_play": {
+    "message": "あそぶ"
+  },
+  "mission_feed": {
+    "message": "ごはん"
+  },
+  "mission_outing": {
+    "message": "おでかけ"
+  },
+  "mission_harvest": {
+    "message": "しゅうかく"
+  },
+  "mission_cook": {
+    "message": "りょうり"
+  },
+  "mission_progress": {
+    "message": "$P1$ / $P2$かい",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "mission_tier": {
+    "message": "$P1$/3だんかい",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "mission_done": {
+    "message": "ぜんぶ たっせい"
+  },
+  "rewards_recent": {
+    "message": "さいきんの ごほうび"
+  },
+  "reward_departed": {
+    "message": "たびだちの ごほうび"
+  },
+  "reward_dead": {
+    "message": "おわかれの ごほうび"
+  },
+  "reward_zukan": {
+    "message": "ずかんで $P1$たい",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "reward_mission": {
+    "message": "$P1$ $P2$かい",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   }
 }

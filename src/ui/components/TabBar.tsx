@@ -1,6 +1,10 @@
+import { t } from '@/i18n/t';
+
 export interface TabDef<Id extends string> {
   id: Id;
   label: string;
+  /** a small dot, for a tab holding something new */
+  badge?: boolean;
 }
 
 interface Props<Id extends string> {
@@ -13,16 +17,18 @@ interface Props<Id extends string> {
 export function TabBar<Id extends string>({ tabs, active, onTab }: Props<Id>) {
   return (
     <div class="panel__tabs" role="tablist">
-      {tabs.map(({ id, label }) => (
+      {tabs.map(({ id, label, badge = false }) => (
         <button
           key={id}
           type="button"
           role="tab"
           class="panel__tab"
           aria-selected={active === id}
+          aria-label={badge ? `${label} ${t('new_rewards')}` : undefined}
           onClick={() => onTab(id)}
         >
           {label}
+          {badge ? <span class="panel__tab-dot" aria-hidden="true" /> : null}
         </button>
       ))}
     </div>
