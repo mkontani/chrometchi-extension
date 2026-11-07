@@ -213,7 +213,7 @@ describe('i18n', () => {
     const reasons: Record<RefuseReason, true> = {
       full: true, notSick: true, asleep: true, awake: true,
       notAlive: true, egg: true, cooldown: true, noPoop: true, noStock: true, outingLimit: true,
-      farmNotReady: true, pantryFull: true,
+      farmNotReady: true, pantryFull: true, locked: true,
     };
     for (const reason of Object.keys(reasons)) {
       expect(ja[`refuse_${reason}`]?.message, `ja ${reason}`).toBeTruthy();

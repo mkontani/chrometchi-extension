@@ -19,6 +19,7 @@ describe('parseEngineRequest', () => {
       { type: 'hideRoamSite', host: 'news.example.com' },
       { type: 'sell', food: 'fish', amount: 3 },
       { type: 'seenRewards' },
+      { type: 'setRoom', room: 'beach' },
     ];
     for (const raw of valid) expect(parseEngineRequest(raw)).toEqual(raw);
   });
@@ -107,6 +108,13 @@ describe('farm request', () => {
       { type: 'farm' },
     ];
     for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
+  });
+
+  test('setRoom requests that are not a known room id are rejected', () => {
+    for (const room of ['moon', '', 3]) {
+      expect(parseEngineRequest({ type: 'setRoom', room })).toBeNull();
+    }
+    expect(parseEngineRequest({ type: 'setRoom' })).toBeNull();
   });
 
   test('sell requests that are not a positive whole amount of an ingredient are rejected', () => {

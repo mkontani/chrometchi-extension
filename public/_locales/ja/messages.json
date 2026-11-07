@@ -326,6 +326,9 @@
   "refuse_outingLimit": {
     "message": "きょうはもうおしまい"
   },
+  "refuse_locked": {
+    "message": "まだ つかえないよ"
+  },
   "refuse_farmNotReady": {
     "message": "いまはできないよ"
   },

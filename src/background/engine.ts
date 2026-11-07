@@ -6,7 +6,8 @@ import { cook, type Cooked } from '@/core/cooking';
 import { farmAction, growFarm } from '@/core/farm';
 import { markSeen } from '@/core/progress';
 import { sellFood } from '@/core/shop';
-import { forage } from '@/core/outings';
+import { forage, outingRefusal } from '@/core/outings';
+import { ownedRooms } from '@/core/rooms';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
@@ -134,6 +135,14 @@ function sellMutator(req: Extract<EngineRequest, { type: 'sell' }>): Mutator {
   };
 }
 
+function setRoomMutator(req: Extract<EngineRequest, { type: 'setRoom' }>): Mutator {
+  return (save) => {
+    const reason = outingRefusal(save.game.pet) ?? (ownedRooms(save.progress.claimed).includes(req.room) ? null : 'locked');
+    if (reason !== null) return { save, events: [], outcome: { action: 'setRoom', result: 'refused', reason } };
+    return { save: { ...save, home: { room: req.room } }, events: [], outcome: { action: 'setRoom', result: 'ok' } };
+  };
+}
+
 function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
   switch (req.type) {
     case 'sync':
@@ -148,6 +157,8 @@ function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
       return cookMutator(req);
     case 'sell':
       return sellMutator(req);
+    case 'setRoom':
+      return setRoomMutator(req);
     case 'seenRewards':
       return (save) => ({ save, events: [], seen: true });
     case 'ackCritical':

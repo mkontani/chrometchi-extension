@@ -2,9 +2,10 @@ import { z } from 'zod';
 import { POT_MAX, type Cooked } from '@/core/cooking';
 import { PANTRY_MAX } from '@/core/constants';
 import type { FarmOp } from '@/core/farm';
-import type { CareAction, CareOutcome, Gained, IngredientId, OutingKind, Settings } from '@/core/types';
+import type { CareAction, CareOutcome, Gained, IngredientId, OutingKind, RoomId, Settings } from '@/core/types';
 import { FOOD_IDS, INGREDIENT_IDS } from '@/data/foods';
 import { OUTING_KINDS } from '@/data/outings';
+import { ROOM_IDS } from '@/data/rooms';
 import { POT_ITEMS, type PotItem } from '@/data/recipes';
 import type { RoamFrames } from '@/roam/frames';
 import { hostnameSchema, settingsSchema, type SaveV1 } from '@/storage/schema';
@@ -16,6 +17,7 @@ export type EngineRequest =
   | { type: 'farm'; action: FarmOp }
   | { type: 'cook'; items: PotItem[] }
   | { type: 'sell'; food: IngredientId; amount: number }
+  | { type: 'setRoom'; room: RoomId }
   | { type: 'seenRewards' }
   | { type: 'ackCritical' }
   | { type: 'updateSettings'; patch: Partial<Settings> }
@@ -71,6 +73,7 @@ const requestSchema = z.discriminatedUnion('type', [
     food: z.enum(INGREDIENT_IDS as [IngredientId, ...IngredientId[]]),
     amount: z.number().int().min(1).max(PANTRY_MAX),
   }),
+  z.object({ type: z.literal('setRoom'), room: z.enum(ROOM_IDS) }),
   z.object({ type: z.literal('seenRewards') }),
   z.object({ type: z.literal('ackCritical') }),
   z.object({ type: z.literal('updateSettings'), patch: settingsSchema.partial() }),

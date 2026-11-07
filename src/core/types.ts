@@ -221,10 +221,11 @@ export type RefuseReason =
   | 'noStock'
   | 'outingLimit'
   | 'farmNotReady'
-  | 'pantryFull';
+  | 'pantryFull'
+  | 'locked';
 
 export interface CareOutcome {
-  action: CareAction['kind'] | 'forage' | 'farm' | 'cook' | 'sell';
+  action: CareAction['kind'] | 'forage' | 'farm' | 'cook' | 'sell' | 'setRoom';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }
@@ -238,6 +239,11 @@ export interface CareResult {
 export type RoomId =
   | 'home' | 'garden' | 'beach' | 'forest' | 'sweets' | 'snowfield'
   | 'castle' | 'washitsu' | 'space' | 'cabin' | 'library';
+
+/** Where the pet lives: the room the player chose. */
+export interface Home {
+  room: RoomId;
+}
 
 export type MissionKind = 'clean' | 'play' | 'feed' | 'outing' | 'harvest' | 'cook';
 export type MissionTierNo = 1 | 2 | 3;

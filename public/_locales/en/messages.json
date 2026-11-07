@@ -326,6 +326,9 @@
   "refuse_outingLimit": {
     "message": "That's enough for today."
   },
+  "refuse_locked": {
+    "message": "Not unlocked yet"
+  },
   "refuse_farmNotReady": {
     "message": "Not now."
   },
