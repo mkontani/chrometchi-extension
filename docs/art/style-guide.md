@@ -174,6 +174,8 @@ Stage 3 must place its slots around these:
 - The library window reaches wall R.
 - Because of the perspective, the floor slots in castle, washitsu, space and home partly sit on wall or door pixels.
 
+Stage 3 handles each one in the slot table under "Furniture".
+
 ### The もようがえ icon
 
 `src/assets/ui/icons/decorate.png`, 16x16, an action button shown at 32px like the shop.
@@ -181,6 +183,60 @@ Stage 3 must place its slots around these:
 - **Settings:** the same as the coin and shop icons. Prompt: `a small cozy pink armchair, cute pixel icon, thick black outline, simple, front view, no face`.
 - **Pick:** seed 1. Seed 2 had two dark dots on the backrest that read as eyes, and the marks on seed 3's backrest read as a mouth.
 - **Hand fix:** the snap turned the pink into `#ef8080` salmon, which is mapped to `#f58fb0` pink, as for the shop. The two `#c7405d` tuft dots at the top of the backrest are repainted pink so they cannot read as eyes. The outline was already a closed `#000000` line.
+
+## Furniture
+
+The 28 items are in `src/assets/ui/decor/<id>.png`. Each is 24x24 or 32x32 (as `DECOR` says), on the palette, with a transparent background. The owner reviews them at Gate N.
+
+- **Source:** the 2026-11-06 art batch, already snapped to the palette. Both checks pass: `npx tsx scripts/art/check.ts --palette --size 32x32` on the 16 large items and `--size 24x24` on the 12 small ones.
+- **No faces.** All 28 were checked at 4x. The fishbowl's fish keeps a plain dot eye, as the raw fish icon does.
+- **Baked-in shadows:** the cushion and the armchair have a pale floor shadow in their art. It shows under them on the floor.
+
+### Drawing
+
+- **Scale:** 2x, the same as the food. 32 px art is drawn at 64 px, and 24 px art at 48 px.
+- **Alignment in the slot:**
+  - floor items are bottom-centred;
+  - wall and rug items are centred;
+  - ceiling items are top-centred.
+- **Layers, back to front:** room picture → wall and ceiling → rug → pet → floor.
+- **Night:** while the pet sleeps (the night picture), every item gets `filter: invert(1) sepia(0.6) invert(1) brightness(0.6)`.
+  - The filter pulls each color toward a moonlit blue, then dims it. White becomes `#999999`, and the pink armchair becomes a muted mauve. This sits close to the night pictures' tone, while the items still read.
+  - The gate sheets apply the same filter with the spec's matrices, so the popup matches them to within rounding. The result is the same whether or not the browser clamps between steps: `invert` turns the only out-of-range step (sepia above 1) into the clamp at 0.
+  - Rejected: `brightness(0.55) saturate(0.8)` left the reds warm against the blue room. `sepia() hue-rotate()` turns each item's own colors (the pink armchair went teal), and it depends on the browser's clamping.
+  - The lights-off darkness still covers everything.
+
+### Slots
+
+Slot rectangles are in stage px (x, y, w×h), in `ROOM_SLOTS` (`src/data/slots.ts`). `src/data/data.test.ts` checks these rules:
+
+- every value is a multiple of 4 (one room pixel), so items drawn at 2x land on whole display pixels;
+- every slot lies on the stage;
+- every slot is wide enough for its widest item: 48 px for wall slots, 64 px for the others;
+- floor and wall slots are also tall enough for their tallest item;
+- no two slots in a room overlap;
+- floor slots never overlap the pet's box (x 112–240, y 100–228).
+
+The tuning also follows these:
+
+- Floor items stand with their bottom row on floor pixels.
+- Floor slots end at y 232. That is just above the poops (`right: 8px; bottom: 8px`; up to 4 poops cover x 204–344, y 232–264), so a floor item never hides a poop.
+- Wall items hang on a plain wall, never across a corner line, a window or a door frame.
+- The ceiling (112, 0, 128×40) and the rug (128, 204, 96×48) are the same in every room. "start" in the table means the stage-3 starting rectangle: floor L (12, 156, 72×76), floor R (268, 156, 72×76), wall L (24, 24, 56×56), wall R (272, 24, 56×56).
+
+| room | wall L | wall R | floor L | floor R | why |
+|---|---|---|---|---|---|
+| home | (48, 48, 56×56) | (240, 48, 56×56) | start | start | The clock and the picture sat across the purple corner lines. They now hang on the back wall, between the corner and the curtain (a 48 px plain strip on each side), below the ends of the curtain rod. The floor reaches the slots' bottom row, so the floor slots stay. |
+| sweets | (0, 24, 56×56) | (296, 24, 56×56) | start | start | The side walls are plain cream, so the wall items sit there, clear of the pink corner lines. The back wall has the door and the windows. |
+| castle | (4, 24, 56×56) | (296, 24, 56×56) | (48, 156, 64×76) | (240, 156, 64×76) | The wall items move onto plain stone, off the arch's dark edge. At the bottom row the teal floor only spans room x 11–29 and 58–75. The floor items move in beside the pet and stand on the floor in front of the arch columns; at the start, their left part stood on stone. |
+| washitsu | (72, 40, 48×48) | (232, 40, 48×48) | (48, 156, 64×76) | (240, 156, 64×76) | No plain wall is big enough: the upper corners are ceiling beams. The wall items hang centred on the pink transoms (ramma) above the shoji, from the beam. The tatami spans room x 10–75 at the bottom row. The floor items move in, off the window and the gray wall panel. |
+| space | start | (268, 24, 56×56) | (48, 156, 64×76) | (240, 156, 64×76) | The picture moves 4 px left to sit inside its wall panel, clear of the diagonal seam. The blue floor only spans room x 13–74 at the bottom row. The floor items move in, off the lavender wall. |
+| cabin | (4, 72, 56×56) | (288, 72, 56×56) | (24, 156, 72×76) | (256, 156, 72×76) | At the start, the wall items sat on the sloping roof logs. They now hang on the plain orange side-wall panels beside the windows. The floor only spans room x 7–80 at the bottom row, so the floor items move in by 12 px each. |
+| library | (4, 24, 56×56) | (204, 52, 48×48) | (24, 156, 72×76) | (244, 156, 64×76) | Wall L moves onto the plain left side wall, off the corner. The window fills the right side wall, so wall R hangs inside the empty board frame on the back wall. Floor R ends at x 308, left of the window frame (room x 77). Floor L moves in, off the wall. |
+| garden | – | – | start | start | Open lawn. The trees stay above the items. |
+| beach | – | – | start | (240, 156, 64×76) | The palm trunk fills room x 72–83 down to row 58. Floor R moves left, beside the pet. 64 px items still cover the trunk's left outline by a few px: there is no room further left. |
+| forest | – | – | (48, 156, 64×76) | (240, 156, 64×76) | The roots reach row 49 at room x 0–14 and row 48 at x 73–86. The floor items move in beside the pet, onto open grass. Full-width items touch the root tips by 1–3 px. |
+| snowfield | – | – | start | start | Open snow. |
 
 ## Eggs
 

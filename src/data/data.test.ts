@@ -354,6 +354,30 @@ describe('furniture data', () => {
     }
   });
 
+  test('every slot sits on the stage and the room-pixel grid, fits its items and keeps clear of the others', () => {
+    const STAGE = { w: 352, h: 272 };
+    /** Items are drawn at 2x, so the widest item of a slot kind is twice its largest art size. */
+    const widest = (kind: string) => 2 * Math.max(...DECOR.filter((d) => d.slot === kind).map((d) => d.size));
+    for (const room of ROOM_IDS) {
+      const rects = Object.entries(ROOM_SLOTS[room]).flatMap(([slot, r]) => (r ? [{ slot, r }] : []));
+      for (const { slot, r } of rects) {
+        const kind = SLOT_KIND[slot as keyof typeof SLOT_KIND];
+        const at = `${room} ${slot}`;
+        expect([r.x, r.y, r.w, r.h].every((v) => v % 4 === 0), at).toBe(true);
+        expect(r.x >= 0 && r.y >= 0 && r.x + r.w <= STAGE.w && r.y + r.h <= STAGE.h, at).toBe(true);
+        expect(r.w, at).toBeGreaterThanOrEqual(widest(kind));
+        if (kind === 'floor' || kind === 'wall') expect(r.h, at).toBeGreaterThanOrEqual(widest(kind));
+      }
+      for (const [i, a] of rects.entries()) {
+        for (const b of rects.slice(i + 1)) {
+          const apart =
+            a.r.x + a.r.w <= b.r.x || b.r.x + b.r.w <= a.r.x || a.r.y + a.r.h <= b.r.y || b.r.y + b.r.h <= a.r.y;
+          expect(apart, `${room} ${a.slot} and ${b.slot}`).toBe(true);
+        }
+      }
+    }
+  });
+
   test("no floor slot overlaps the pet's box", () => {
     const box = { x: 112, y: 100, w: 128, h: 128 };
     for (const room of ROOM_IDS) {

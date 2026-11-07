@@ -5,12 +5,14 @@ import {
   GAME_ART_IDS,
   ICON_IDS,
   backgroundUrl,
+  decorUrl,
   effectUrl,
   foodUrl,
   gameArtUrl,
   iconUrl,
   spriteUrl,
 } from '@/ui/assets';
+import { DECOR_IDS } from '@/data/decor';
 import { FOODS } from '@/data/foods';
 import { ROOM_IDS } from '@/data/rooms';
 
@@ -53,6 +55,11 @@ test('every room has a day and a night picture', () => {
     expect(backgroundUrl(`${room}_day`), room).toContain(`/ui/bg/${room}_day`);
     expect(backgroundUrl(`${room}_night`), room).toContain(`/ui/bg/${room}_night`);
   }
+});
+
+test('every furniture item has its picture at its size', () => {
+  expect(DECOR_IDS).toHaveLength(28);
+  for (const id of DECOR_IDS) expect(decorUrl(id), id).toContain(`/ui/decor/${id}`);
 });
 
 test('every food has a whole and two bitten pictures', () => {

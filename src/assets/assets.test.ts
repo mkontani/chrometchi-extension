@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { checkImage, requiredSpritePaths } from '../../scripts/art/lib';
+import { DECOR_IDS, decorDef } from '@/data/decor';
 import { FOODS } from '@/data/foods';
 import { FORMS } from '@/data/forms';
 import { BACKGROUND_IDS, COOK_ART_IDS, EFFECT_IDS, GAME_ART_IDS, ICON_IDS, OUTING_ART_IDS, OUTING_ART_SIZE } from '@/ui/assets';
@@ -16,6 +17,16 @@ const SMALL_ICONS = new Set<string>([
 ]);
 const GAME_ART_SIZE: Record<string, number> = { rock: 16, cup: 32, treat: 16 };
 const TOOLBAR_ICONS = [16, 48, 128] as const;
+/** Furniture art (`src/assets/ui/decor/<id>.png`), drawn at 2x on the stage: 24px art at 48px, 32px at 64px. */
+const DECOR_24 = [
+  'candle', 'cactus', 'clock', 'musicbox', 'lantern', 'trophy',
+  'globe', 'stool', 'ball', 'blocks', 'drum', 'picture',
+] as const;
+const DECOR_32 = [
+  'lamp', 'fishbowl', 'vase', 'plant', 'bonsai', 'bunting', 'telescope', 'toypiano',
+  'petbed', 'xmastree', 'armchair', 'cushion', 'table', 'rug', 'shelf', 'chest',
+] as const;
+const decorPng = (id: string) => `src/assets/ui/decor/${id}.png`;
 /** Foods with bites taken out (scripts/art/bite.ts), shown while the pet eats. */
 const BITTEN_FOODS = FOODS.flatMap((f) => [1, 2].map((n) => `src/assets/ui/food/${f.id}_bite${n}.png`));
 
@@ -38,6 +49,7 @@ function checkedPngs(): Set<string> {
     ...COOK_ART_IDS.map((id) => `src/assets/ui/cook/${id}.png`),
     ...BACKGROUND_IDS.map((id) => `src/assets/ui/bg/${id}.png`),
     ...BITTEN_FOODS,
+    ...DECOR_IDS.map(decorPng),
     'src/assets/ui/frame.png',
   ]);
 }
@@ -67,6 +79,17 @@ describe('shipped art is complete and on-palette', () => {
   test.each(BACKGROUND_IDS)('background %s', (id) => {
     const opts = { width: 88, height: 68, palette, transparentCorners: false };
     expect(checkImage(`src/assets/ui/bg/${id}.png`, opts)).toEqual([]);
+  });
+  test('the furniture size lists match DECOR', () => {
+    expect([...DECOR_24, ...DECOR_32].sort()).toEqual([...DECOR_IDS].sort());
+    for (const id of DECOR_24) expect(decorDef(id).size, id).toBe(24);
+    for (const id of DECOR_32) expect(decorDef(id).size, id).toBe(32);
+  });
+  test.each(DECOR_24)('furniture %s (24px)', (id) => {
+    expect(checkImage(decorPng(id), sized(24))).toEqual([]);
+  });
+  test.each(DECOR_32)('furniture %s (32px)', (id) => {
+    expect(checkImage(decorPng(id), sized(32))).toEqual([]);
   });
   test('panel frame', () => {
     expect(checkImage('src/assets/ui/frame.png', sized(24))).toEqual([]);
