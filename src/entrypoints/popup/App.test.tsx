@@ -659,7 +659,7 @@ test('an ok cook plays the pot effect, then the ready note', async () => {
   vi.unstubAllGlobals();
 });
 
-test('the status bar shows the coins and the shop button does nothing yet', () => {
+test('the status bar shows the coins and the clicking the shop sends no request', () => {
   const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
   useGame.mockReturnValue({
     save: fullSave({}, { progress: { ...EMPTY_PROGRESS, coins: 321, unseen: true } }),
@@ -730,4 +730,19 @@ test('a reward that arrives while the missions tab is open is marked seen', () =
   rerender(<App />);
   expect(send).toHaveBeenCalledTimes(1);
   expect(send).toHaveBeenCalledWith({ type: 'seenRewards' });
+});
+
+test('a refused sell plays no sound and shows no toast after the shop closes', () => {
+  const freqs = stubAudio();
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  const refused: CareOutcome = { action: 'sell', result: 'refused', reason: 'noStock' };
+  useGame.mockReturnValue({ save, outcome: refused, error: null, send });
+  ui.rerender(<App />);
+  expect(freqs).toEqual([]);
+  fireEvent.click(screen.getByLabelText('close'));
+  expect(screen.queryByText('refuse_noStock')).toBeNull();
+  vi.unstubAllGlobals();
 });

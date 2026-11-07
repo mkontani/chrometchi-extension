@@ -38,8 +38,13 @@ import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
+/** Selling is answered inside the shop, so it never sounds or shows on the home screen. */
+const isHomeOutcome = (outcome: CareOutcome | null): outcome is CareOutcome =>
+  outcome !== null && outcome.action !== 'sell';
+
 /** The sound for an outcome; null for care whose effect plays its own sounds as it goes. */
 function sfxFor(outcome: CareOutcome): SfxName | null {
+  if (outcome.action === 'sell') return null;
   if (outcome.result === 'refused') return 'alert';
   switch (outcome.action) {
     case 'play':
@@ -226,7 +231,8 @@ function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1;
 }
 
 export function App() {
-  const { save, outcome, error, send } = useGame();
+  const { save, outcome: lastOutcome, error, send } = useGame();
+  const outcome = isHomeOutcome(lastOutcome) ? lastOutcome : null;
   const [panel, setPanel] = useState<Panel | null>(null);
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const alive = save?.game.pet.lifecycle === 'alive';
