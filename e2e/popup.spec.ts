@@ -317,3 +317,68 @@ test("a mix that matches no recipe makes a mystery dish", async ({
     .click();
   await expect(page.locator(".zukan__count")).toHaveText(/0\D+12/);
 });
+
+const zukanDot = (page: Page) => page.locator('.icon-button__dot');
+const statusCoins = (page: Page) => page.locator('.status-coins');
+
+function withProgress(save: SaveV1, progress: Partial<SaveV1['progress']>): SaveV1 {
+  return { ...save, progress: { ...save.progress, ...progress } };
+}
+
+test('selling a fish in the shop adds 2 coins', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, seedPantry({ fish: 2 }));
+  await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
+  const fishRow = page.locator('.shop__row').filter({ hasText: msg('food_fish') });
+  await expect(fishRow.locator('.shop__detail')).toContainText('×2');
+
+  await fishRow.locator('.shop__btn').first().click(); // 1つうる
+  await expect(fishRow.locator('.shop__detail')).toContainText('×1');
+  await expect(page.locator('.shop__coins')).toContainText('2');
+  expect((await readSave(context)).progress.coins).toBe(2);
+
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+  await expect(statusCoins(page)).toHaveText('2');
+});
+
+test('the tenth clean pays the first clean reward and lights the dot', async ({
+  context,
+  extensionId,
+  msg,
+}) => {
+  const base = withProgress(seed({ poops: 1 }), {});
+  const save = withProgress(base, { counts: { ...base.progress.counts, clean: 9 } });
+  const page = await seedAndOpen(context, extensionId, save);
+  await expect(statusCoins(page)).toHaveText('0');
+  await expect(zukanDot(page)).toHaveCount(0);
+
+  await page.getByRole('button', { name: msg('action_clean'), exact: true }).click();
+  await expect(statusCoins(page)).toHaveText('30');
+  await expect(zukanDot(page)).toHaveCount(1);
+
+  // A lit dot adds "new rewards" to the button's accessible name.
+  await page
+    .getByRole('button', { name: `${msg('action_zukan')} ${msg('new_rewards')}`, exact: true })
+    .click();
+  await page.getByRole('tab', { name: msg('zukan_tab_missions'), exact: true }).click();
+  const recent = page.locator('.missions__recent .missions__row');
+  await expect(recent).toHaveCount(1);
+  await expect(recent.first()).toContainText('10');
+  await expect(recent.first().locator('.shop__coin')).toContainText('30');
+
+  await expect(zukanDot(page)).toHaveCount(0);
+  await expect.poll(async () => (await readSave(context)).progress.unseen).toBe(false);
+});
+
+test('an old save without progress gets its zukan coins', async ({ context, extensionId }) => {
+  const base = seed({});
+  const old: Partial<SaveV1> = { ...base };
+  delete old.progress; // a save from before coins existed
+  const forms = [
+    'egg', 'baby_puni', 'child_hoshi', 'child_kemu', 'child_dango', 'young_hinoko',
+    'young_shizuku', 'young_poyo', 'adult_dragon', 'adult_beast', 'adult_turtle', 'adult_owl',
+  ];
+  const save = { ...old, zukan: { ...base.zukan, discovered: forms } } as unknown as SaveV1;
+  const page = await seedAndOpen(context, extensionId, save);
+  await expect(statusCoins(page)).toHaveText('50');
+  await expect(zukanDot(page)).toHaveCount(1);
+});
