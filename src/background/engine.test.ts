@@ -516,6 +516,38 @@ describe('engine', () => {
       expect(asleep.stored().home).toEqual({ room: 'home', ownedDecor: [], decor: {} });
     });
 
+    test('buying furniture takes the coins once', async () => {
+      const { engine, stored, area } = setup();
+      seed(area, stored, { progress: { ...stored().progress, coins: 150 } });
+      const res = await engine.handle({ type: 'buyDecor', decor: 'lamp' });
+      expect(res).toMatchObject({ ok: true, outcome: { action: 'buy', result: 'ok' } });
+      expect(stored().progress.coins).toBe(50);
+      expect(stored().home.ownedDecor).toEqual(['lamp']);
+      const again = await engine.handle({ type: 'buyDecor', decor: 'lamp' });
+      expect(again).toMatchObject({ outcome: { action: 'buy', result: 'refused', reason: 'owned' } });
+      expect(stored().progress.coins).toBe(50);
+    });
+
+    test('decor is kept per room across room switches', async () => {
+      const { engine, stored, area } = setup();
+      const home = { ...stored().home, ownedDecor: ['lamp' as const] };
+      seed(area, stored, { home, progress: { ...stored().progress, claimed: ['zukan:10'] } });
+      await engine.handle({ type: 'placeDecor', room: 'home', slot: 'floorL', decor: 'lamp' });
+      await engine.handle({ type: 'setRoom', room: 'beach' });
+      await engine.handle({ type: 'placeDecor', room: 'beach', slot: 'floorR', decor: 'lamp' });
+      await engine.handle({ type: 'setRoom', room: 'home' });
+      expect(stored().home.decor).toEqual({ home: { floorL: 'lamp' }, beach: { floorR: 'lamp' } });
+    });
+
+    test('placeDecor refuses while the pet sleeps and leaves home unchanged', async () => {
+      const { engine, stored, area } = setup({ pet: makePet({ asleep: true }) });
+      const home = { ...stored().home, ownedDecor: ['lamp' as const] };
+      seed(area, stored, { home });
+      const res = await engine.handle({ type: 'placeDecor', room: 'home', slot: 'floorL', decor: 'lamp' });
+      expect(res).toMatchObject({ outcome: { action: 'place', result: 'refused', reason: 'asleep' } });
+      expect(stored().home).toEqual(home);
+    });
+
     test('seenRewards clears the dot even when the same operation pays a reward', async () => {
       const { engine, stored, area } = setup();
       const discovered = Array.from({ length: 10 }, (_, i) => `f${i}`);

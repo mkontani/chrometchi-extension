@@ -4,6 +4,7 @@ import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/life
 import { feedFromPantry } from '@/core/pantry';
 import { cook, type Cooked } from '@/core/cooking';
 import { farmAction, growFarm } from '@/core/farm';
+import { buyDecor, placeDecor } from '@/core/decor';
 import { markSeen } from '@/core/progress';
 import { sellFood } from '@/core/shop';
 import { forage } from '@/core/outings';
@@ -143,6 +144,21 @@ function setRoomMutator(req: Extract<EngineRequest, { type: 'setRoom' }>): Mutat
   };
 }
 
+function buyMutator(req: Extract<EngineRequest, { type: 'buyDecor' }>): Mutator {
+  return (save) => {
+    const r = buyDecor({ progress: save.progress, home: save.home, decor: req.decor });
+    return { save: { ...save, progress: r.progress, home: r.home }, events: [], outcome: r.outcome };
+  };
+}
+
+function placeMutator(req: Extract<EngineRequest, { type: 'placeDecor' }>): Mutator {
+  return (save) => {
+    const { room, slot, decor } = req;
+    const r = placeDecor({ pet: save.game.pet, claimed: save.progress.claimed, home: save.home, room, slot, decor });
+    return { save: { ...save, home: r.home }, events: [], outcome: r.outcome };
+  };
+}
+
 function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
   switch (req.type) {
     case 'sync':
@@ -159,6 +175,10 @@ function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
       return sellMutator(req);
     case 'setRoom':
       return setRoomMutator(req);
+    case 'buyDecor':
+      return buyMutator(req);
+    case 'placeDecor':
+      return placeMutator(req);
     case 'seenRewards':
       return (save) => ({ save, events: [], seen: true });
     case 'ackCritical':

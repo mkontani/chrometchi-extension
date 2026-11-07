@@ -2,10 +2,22 @@ import { z } from 'zod';
 import { POT_MAX, type Cooked } from '@/core/cooking';
 import { PANTRY_MAX } from '@/core/constants';
 import type { FarmOp } from '@/core/farm';
-import type { CareAction, CareOutcome, Gained, IngredientId, OutingKind, RoomId, Settings } from '@/core/types';
+import type {
+  CareAction,
+  CareOutcome,
+  DecorId,
+  Gained,
+  IngredientId,
+  OutingKind,
+  RoomId,
+  Settings,
+  SlotId,
+} from '@/core/types';
+import { DECOR_IDS } from '@/data/decor';
 import { FOOD_IDS, INGREDIENT_IDS } from '@/data/foods';
 import { OUTING_KINDS } from '@/data/outings';
 import { ROOM_IDS } from '@/data/rooms';
+import { SLOT_IDS } from '@/data/slots';
 import { POT_ITEMS, type PotItem } from '@/data/recipes';
 import type { RoamFrames } from '@/roam/frames';
 import { hostnameSchema, settingsSchema, type SaveV1 } from '@/storage/schema';
@@ -18,6 +30,8 @@ export type EngineRequest =
   | { type: 'cook'; items: PotItem[] }
   | { type: 'sell'; food: IngredientId; amount: number }
   | { type: 'setRoom'; room: RoomId }
+  | { type: 'buyDecor'; decor: DecorId }
+  | { type: 'placeDecor'; room: RoomId; slot: SlotId; decor: DecorId | null }
   | { type: 'seenRewards' }
   | { type: 'ackCritical' }
   | { type: 'updateSettings'; patch: Partial<Settings> }
@@ -74,6 +88,13 @@ const requestSchema = z.discriminatedUnion('type', [
     amount: z.number().int().min(1).max(PANTRY_MAX),
   }),
   z.object({ type: z.literal('setRoom'), room: z.enum(ROOM_IDS) }),
+  z.object({ type: z.literal('buyDecor'), decor: z.enum(DECOR_IDS as [DecorId, ...DecorId[]]) }),
+  z.object({
+    type: z.literal('placeDecor'),
+    room: z.enum(ROOM_IDS),
+    slot: z.enum(SLOT_IDS as [SlotId, ...SlotId[]]),
+    decor: z.enum(DECOR_IDS as [DecorId, ...DecorId[]]).nullable(),
+  }),
   z.object({ type: z.literal('seenRewards') }),
   z.object({ type: z.literal('ackCritical') }),
   z.object({ type: z.literal('updateSettings'), patch: settingsSchema.partial() }),

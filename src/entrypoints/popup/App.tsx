@@ -40,9 +40,11 @@ import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
-/** Selling and room switches are answered inside their own overlay, so they never sound or show on the home screen. */
+const OVERLAY_ACTIONS: readonly CareOutcome['action'][] = ['sell', 'setRoom', 'buy', 'place'];
+
+/** Selling, room switches, buying and placing are answered inside their own overlay, so they never sound or show on the home screen. */
 const isHomeOutcome = (outcome: CareOutcome | null): outcome is CareOutcome =>
-  outcome !== null && outcome.action !== 'sell' && outcome.action !== 'setRoom';
+  outcome !== null && !OVERLAY_ACTIONS.includes(outcome.action);
 
 /** The sound for an outcome; null for care whose effect plays its own sounds as it goes. */
 function sfxFor(outcome: CareOutcome): SfxName | null {
