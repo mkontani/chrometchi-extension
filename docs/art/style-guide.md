@@ -332,12 +332,12 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
 - **The idle1 rule** (spec 8.2: worn items bounce with the pet):
   - `scripts/art/idle1.ts squash` makes idle1 from idle0 by removing one row low in the body. Every row above it sinks 1 px, and the feet stay put.
   - `FORM_ANCHORS` records that row as `squashRow`. The values were read from the sprites, by comparing each idle0 with its idle1, and are written as literals.
-  - In idle1, a point above the removed row (`y < squashRow`) is drawn 1 art px (4 stage px) lower, so the hat and glasses sink with the head and face. A point on or below it stays put. With today's points, the head point sinks on all 41 forms, the face point on 33 and the neck point on 14.
-  - On baby_puni, young_poyo and young_hinoko the neck point is on the removed row itself, so the neck item stays put. The row that slides under its top edge is the gap under the mouth, so the mouth stays clear.
-  - On child_mochi, adult_ufo, adult_salamander, adult_nexus and adult_grandpudding the face point is on the removed row, so the glasses stay put. The eyes lose a row there, and the glasses still cover them.
+  - In idle1, a point with `y <= squashRow` is drawn 1 art px (4 stage px) lower, so the hat and glasses sink with the head and face. Points are pixel edges: edges 0 to `squashRow` move down one, and the edges below stay put. With today's points, the head point sinks on all 41 forms, the face point on 38 and the neck point on 17.
+  - A point on the edge `y = squashRow` sinks too. That edge is the bottom of row `squashRow` − 1, which sinks; the removed row was below it. On baby_puni, young_poyo and young_hinoko the neck point is on that edge. If the neck item stayed put there, it would cover the gap row under the mouth in idle1 and touch the mouth every other frame.
+  - The face points of child_mochi, adult_ufo, adult_salamander, adult_nexus and adult_grandpudding are on that edge as well, so their glasses sink with the upper half of the eyes.
   - Every other pose (happy, eat, sick, sleep and sad) is its own picture, approved at Gate P, and uses idle0's points.
   - A new or redrawn idle1 must still be idle0 with one row removed. Otherwise the data test fails, and the form needs its own idle1 points.
-  - The check still is `.superpowers/sdd/2026-11-07-dressup/art/idle1-check.png`: child_kemu and adult_kraken in idle0 and idle1, wearing tophat + glasses + bowtie.
+  - The check still is `.superpowers/sdd/2026-11-07-dressup/art/idle1-check.png`: child_kemu, adult_kraken and baby_puni in idle0 and idle1, wearing tophat + glasses + bowtie.
 - **First values** came from a throwaway script on each `idle0`:
   - head: the topmost opaque row, 3 px down. Its x is the centre of the opaque columns in the top 3 rows.
   - face: the eyes are two clusters of near-black pixels inside the silhouette (no neighbour is transparent, so the outline doesn't count). They lie on about the same row, either side of the middle, in the top 65% of the body. The point is the centre of the box around both eyes.

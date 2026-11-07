@@ -361,6 +361,20 @@ test('worn items sink with the face in idle1', () => {
   expect(tops()).toEqual([hat0, glasses0, tie0]);
 });
 
+test('a point on the removed row sinks in idle1', () => {
+  vi.useFakeTimers();
+  // baby_puni's neck point is the edge at y 22, its squashRow: the bottom of row 21, which sinks.
+  const pts = FORM_ANCHORS.baby_puni!;
+  expect(pts.neck[1]).toBe(pts.squashRow);
+  const puni = makePet({ stage: 'baby', formId: 'baby_puni' });
+  const { container } = render(<PetStage generation={1} room="home" pet={puni} reaction={null} worn={{ neck: 'bowtie' }} />);
+  const top = () => Number.parseInt(wornImg(container, 'bowtie').style.top, 10);
+  const idle0 = top();
+  act(() => void vi.advanceTimersByTime(500));
+  expect(screen.getByAltText('form_baby_puni').getAttribute('src')).toBe('sprite-idle1.png');
+  expect(top()).toBe(idle0 + 4);
+});
+
 test('layer order is pet, neck, face, head', () => {
   const { container } = render(
     <PetStage generation={1} room="home" pet={makePet()} reaction={null} worn={{ head: 'crown', face: 'glasses', neck: 'scarf' }} />,

@@ -3,7 +3,7 @@ import type { FormId } from '@/core/types';
 /**
  * Where a form wears things, as [x, y] in its 32 px art (pixel-edge coordinates, like the
  * accessory anchors). A worn item's own anchor lands on the point for its place. The points are
- * idle0's, and every pose uses them, except that idle1 sinks those above `squashRow` by 1 px.
+ * idle0's, and every pose uses them, except that idle1 sinks those with y <= `squashRow` by 1 px.
  * How they were found, and the forms set by hand: style guide, Accessories.
  */
 export interface FormAnchors {
@@ -15,7 +15,8 @@ export interface FormAnchors {
   readonly neck: [number, number];
   /**
    * The art row that idle1 removed (`scripts/art/idle1.ts squash`): rows [0, squashRow) sink 1 px
-   * while the feet stay put, so in idle1 a point with y < squashRow is 1 px lower.
+   * while the feet stay put. In pixel edges, edges 0..squashRow move down one (edge squashRow is the
+   * bottom of row squashRow - 1) and the edges below stay, so in idle1 a point with y <= squashRow is 1 px lower.
    */
   readonly squashRow: number;
 }
