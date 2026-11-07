@@ -328,6 +328,7 @@ function withProgress(save: SaveV1, progress: Partial<SaveV1['progress']>): Save
 test('selling a fish in the shop adds 2 coins', async ({ context, extensionId, msg }) => {
   const page = await seedAndOpen(context, extensionId, seedPantry({ fish: 2 }));
   await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
+  await page.getByRole('tab', { name: msg('shop_tab_sell') }).click();
   const fishRow = page.locator('.shop__row').filter({ hasText: msg('food_fish') });
   await expect(fishRow.locator('.shop__detail')).toContainText('×2');
 
@@ -436,4 +437,64 @@ test('an old save owns the rooms its rewards unlocked', async ({ context, extens
 test('the decorate button is disabled while the pet sleeps', async ({ context, extensionId, msg }) => {
   const page = await seedAndOpen(context, extensionId, seed({ asleep: true }));
   await expect(decorateButton(page, msg)).toBeDisabled();
+});
+
+type Msg = (key: string) => string;
+
+function withHome(save: SaveV1, home: Partial<SaveV1['home']>): SaveV1 {
+  return { ...save, home: { ...save.home, ...home } };
+}
+
+test('buying a plant takes its coins and shows it as owned', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, withProgress(seed({}), { coins: 100 }));
+  await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
+  const row = page.locator('.shop__row').filter({ hasText: msg('decor_plant') });
+  await row.locator('.shop__btn').click(); // named by shop_buy_aria, which the fixture cannot fill in
+  await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
+  await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
+  await expect(page.locator('.shop__coins')).toContainText('40');
+  const save = await readSave(context);
+  expect(save.progress.coins).toBe(40);
+  expect(save.home.ownedDecor).toEqual(['plant']);
+
+  // The where-to-place hint belongs to the buy, not to the shop: reopening it must not repeat it.
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+  await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
+  await expect(page.locator('.shop__coins')).toBeVisible();
+  await expect(page.getByText(msg('shop_bought'))).toHaveCount(0);
+});
+
+const slotButton = (page: Page, msg: Msg, slot: string) =>
+  page.getByRole('button', { name: new RegExp(`^${msg(`slot_${slot}`)}`) });
+
+test('a placed plant stands in the room, and stays after a room switch', async ({ context, extensionId, msg }) => {
+  const save = withHome(withProgress(seed({}), { claimed: ['zukan:10'] }), { ownedDecor: ['plant'] });
+  const page = await seedAndOpen(context, extensionId, save);
+
+  await decorateButton(page, msg).click();
+  await page.getByRole('tab', { name: msg('decorate_tab_decor') }).click();
+  await slotButton(page, msg, 'floorL').click();
+  await page.getByRole('button', { name: msg('decor_plant'), exact: true }).click();
+  await expect(page.locator('.decorate .stage img.decor')).toHaveCount(1);
+  expect((await readSave(context)).home.decor).toEqual({ home: { floorL: 'plant' } });
+
+  await page.getByRole('tab', { name: msg('decorate_tab_room') }).click();
+  await roomButton(page, msg, 'beach').click();
+  await expect(page.locator('.decorate .stage img.decor')).toHaveCount(0);
+  await roomButton(page, msg, 'home').click();
+  await expect(page.locator('.decorate .stage img.decor')).toHaveCount(1);
+
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+  await expect(page.locator('.stage img.decor')).toHaveCount(1);
+});
+
+test('the beach offers no wall slots', async ({ context, extensionId, msg }) => {
+  const save = withHome(withProgress(seed({}), { claimed: ['zukan:10'] }), { room: 'beach' });
+  const page = await seedAndOpen(context, extensionId, save);
+
+  await decorateButton(page, msg).click();
+  await page.getByRole('tab', { name: msg('decorate_tab_decor') }).click();
+  await expect(page.locator('.slot')).toHaveCount(3);
+  for (const slot of ['floorL', 'floorR', 'rug']) await expect(slotButton(page, msg, slot)).toBeVisible();
+  for (const slot of ['wallL', 'wallR', 'ceiling']) await expect(slotButton(page, msg, slot)).toHaveCount(0);
 });
