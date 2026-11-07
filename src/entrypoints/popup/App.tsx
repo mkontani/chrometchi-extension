@@ -176,13 +176,13 @@ function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
     { id: 'recipes', label: t('zukan_tab_recipes') },
     { id: 'missions', label: t('zukan_tab_missions') },
   ];
-  const onTab = (next: ZukanTab) => {
-    setTab(next);
-    if (next === 'missions' && save.progress.unseen) void send({ type: 'seenRewards' });
-  };
+  const dot = tab === 'missions' && save.progress.unseen;
+  useEffect(() => {
+    if (dot) void send({ type: 'seenRewards' });
+  }, [dot, send]);
   return (
     <>
-      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={onTab} />
+      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} />
       {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : null}
       {tab === 'recipes' ? <RecipeBook recipes={save.kitchen.recipes} /> : null}
       {tab === 'missions' ? <MissionList progress={save.progress} /> : null}

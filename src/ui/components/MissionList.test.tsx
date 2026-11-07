@@ -44,7 +44,7 @@ test('a finished mission says all done', () => {
   expect(cook.queryByRole('img')).toBeNull();
 });
 
-test('recent rewards are listed newest first, and the section is hidden when empty', () => {
+test('recent rewards are shown in the stored order (core keeps them newest first), and the section is hidden when empty', () => {
   const { rerender } = render(<MissionList progress={progress()} />);
   expect(screen.queryByText('Recent rewards')).toBeNull();
   rerender(

@@ -701,3 +701,33 @@ test('opening the missions tab sends nothing when there is no dot', () => {
   fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
   expect(send).not.toHaveBeenCalled();
 });
+
+test('clicking the missions tab again does not send seenRewards twice', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  expect(send).toHaveBeenCalledTimes(1);
+});
+
+test('a reward that arrives while the missions tab is open is marked seen', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  const game = (unseen: boolean): UseGame => ({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen } }),
+    outcome: null, error: null, send,
+  });
+  useGame.mockReturnValue(game(false));
+  const { rerender } = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan'));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  expect(send).not.toHaveBeenCalled();
+  useGame.mockReturnValue(game(true));
+  rerender(<App />);
+  expect(send).toHaveBeenCalledTimes(1);
+  expect(send).toHaveBeenCalledWith({ type: 'seenRewards' });
+});
