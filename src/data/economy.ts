@@ -45,7 +45,10 @@ export function missionRewardId(kind: MissionKind, tier: MissionTierNo): RewardI
 
 const TIERS: readonly MissionTierNo[] = [1, 2, 3];
 
-/** Every known reward id: zukan first, then missions in kind and tier order. */
+/**
+ * Reward ids are permanent: renaming one drops it from `claimed` and pays it again.
+ * Stage 2 derives the owned rooms from them.
+ * Every known reward id: zukan first, then missions in kind and tier order. */
 export const REWARD_IDS: readonly RewardId[] = [
   ...ZUKAN_MILESTONES.map((m) => zukanRewardId(m.count)),
   ...MISSION_KINDS.flatMap((kind) => TIERS.map((tier) => missionRewardId(kind, tier))),

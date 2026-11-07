@@ -3,22 +3,16 @@ import { EMPTY_PROGRESS } from '@/core/progress';
 import type { MissionKind, Progress, RecentReason, RecentReward, RewardId } from '@/core/types';
 import {
   COINS_MAX,
-  MISSIONS,
   MISSION_KINDS,
   RECENT_MAX,
-  ZUKAN_MILESTONES,
-  missionRewardId,
-  zukanRewardId,
+  REWARD_IDS,
 } from '@/data/economy';
 
 type Raw = Record<string, unknown>;
 
 const isRecord = (v: unknown): v is Raw => typeof v === 'object' && v !== null && !Array.isArray(v);
 
-const REWARD_ID_SET = new Set<string>([
-  ...ZUKAN_MILESTONES.map((m) => zukanRewardId(m.count)),
-  ...MISSION_KINDS.flatMap((k) => MISSIONS[k].map((_, i) => missionRewardId(k, (i + 1) as 1 | 2 | 3))),
-]);
+const REWARD_ID_SET = new Set<string>(REWARD_IDS);
 const RECENT_REASONS = new Set<string>([...REWARD_ID_SET, 'ending:departed', 'ending:dead']);
 
 const isRewardId = (v: unknown): v is RewardId => typeof v === 'string' && REWARD_ID_SET.has(v);
