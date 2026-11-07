@@ -97,11 +97,12 @@ function pat(pet: PetState, action: CareAction): CareResult {
   return ok({ ...next, lastPetAt: pet.awakeMinutes }, action);
 }
 
-const RESCUE_KINDS: ReadonlySet<CareOutcome['action']> = new Set(['feed', 'play', 'clean', 'medicine']);
+/** The care that counts: it rescues a critical pet and goes into the stage's care history. */
+export const CARE_KINDS: ReadonlySet<CareOutcome['action']> = new Set(['feed', 'play', 'clean', 'medicine']);
 
 /** Real care re-arms the death grace: dying again needs a fresh critical-banner view (spec 4.4). */
 function rearmGrace(r: CareResult): CareResult {
-  const rescued = r.outcome.result === 'ok' && RESCUE_KINDS.has(r.outcome.action);
+  const rescued = r.outcome.result === 'ok' && CARE_KINDS.has(r.outcome.action);
   if (!rescued || r.pet.criticalSeenAt === null) return r;
   return { ...r, pet: { ...r.pet, criticalSeenAt: null } };
 }
