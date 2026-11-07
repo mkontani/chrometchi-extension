@@ -63,6 +63,9 @@ body {
 .stage--night { background-color: var(--navy); background-image: linear-gradient(#0e1033, var(--navy)); }
 .stage[style] { background-color: transparent; }
 .pet { position: absolute; left: 112px; top: 100px; image-rendering: pixelated; }
+.decor { position: absolute; image-rendering: pixelated; pointer-events: none; }
+/* Close to the night pictures' tone (docs/art/style-guide.md, "Furniture"). */
+.decor--night { filter: invert(1) sepia(0.6) invert(1) brightness(0.6); }
 .pet--bounce { animation: bounce 1s steps(2) infinite; }
 @keyframes bounce { 50% { transform: translateY(-2px); } }
 .poops { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 4px; }

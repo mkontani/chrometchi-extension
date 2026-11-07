@@ -33,7 +33,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
     kitchen: EMPTY_KITCHEN,
     progress: EMPTY_PROGRESS,
-    home: { room: 'home' },
+    home: { room: 'home', ownedDecor: [], decor: {} },
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -61,7 +61,7 @@ test('shows only the localized generic error; the raw detail goes to the console
 
 test('a current room that is not owned shows home', () => {
   backgroundUrl.mockClear();
-  useGame.mockReturnValue({ save: fullSave({}, { home: { room: 'castle' } }), outcome: null, error: null, send: vi.fn() });
+  useGame.mockReturnValue({ save: fullSave({}, { home: { room: 'castle', ownedDecor: [], decor: {} } }), outcome: null, error: null, send: vi.fn() });
   render(<App />);
   expect(backgroundUrl).toHaveBeenCalledWith('home_day');
   expect(backgroundUrl).not.toHaveBeenCalledWith('castle_day');

@@ -19,6 +19,7 @@ import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
 import { RecipeBook } from '@/ui/components/RecipeBook';
 import { TabBar, type TabDef } from '@/ui/components/TabBar';
+import { placedIn } from '@/core/decor';
 import { ownedRooms, shownRoom } from '@/core/rooms';
 import { PetStage } from '@/ui/components/PetStage';
 import { RoomPicker } from '@/ui/components/RoomPicker';
@@ -142,6 +143,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
   const choice = (
     <PanelChoice {...{ save, panel, onPlay, onGo, onFarm }} onCook={cooking.cook} care={care} close={() => setPanel(null)} />
   );
+  const stageRoom = shownRoom(save.home.room, save.progress.claimed);
   return (
     <>
       <StatusBar pet={pet} coins={save.progress.coins} />
@@ -150,7 +152,8 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
         <PetStage
           pet={stagePet}
           generation={save.game.generation}
-          room={shownRoom(save.home.room, save.progress.claimed)}
+          room={stageRoom}
+          decor={placedIn(save.home, stageRoom)}
           reaction={reaction}
           fromPlay={fromPlay}
           effect={effects.frame}
@@ -214,7 +217,13 @@ function DecorateOverlay({ save, outcome, send, onClose }: DecorateProps) {
   return (
     <Overlay title={t('decorate_title')} onClose={onClose}>
       <div class="decorate">
-        <PetStage pet={save.game.pet} generation={save.game.generation} room={room} reaction={null} />
+        <PetStage
+          pet={save.game.pet}
+          generation={save.game.generation}
+          room={room}
+          decor={placedIn(save.home, room)}
+          reaction={null}
+        />
         <RoomPicker
           owned={ownedRooms(claimed)}
           current={room}

@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'preact/hooks';
-import type { PetState, Pose, RoomId } from '@/core/types';
+import type { DecorId, PetState, Pose, RoomId, SlotId } from '@/core/types';
+import { decorDef } from '@/data/decor';
+import { ROOM_SLOTS, SLOT_KIND } from '@/data/slots';
 import { deriveWarning } from '@/core/warnings';
 import { t } from '@/i18n/t';
-import { backgroundUrl, effectUrl, spriteUrl, type EffectId } from '@/ui/assets';
+import { backgroundUrl, decorUrl, effectUrl, spriteUrl, type EffectId } from '@/ui/assets';
 import { PET } from '@/ui/effects/layout';
 import type { EffectFrame, PoopView } from '@/ui/effects/types';
 import { EffectLayer } from './EffectLayer';
+
+export interface PlacedDecor {
+  slot: SlotId;
+  decor: DecorId;
+}
 
 export type Reaction = 'eat' | 'happy' | null;
 const IDLE_INTERVAL_MS = 500;
@@ -17,6 +24,8 @@ interface Props {
   /** the room drawn behind the pet */
   room: RoomId;
   reaction: Reaction;
+  /** the furniture placed in this room, drawn in its slots */
+  decor?: readonly PlacedDecor[];
   /** true when the happy reaction comes from playing (shows notes) */
   fromPlay?: boolean;
   /** The running care effect's frame, drawn over the usual picture. */
@@ -40,6 +49,27 @@ function useIdleFrame(): 0 | 1 {
     return () => clearInterval(id);
   }, []);
   return frame;
+}
+
+const DECOR_SCALE = 2;
+
+/** One furniture item at 2x: floor bottom-centred in its slot, ceiling top-centred, wall and rug centred. */
+function Decor({ room, item, night }: { room: RoomId; item: PlacedDecor; night: boolean }) {
+  const rect = ROOM_SLOTS[room][item.slot];
+  const url = decorUrl(item.decor);
+  if (!rect || !url) return null;
+  const size = decorDef(item.decor).size * DECOR_SCALE;
+  const kind = SLOT_KIND[item.slot];
+  const left = rect.x + (rect.w - size) / 2;
+  const top = kind === 'floor' ? rect.y + rect.h - size : kind === 'ceiling' ? rect.y : rect.y + (rect.h - size) / 2;
+  return (
+    <img
+      class={`decor${night ? ' decor--night' : ''}`}
+      src={url}
+      alt=""
+      style={{ left: `${left}px`, top: `${top}px`, width: `${size}px`, height: `${size}px` }}
+    />
+  );
 }
 
 function Effect({ id, cls }: { id: EffectId; cls: string }) {
@@ -90,7 +120,7 @@ function Darkness({ level }: { level: number }) {
   );
 }
 
-export function PetStage({ pet, generation, room, reaction, fromPlay = false, effect = null, onPetClick }: Props) {
+export function PetStage({ pet, generation, room, reaction, decor = [], fromPlay = false, effect = null, onPetClick }: Props) {
   const frame = useIdleFrame();
   const bg = backgroundUrl(`${room}_${pet.asleep ? 'night' : 'day'}`);
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
@@ -105,8 +135,13 @@ export function PetStage({ pet, generation, room, reaction, fromPlay = false, ef
       onPetClick?.();
     }
   };
+  const drawn = (front: boolean) =>
+    decor
+      .filter((item) => (SLOT_KIND[item.slot] === 'floor') === front)
+      .map((item) => <Decor key={item.slot} room={room} item={item} night={pet.asleep} />);
   return (
     <section class={`stage ${bgClass}${darkness >= 1 ? ' stage--dark' : ''}`} style={style}>
+      {drawn(false)}
       <img
         class={`pet ${pose.startsWith('idle') ? 'pet--bounce' : ''}`}
         src={spriteUrl(pet.formId, pose, generation)}
@@ -118,6 +153,7 @@ export function PetStage({ pet, generation, room, reaction, fromPlay = false, ef
         onClick={onPetClick}
         onKeyDown={onKeyDown}
       />
+      {drawn(true)}
       <Poops count={pet.poops} views={effect?.poops ?? null} />
       {pet.asleep && <Effect id="zzz" cls="effect--zzz" />}
       {pet.sick && <Effect id="sweat" cls="effect--sweat" />}
