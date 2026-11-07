@@ -305,3 +305,15 @@ describe('saveSchema care history', () => {
     });
   });
 });
+
+describe('saveSchema impossible counts', () => {
+  test('huge counts in a save become 0', () => {
+    const save = createFreshSave(NOW);
+    const history = { ...save.game.pet.history, roomMinutes: { garden: 1e300, beach: 2 ** 60, forest: 7 }, care: 2 ** 60, morningCare: 1e300 };
+    const parsed = saveSchema.safeParse({ ...save, game: { ...save.game, pet: { ...save.game.pet, history } } });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(parsed.data.game.pet.history.roomMinutes).toEqual({ garden: 0, beach: 0, forest: 7 });
+    expect(parsed.data.game.pet.history).toMatchObject({ care: 0, morningCare: 0 });
+  });
+});

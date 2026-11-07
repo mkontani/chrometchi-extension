@@ -73,7 +73,7 @@ const episodesSchema = z.object({
 });
 
 const wholeCount = (v: unknown): number =>
-  typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : 0;
+  typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 ? v : 0;
 
 const KNOWN_ROOMS = new Set<string>(ROOMS.map((r) => r.id));
 
