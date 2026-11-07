@@ -271,3 +271,37 @@ describe('saveSchema progress', () => {
     });
   });
 });
+
+describe('saveSchema care history', () => {
+  function withHistory(patch: (h: Record<string, unknown>) => Record<string, unknown>) {
+    const save = createFreshSave(NOW);
+    const history = patch({ ...save.game.pet.history });
+    return { ...save, game: { ...save.game, pet: { ...save.game.pet, history } } };
+  }
+
+  test('a history without the new counts loads with zeros', () => {
+    const parsed = saveSchema.safeParse(
+      withHistory((h) =>
+        Object.fromEntries(
+          Object.entries(h).filter(([k]) => !['roomMinutes', 'care', 'morningCare'].includes(k)),
+        ),
+      ),
+    );
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(parsed.data.game.pet.history).toMatchObject({ roomMinutes: {}, care: 0, morningCare: 0 });
+  });
+
+  test('unknown rooms in the minutes are dropped', () => {
+    const parsed = saveSchema.safeParse(
+      withHistory((h) => ({ ...h, roomMinutes: { garden: 4, moon: 9, beach: -2, forest: 1.5 }, care: -1, morningCare: 2.5 })),
+    );
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(parsed.data.game.pet.history).toMatchObject({
+      roomMinutes: { garden: 4, beach: 0, forest: 0 },
+      care: 0,
+      morningCare: 0,
+    });
+  });
+});

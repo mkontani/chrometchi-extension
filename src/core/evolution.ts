@@ -1,9 +1,11 @@
 import { BASE_WEIGHT } from '@/core/constants';
-import type { EvolutionCondition, FormDef, PetState, Rng } from '@/core/types';
+import type { EvolutionCondition, FormDef, PetState, Rng, RoomId } from '@/core/types';
 
 export interface EvolutionContext {
   rng: Rng;
   hour: number;
+  /** the room shown this minute */
+  room: RoomId;
 }
 
 const HEAVY_RATIO = 1.5;

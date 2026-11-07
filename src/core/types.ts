@@ -69,6 +69,12 @@ export interface CareHistory {
   stageMistakes: number;
   foodCounts: Record<FoodTag, number>;
   gameCounts: Record<GameId, number>;
+  /** awake minutes spent in each room this stage */
+  roomMinutes: Partial<Record<RoomId, number>>;
+  /** feed, play, clean and medicine results this stage */
+  care: number;
+  /** the part of `care` given in the morning */
+  morningCare: number;
 }
 
 export interface PetState {

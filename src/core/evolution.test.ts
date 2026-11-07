@@ -5,9 +5,10 @@ import { makePet } from './__fixtures__/pet';
 import type { PetOverrides } from './__fixtures__/pet';
 import { createRng } from './rng';
 import { FORMS } from '@/data/forms';
+import type { EvolutionContext } from './evolution';
 import type { CareHistory, FoodTag, GameId, PetState, Stage } from './types';
 
-const ctx = { rng: () => 0.99, hour: 12 };
+const ctx = { rng: () => 0.99, hour: 12, room: 'home' as const };
 
 function history(over: Partial<CareHistory> = {}): CareHistory {
   return {
@@ -15,6 +16,9 @@ function history(over: Partial<CareHistory> = {}): CareHistory {
     stageMistakes: 0,
     foodCounts: { grain: 0, meat: 0, fish: 0, veggie: 0, sweet: 0 },
     gameCounts: { catch: 0, cups: 0, stop: 0 },
+    roomMinutes: {},
+    care: 0,
+    morningCare: 0,
     ...over,
   };
 }
@@ -28,7 +32,7 @@ function pet(formId: string, stage: Stage, over: PetOverrides = {}): PetState {
   });
 }
 
-function next(p: PetState, c: { rng: () => number; hour: number } = ctx): string {
+function next(p: PetState, c: EvolutionContext = ctx): string {
   return selectNextForm(p, FORMS, c).id;
 }
 
@@ -61,12 +65,12 @@ describe('matches', () => {
   });
   test('rng is not consumed when a non-chance field fails', () => {
     const rng = vi.fn(() => 0.1);
-    expect(matches({ minStageMistakes: 1, chance: 0.5 }, makePet(), { rng, hour: 0 })).toBe(false);
+    expect(matches({ minStageMistakes: 1, chance: 0.5 }, makePet(), { rng, hour: 0, room: 'home' })).toBe(false);
     expect(rng).not.toHaveBeenCalled();
   });
   test('rng is consumed once when all other fields match', () => {
     const rng = vi.fn(() => 0.1);
-    expect(matches({ chance: 0.5 }, makePet(), { rng, hour: 0 })).toBe(true);
+    expect(matches({ chance: 0.5 }, makePet(), { rng, hour: 0, room: 'home' })).toBe(true);
     expect(rng).toHaveBeenCalledTimes(1);
   });
   test('hours is [start, end)', () => {
@@ -115,35 +119,35 @@ describe('selectNextForm', () => {
   test('phoenix needs 0 stage mistakes AND rng < 0.3', () => {
     const gameCounts: Record<GameId, number> = { catch: 4, cups: 1, stop: 0 };
     const clean = pet('young_hinoko', 'young', { history: history({ gameCounts }) });
-    expect(next(clean, { rng: () => 0.1, hour: 12 })).toBe('adult_phoenix');
-    expect(next(clean, { rng: () => 0.5, hour: 12 })).toBe('adult_dragon');
+    expect(next(clean, { rng: () => 0.1, hour: 12, room: 'home' })).toBe('adult_phoenix');
+    expect(next(clean, { rng: () => 0.5, hour: 12, room: 'home' })).toBe('adult_dragon');
     const messy = pet('young_hinoko', 'young', { history: history({ gameCounts, stageMistakes: 1 }) });
-    expect(next(messy, { rng: () => 0.1, hour: 12 })).toBe('adult_dragon');
+    expect(next(messy, { rng: () => 0.1, hour: 12, room: 'home' })).toBe('adult_dragon');
   });
   test('grandpudding needs heavy weight AND rng < 0.3', () => {
     const p = pet('young_poyo', 'young', { stats: { weight: BASE_WEIGHT.young * 1.5 } });
-    expect(next(p, { rng: () => 0.1, hour: 12 })).toBe('adult_grandpudding');
-    expect(next(p, { rng: () => 0.5, hour: 12 })).toBe('adult_pudding');
+    expect(next(p, { rng: () => 0.1, hour: 12, room: 'home' })).toBe('adult_grandpudding');
+    expect(next(p, { rng: () => 0.5, hour: 12, room: 'home' })).toBe('adult_pudding');
   });
   test('vampire only between 18:00 and 22:00', () => {
     const p = pet('young_kage', 'young', { history: history({ stageMistakes: 6, totalMistakes: 6 }) });
-    expect(next(p, { rng: () => 0.5, hour: 19 })).toBe('adult_vampire');
-    expect(next(p, { rng: () => 0.5, hour: 12 })).not.toBe('adult_vampire');
-    expect(next(p, { rng: () => 0.5, hour: 22 })).not.toBe('adult_vampire');
+    expect(next(p, { rng: () => 0.5, hour: 19, room: 'home' })).toBe('adult_vampire');
+    expect(next(p, { rng: () => 0.5, hour: 12, room: 'home' })).not.toBe('adult_vampire');
+    expect(next(p, { rng: () => 0.5, hour: 22, room: 'home' })).not.toBe('adult_vampire');
   });
   test('astra needs 0 total mistakes over the whole life AND rng < 0.5', () => {
     const clean = pet('young_kirari', 'young');
-    expect(next(clean, { rng: () => 0.4, hour: 12 })).toBe('adult_astra');
-    expect(next(clean, { rng: () => 0.6, hour: 12 })).toBe('adult_nexus');
+    expect(next(clean, { rng: () => 0.4, hour: 12, room: 'home' })).toBe('adult_astra');
+    expect(next(clean, { rng: () => 0.6, hour: 12, room: 'home' })).toBe('adult_nexus');
     const past = pet('young_kirari', 'young', { history: history({ totalMistakes: 1 }) });
-    expect(next(past, { rng: () => 0.1, hour: 12 })).not.toBe('adult_astra');
+    expect(next(past, { rng: () => 0.1, hour: 12, room: 'home' })).not.toBe('adult_astra');
   });
   test('kirari needs 0 stage mistakes AND rng < 0.5', () => {
     const perfect = pet('child_hoshi', 'child');
-    expect(next(perfect, { rng: () => 0.4, hour: 12 })).toBe('young_kirari');
-    expect(next(perfect, { rng: () => 0.6, hour: 12 })).toBe('young_gear');
+    expect(next(perfect, { rng: () => 0.4, hour: 12, room: 'home' })).toBe('young_kirari');
+    expect(next(perfect, { rng: () => 0.6, hour: 12, room: 'home' })).toBe('young_gear');
     const messy = pet('child_hoshi', 'child', { history: history({ stageMistakes: 1 }) });
-    expect(next(messy, { rng: () => 0.1, hour: 12 })).not.toBe('young_kirari');
+    expect(next(messy, { rng: () => 0.1, hour: 12, room: 'home' })).not.toBe('young_kirari');
   });
   test('throws when no form matches', () => {
     expect(() => selectNextForm(pet('adult_dragon', 'adult'), FORMS, ctx)).toThrow(
@@ -176,9 +180,12 @@ describe('property: every reachable form always resolves', () => {
           totalMistakes: stageMistakes + int(5),
           foodCounts: { grain: int(5), meat: int(5), fish: int(5), veggie: int(5), sweet: int(5) },
           gameCounts: { catch: int(5), cups: int(5), stop: int(5) },
+          roomMinutes: {},
+          care: 0,
+          morningCare: 0,
         },
       });
-      const result = selectNextForm(p, FORMS, { rng, hour: int(23) });
+      const result = selectNextForm(p, FORMS, { rng, hour: int(23), room: 'home' });
       expect(result.stage).toBe(expectedStage);
     }
   });

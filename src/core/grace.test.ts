@@ -7,7 +7,7 @@ import { stepMinute } from './step';
 import type { PetState } from './types';
 import { acknowledgeCritical } from './warnings';
 
-const ctx = { asleep: false, rng: createRng(1), hour: 12 };
+const ctx = { asleep: false, rng: createRng(1), hour: 12, room: 'home' as const };
 
 function run(pet: PetState, minutes: number): PetState {
   let p = pet;

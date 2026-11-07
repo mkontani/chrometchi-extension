@@ -9,7 +9,7 @@ import { buyAccessory, takeOffAll, wear } from '@/core/dressup';
 import { markSeen } from '@/core/progress';
 import { sellFood } from '@/core/shop';
 import { forage } from '@/core/outings';
-import { roomRefusal } from '@/core/rooms';
+import { roomRefusal, shownRoom } from '@/core/rooms';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
@@ -291,6 +291,7 @@ export function createEngine(deps: EngineDeps): Engine {
       settings: loaded.settings,
       idle,
       rng: deps.rng,
+      room: shownRoom(loaded.home.room, loaded.progress.claimed),
     });
     const grown = { ...loaded.kitchen, farm: growFarm(loaded.kitchen.farm, advanced.minutes) };
     const afterAdvance = bookkeepZukan(

@@ -4,7 +4,7 @@ import { createEgg } from './factory';
 import { createRng } from './rng';
 import { stepMinute } from './step';
 
-const awake = () => ({ asleep: false, rng: createRng(1), hour: 12 });
+const awake = () => ({ asleep: false, rng: createRng(1), hour: 12, room: 'home' as const });
 
 describe('stepMinute', () => {
   test('asleep minutes do not age or decay the pet', () => {

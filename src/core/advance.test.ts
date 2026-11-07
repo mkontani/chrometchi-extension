@@ -4,7 +4,7 @@ import { advanceTime } from './advance';
 import { DEFAULT_SETTINGS } from './constants';
 import { createRng } from './rng';
 
-const base = { settings: DEFAULT_SETTINGS, idle: 'active' as const, rng: createRng(1) };
+const base = { settings: DEFAULT_SETTINGS, idle: 'active' as const, rng: createRng(1), room: 'home' as const };
 const NOON = Date.UTC(2026, 0, 1, 12, 0, 0);
 const NIGHT = Date.UTC(2026, 0, 1, 23, 0, 0);
 

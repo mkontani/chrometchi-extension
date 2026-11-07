@@ -4,7 +4,7 @@ import { createEgg } from './factory';
 import { stepGrowth } from './growth';
 import { createRng } from './rng';
 
-const ctx = () => ({ rng: createRng(1), hour: 12 });
+const ctx = () => ({ rng: createRng(1), hour: 12, room: 'home' as const });
 
 describe('stepGrowth', () => {
   test('ages one awake minute', () => {
@@ -35,6 +35,9 @@ describe('stepGrowth', () => {
         stageMistakes: 2,
         foodCounts: { grain: 2, meat: 0, fish: 0, veggie: 0, sweet: 1 },
         gameCounts: { catch: 1, cups: 0, stop: 0 },
+        roomMinutes: {},
+        care: 0,
+        morningCare: 0,
       },
     });
     const r = stepGrowth(pet, ctx());
@@ -62,5 +65,30 @@ describe('stepGrowth', () => {
   test('non-alive pets are unchanged', () => {
     const dead = makePet({ lifecycle: 'dead' });
     expect(stepGrowth(dead, ctx())).toEqual({ pet: dead, events: [] });
+  });
+});
+
+describe('stepGrowth room minutes and care counts', () => {
+  test('each awake minute counts toward the current room', () => {
+    const first = stepGrowth(makePet(), { ...ctx(), room: 'beach' });
+    const second = stepGrowth(first.pet, { ...ctx(), room: 'beach' });
+    const third = stepGrowth(second.pet, { ...ctx(), room: 'garden' });
+    expect(third.pet.history.roomMinutes).toEqual({ beach: 2, garden: 1 });
+  });
+
+  test('the egg counts no room minutes', () => {
+    const r = stepGrowth(createEgg(), { ...ctx(), room: 'beach' });
+    expect(r.pet.history.roomMinutes).toEqual({});
+  });
+
+  test('evolving resets the room minutes and care counts', () => {
+    const base = makePet();
+    const pet = makePet({
+      stageMinutes: 119,
+      history: { ...base.history, roomMinutes: { garden: 50 }, care: 12, morningCare: 7 },
+    });
+    const r = stepGrowth(pet, { ...ctx(), room: 'garden' });
+    expect(r.pet.stage).toBe('child');
+    expect(r.pet.history).toMatchObject({ roomMinutes: {}, care: 0, morningCare: 0 });
   });
 });
