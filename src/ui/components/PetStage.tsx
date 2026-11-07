@@ -90,7 +90,7 @@ function Darkness({ level }: { level: number }) {
 
 export function PetStage({ pet, generation, reaction, fromPlay = false, effect = null, onPetClick }: Props) {
   const frame = useIdleFrame();
-  const bg = backgroundUrl(pet.asleep ? 'room_night' : 'room_day');
+  const bg = backgroundUrl(pet.asleep ? 'home_night' : 'home_day');
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
   const style = bg ? { backgroundImage: `url(${bg})` } : undefined;
   // A sleeping pet stays asleep: clean and medicine still play their props around it.

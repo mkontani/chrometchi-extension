@@ -80,10 +80,10 @@ test('poop images render when the effect url exists', () => {
 test('background follows asleep state', () => {
   urls.on = true;
   const day = render(<PetStage generation={1} pet={makePet()} reaction={null} />);
-  expect(day.container.querySelector('.stage--day')?.getAttribute('style')).toContain('bg-room_day.png');
+  expect(day.container.querySelector('.stage--day')?.getAttribute('style')).toContain('bg-home_day.png');
   cleanup();
   const night = render(<PetStage generation={1} pet={makePet({ asleep: true })} reaction={null} />);
-  expect(night.container.querySelector('.stage--night')?.getAttribute('style')).toContain('bg-room_night.png');
+  expect(night.container.querySelector('.stage--night')?.getAttribute('style')).toContain('bg-home_night.png');
 });
 
 test('gradient classes are used without background art', () => {

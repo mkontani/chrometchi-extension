@@ -12,6 +12,7 @@ import {
   spriteUrl,
 } from '@/ui/assets';
 import { FOODS } from '@/data/foods';
+import { ROOM_IDS } from '@/data/rooms';
 
 test('spriteUrl falls back to the plain egg for forms without art', () => {
   expect(spriteUrl('nope', 'happy')).toContain('/sprites/egg/plain/idle0');
@@ -34,12 +35,24 @@ test('every UI id resolves to a shipped file', () => {
 test('id lists are complete', () => {
   expect(ICON_IDS).toContain('food_rice');
   expect(ICON_IDS).toContain('game_stop');
-  expect(ICON_IDS).toEqual(expect.arrayContaining(['shop', 'coin']));
-  expect(ICON_IDS).toHaveLength(14 + 23 + 3);
+  expect(ICON_IDS).toEqual(expect.arrayContaining(['shop', 'coin', 'decorate']));
+  expect(ICON_IDS).toHaveLength(15 + 23 + 3);
   expect(EFFECT_IDS).toHaveLength(12);
   expect(EFFECT_IDS).toEqual(expect.arrayContaining(['crumb', 'dust0', 'dust1', 'dust2', 'star']));
-  expect(BACKGROUND_IDS).toEqual(['room_day', 'room_night']);
+  expect(BACKGROUND_IDS).toEqual([
+    'home_day', 'home_night', 'garden_day', 'garden_night', 'beach_day', 'beach_night',
+    'forest_day', 'forest_night', 'sweets_day', 'sweets_night', 'snowfield_day', 'snowfield_night',
+    'castle_day', 'castle_night', 'washitsu_day', 'washitsu_night', 'space_day', 'space_night',
+    'cabin_day', 'cabin_night', 'library_day', 'library_night',
+  ]);
   expect(GAME_ART_IDS).toEqual(['rock', 'cup', 'treat']);
+});
+
+test('every room has a day and a night picture', () => {
+  for (const room of ROOM_IDS) {
+    expect(backgroundUrl(`${room}_day`), room).toContain(`/ui/bg/${room}_day`);
+    expect(backgroundUrl(`${room}_night`), room).toContain(`/ui/bg/${room}_night`);
+  }
 });
 
 test('every food has a whole and two bitten pictures', () => {
