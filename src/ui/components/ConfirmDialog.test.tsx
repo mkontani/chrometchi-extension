@@ -24,3 +24,14 @@ test('focuses the safe cancel button (not the destructive one) and Escape cancel
   fireEvent.keyDown(screen.getByText('no'), { key: 'Escape' });
   expect(onCancel).toHaveBeenCalledTimes(1);
 });
+
+test('the buy confirm is not styled as danger', () => {
+  render(<ConfirmDialog message="m" confirmLabel="yes" cancelLabel="no" tone="normal" onConfirm={vi.fn()} onCancel={vi.fn()} />);
+  expect(screen.getByText('yes').classList.contains('dialog__btn')).toBe(true);
+  expect(screen.getByText('yes').classList.contains('dialog__btn--danger')).toBe(false);
+});
+
+test('the reset confirm is still styled as danger', () => {
+  render(<ConfirmDialog message="m" confirmLabel="yes" cancelLabel="no" onConfirm={vi.fn()} onCancel={vi.fn()} />);
+  expect(screen.getByText('yes').classList.contains('dialog__btn--danger')).toBe(true);
+});

@@ -237,3 +237,10 @@ test('a refused buy right after a good one leaves no bought note', async () => {
   expect(screen.queryByText(HINT)).toBeNull();
   expect(screen.getByRole('status').textContent).toBe('');
 });
+
+test('the buy confirm in the shop uses the normal button', () => {
+  view({ coins: 500 });
+  fireEvent.click(screen.getByRole('button', { name: 'Buy Candle' }));
+  const ok = screen.getByRole('button', { name: 'Buy' });
+  expect(ok.classList.contains('dialog__btn--danger')).toBe(false);
+});

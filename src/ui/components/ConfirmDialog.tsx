@@ -4,11 +4,13 @@ interface Props {
   message: string;
   confirmLabel: string;
   cancelLabel: string;
+  /** danger (default) for a destructive confirm, normal for an ordinary one */
+  tone?: 'danger' | 'normal';
   onConfirm(): void;
   onCancel(): void;
 }
 
-export function ConfirmDialog({ message, confirmLabel, cancelLabel, onConfirm, onCancel }: Props) {
+export function ConfirmDialog({ message, confirmLabel, cancelLabel, tone = 'danger', onConfirm, onCancel }: Props) {
   // Focus the safe choice so a stray Enter/Space never confirms a destructive action.
   const cancel = useAutoFocus<HTMLButtonElement>();
   const onKeyDown = (e: KeyboardEvent) => {
@@ -24,7 +26,7 @@ export function ConfirmDialog({ message, confirmLabel, cancelLabel, onConfirm, o
           <button ref={cancel} type="button" class="dialog__btn" onClick={onCancel}>
             {cancelLabel}
           </button>
-          <button type="button" class="dialog__btn dialog__btn--danger" onClick={onConfirm}>
+          <button type="button" class={tone === 'danger' ? 'dialog__btn dialog__btn--danger' : 'dialog__btn'} onClick={onConfirm}>
             {confirmLabel}
           </button>
         </div>
