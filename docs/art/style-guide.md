@@ -102,6 +102,9 @@ The 41 forms made on 2026-11-06 had weak frames. They were fixed before stage 5 
   - balloon `sick` reads as sick only through its eyes and the lavender;
   - drone's body is the lighter lavender;
   - seal `sad` has a speckle.
+- **Eggs (Gate R3).** Two patterns were hard to see in the pink home room. `eggfix.cjs`, in the same scratch folder, rebuilds both frames from the copied art.
+  - moons: each 1 px crescent is now `#edc24c`, with a `#fbe974` pixel to its right, so it reads as a 2 px gold crescent.
+  - leaves: the salmon body (`#f7a897`, shade `#ef8080`) is now cream (`#effcf8`, shade `#e6e0dc`), so the body no longer looks like a hole in the wall.
 
 ## Effects (care)
 
