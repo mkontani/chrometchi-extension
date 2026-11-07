@@ -165,6 +165,15 @@ The 11 rooms (`src/assets/ui/bg/<room>_{day,night}.png`, 88x68, opaque, drawn at
 | cabin | log walls and snowy window | s3 | the fireplace is gone; s1 left an empty frame and a rug outline |
 | library | wooden walls and a window | s1 | the bookshelves are gone; an empty board frame stays on the back wall |
 
+### Slot exceptions for stage 3
+
+Stage 3 must place its slots around these:
+
+- The beach palm trunk is in floor R.
+- The forest roots reach floor L and floor R.
+- The library window reaches wall R.
+- Because of the perspective, the floor slots in castle, washitsu, space and home partly sit on wall or door pixels.
+
 ### The もようがえ icon
 
 `src/assets/ui/icons/decorate.png`, 16x16, an action button shown at 32px like the shop.
