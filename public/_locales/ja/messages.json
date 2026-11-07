@@ -651,10 +651,10 @@
     "message": "あかりの家具が多い部屋で育つと…？"
   },
   "hint_young_kingyo": {
-    "message": "水の家具が多い部屋で育つと…？"
+    "message": "みずの家具が多い部屋で育つと…？"
   },
   "hint_young_kogane": {
-    "message": "草木の家具が多い部屋で育つと…？"
+    "message": "くさきの家具が多い部屋で育つと…？"
   },
   "hint_young_kumo": {
     "message": "そらの家具が多い部屋で育つと…？"
@@ -663,7 +663,7 @@
     "message": "からくりの家具が多い部屋で育つと…？"
   },
   "hint_young_obake": {
-    "message": "夜の家具が多い部屋で育つと…？"
+    "message": "よるの家具が多い部屋で育つと…？"
   },
   "hint_young_tsurara": {
     "message": "きらきらの家具が多い部屋で育つと…？"

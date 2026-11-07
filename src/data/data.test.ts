@@ -67,6 +67,27 @@ describe('form data', () => {
     expect(FORMS.filter((f) => f.priority === 100 && f.stage === 'adult')).toHaveLength(8);
   });
 
+  test('every form that needs an item worn is a rare: chance 0.5, priority 100', () => {
+    const rares = FORMS.filter((f) => f.when.wearing !== undefined);
+    expect(rares.map((f) => f.id)).toEqual(['adult_whale', 'adult_stag', 'adult_stormbird', 'adult_mecha']);
+    for (const f of rares) expect([f.when.chance, f.priority], f.id).toEqual([0.5, 100]);
+  });
+
+  test('each new condition sits at its priority tier (spec 9.2-9.4)', () => {
+    const tier = ({ stage, when }: (typeof FORMS)[number]): number | undefined => {
+      if (when.wearing !== undefined) return 100;
+      if (when.room !== undefined) return 75;
+      if (when.morningCare !== undefined) return 70;
+      if (when.decorKind !== undefined) return 60;
+      if (stage === 'adult' && when.weight === 'light') return 60;
+      if (when.dominantGame === 'stop') return 50;
+      return undefined;
+    };
+    const tiered = FORMS.filter((f) => tier(f) !== undefined);
+    expect(tiered).toHaveLength(41);
+    for (const f of tiered) expect(f.priority, f.id).toBe(tier(f));
+  });
+
   test('the 5 new children join every young form but kirari, and the room and decor forms come from all 9', () => {
     const children = FORMS.filter((f) => f.stage === 'child').map((f) => f.id);
     expect(children).toHaveLength(9);

@@ -339,10 +339,22 @@ describe('the new forms', () => {
   });
 
   test('the rares need their item worn and luck', () => {
-    expect(next(young('young_kingyo'), wearing({ neck: 'necklace' }))).toBe('adult_whale');
-    expect(next(young('young_kingyo'), { ...wearing({ neck: 'necklace' }), rng: () => 0.5 })).toBe('adult_kraken');
     expect(next(young('young_shizuku'), wearing({ neck: 'scarf' }))).toBe('adult_kraken');
     expect(next(young('young_kumo'), wearing({ head: 'flowercrown' }))).toBe('adult_pegasus');
+  });
+
+  test('each new rare comes with a 0.5 chance, and an unlucky pet takes its family\'s usual path', () => {
+    const at = (r: number, worn: EvolutionEnv['worn']): EvolutionContext => ({ ...wearing(worn), rng: () => r });
+    const table: [string, PetState, EvolutionEnv['worn'], string, string][] = [
+      ['kingyo with a necklace', young('young_kingyo'), { neck: 'necklace' }, 'adult_whale', 'adult_kraken'],
+      ['mebuki with a flower crown', young('young_mebuki'), { head: 'flowercrown' }, 'adult_stag', 'adult_tree'],
+      ['kumo with a scarf', young('young_kumo'), { neck: 'scarf' }, 'adult_stormbird', 'adult_pegasus'],
+      ['gear with a medal', young('young_gear'), { neck: 'medal' }, 'adult_mecha', 'adult_cyborg'],
+    ];
+    for (const [label, p, worn, lucky, unlucky] of table) {
+      expect(next(p, at(0.49, worn)), `${label}, rng 0.49`).toBe(lucky);
+      expect(next(p, at(0.5, worn)), `${label}, rng 0.5`).toBe(unlucky);
+    }
   });
 
   test('priorities put mistakes and weight before rooms and furniture', () => {
@@ -359,6 +371,7 @@ describe('the new forms', () => {
       ['light and morning', young('young_kingyo', { ...styled.light, ...styled.morning }), ctx, 'adult_dolphin'],
       ['light stop player', young('young_kingyo', { ...styled.light, ...styled.stop }), ctx, 'adult_otter'],
       ['morning with a necklace', young('young_kingyo', styled.morning), wearing({ neck: 'necklace' }), 'adult_whale'],
+      ['vampire nights over morning care', young('young_obake', { history: history({ stageMistakes: 6, care: 12, morningCare: 7 }) }), { ...ctx, hour: 19 }, 'adult_vampire'],
     ];
     for (const [label, p, c, expected] of table) expect(next(p, c), label).toBe(expected);
   });

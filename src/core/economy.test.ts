@@ -27,10 +27,8 @@ const MAX_GENERATIONS = 30;
 // keeps an item for 100 coins or less (spec 7.3). The factor stays at 1.3: 1.2 gives only 20.21
 // generations, which leaves no margin above the minimum.
 //
-// The zukan milestones for 50 to 80 forms are counted below, but they can only be reached once
-// stage 5 adds forms. Stage 4 alone (milestones up to 40) works out to about 24.7 generations,
-// which is still in range.
-// With 83 forms, zukan milestones 50 to 80 become reachable in stage 5.
+// The zukan milestones for 50 to 80 forms are counted below and are all reachable with 83 forms; the
+// milestones up to 40 alone would give about 24.7 generations, which is still in range.
 const sum = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0);
 
 function generationsToBuyAll(): number {
