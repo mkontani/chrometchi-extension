@@ -68,6 +68,8 @@ interface Mutation {
   cooked?: Cooked;
   /** the mission this operation counts toward; set only when the outcome is ok */
   mission?: MissionKind;
+  /** the player has seen the rewards; applied after bookkeeping so a reward paid now does not relight the dot */
+  seen?: boolean;
 }
 
 type Mutator = (save: SaveV1, now: number) => Mutation;
@@ -147,7 +149,7 @@ function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
     case 'sell':
       return sellMutator(req);
     case 'seenRewards':
-      return (save) => ({ save: { ...save, progress: markSeen(save.progress) }, events: [] });
+      return (save) => ({ save, events: [], seen: true });
     case 'ackCritical':
       return (save) => ({ save: withPet(save, acknowledgeCritical(save.game.pet)), events: [] });
     case 'updateSettings':
@@ -191,6 +193,11 @@ function bookkeepZukan(save: SaveV1, events: GameEvent[], now: number): SaveV1 {
 function unlockOnly(save: SaveV1, events: GameEvent[]): SaveV1 {
   const zukan = unlockFromEvents(save.zukan, events);
   return zukan === save.zukan ? save : { ...save, zukan };
+}
+
+/** Clears the reward dot; returns `save` itself when it was already clear. */
+function withSeen(save: SaveV1): SaveV1 {
+  return save.progress.unseen ? { ...save, progress: markSeen(save.progress) } : save;
 }
 
 export function createEngine(deps: EngineDeps): Engine {
@@ -240,9 +247,10 @@ export function createEngine(deps: EngineDeps): Engine {
     const mutation = mutate(afterAdvance, now);
     const events = [...advanced.events, ...mutation.events];
     const unlocked = unlockOnly(mutation.save, mutation.events);
-    const withZukan = bookkeepProgress(unlocked, { events, mission: mutation.mission, now });
-    const lastNotified = await notifyBestEffort(withZukan, events, now);
-    const save: SaveV1 = { ...withZukan, meta: { ...withZukan.meta, lastNotified } };
+    const bookkept = bookkeepProgress(unlocked, { events, mission: mutation.mission, now });
+    const settled = mutation.seen ? withSeen(bookkept) : bookkept;
+    const lastNotified = await notifyBestEffort(settled, events, now);
+    const save: SaveV1 = { ...settled, meta: { ...settled.meta, lastNotified } };
     await deps.repo.save(save);
     await updateBadgeBestEffort(save);
     return { ...mutation, save };

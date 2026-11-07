@@ -487,6 +487,15 @@ describe('engine', () => {
       expect(stored().progress.coins).toBe(6);
     });
 
+    test('seenRewards clears the dot even when the same operation pays a reward', async () => {
+      const { engine, stored, area } = setup();
+      const discovered = Array.from({ length: 10 }, (_, i) => `f${i}`);
+      seed(area, stored, { zukan: { ...stored().zukan, discovered } });
+      await engine.handle({ type: 'seenRewards' });
+      expect(stored().progress.recent.map((r) => r.reason)).toContain('zukan:10');
+      expect(stored().progress.unseen).toBe(false);
+    });
+
     test('seenRewards clears the dot', async () => {
       const { engine, stored, area } = setup();
       seed(area, stored, { progress: { ...stored().progress, unseen: true } });
