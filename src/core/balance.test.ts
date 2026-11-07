@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { makeEnv } from './__fixtures__/env';
 import { applyCare } from './care';
 import { MEDICINE_DOSES, STAGE_MINUTES } from './constants';
 import { cook } from './cooking';
@@ -36,7 +37,7 @@ function simulate(untilAwake: number, cared: boolean): PetState {
   const rng = createRng(1);
   let pet = createEgg();
   while (pet.awakeMinutes < untilAwake && pet.lifecycle === 'alive') {
-    pet = stepMinute(pet, { asleep: false, rng, hour: 12 }).pet;
+    pet = stepMinute(pet, { asleep: false, rng, hour: 12, env: makeEnv() }).pet;
     const due = pet.awakeMinutes >= FIRST_CARE && (pet.awakeMinutes - FIRST_CARE) % CARE_INTERVAL === 0;
     if (cared && due && pet.awakeMinutes < untilAwake) pet = careEdit(pet);
   }
@@ -85,7 +86,7 @@ function simulateSparseCare(untilAwake: number): PetState {
   const hatch = STAGE_MINUTES.egg;
   let pet = createEgg();
   while (pet.awakeMinutes < untilAwake && pet.lifecycle === 'alive') {
-    pet = stepMinute(pet, { asleep: false, rng, hour: 12 }).pet;
+    pet = stepMinute(pet, { asleep: false, rng, hour: 12, env: makeEnv() }).pet;
     const due = pet.awakeMinutes >= hatch && (pet.awakeMinutes - hatch) % SPARSE_INTERVAL === 0;
     if (due && pet.lifecycle === 'alive') pet = visit(pet);
   }
@@ -236,7 +237,7 @@ function simulateRoute(
   let lastChild = pet;
   let steaksEaten = 0;
   while (pet.stage !== 'young' && pet.lifecycle === 'alive') {
-    pet = stepMinute(pet, { asleep: false, rng, hour: 12 }).pet;
+    pet = stepMinute(pet, { asleep: false, rng, hour: 12, env: makeEnv() }).pet;
     if (pet.stage === 'baby') lastBaby = pet;
     if (pet.stage === 'child') lastChild = pet;
     const sparse = pet.awakeMinutes >= hatch && (pet.awakeMinutes - hatch) % SPARSE_INTERVAL === 0;

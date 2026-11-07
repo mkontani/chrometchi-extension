@@ -1,5 +1,5 @@
 /** Shell patterns for the egg sprite; each new generation gets the next one. */
-export const EGG_PATTERNS = ['plain', 'dots', 'zigzag', 'stars'] as const;
+export const EGG_PATTERNS = ['plain', 'dots', 'zigzag', 'stars', 'hearts', 'flowers', 'moons', 'waves', 'checker', 'leaves'] as const;
 export type EggPattern = (typeof EGG_PATTERNS)[number];
 
 export function eggPattern(generation: number): EggPattern {

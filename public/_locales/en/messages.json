@@ -26,6 +26,21 @@
   "form_child_mochi": {
     "message": "Mochi"
   },
+  "form_child_pico": {
+    "message": "Piko"
+  },
+  "form_child_awa": {
+    "message": "Awa"
+  },
+  "form_child_tane": {
+    "message": "Tane"
+  },
+  "form_child_ame": {
+    "message": "Ame"
+  },
+  "form_child_yuki": {
+    "message": "Yuki"
+  },
   "form_young_kirari": {
     "message": "Kirari"
   },
@@ -34,6 +49,30 @@
   },
   "form_young_poyo": {
     "message": "Poyo"
+  },
+  "form_young_tomoshi": {
+    "message": "Tomoshi"
+  },
+  "form_young_kingyo": {
+    "message": "Hirari"
+  },
+  "form_young_kogane": {
+    "message": "Kogane"
+  },
+  "form_young_kumo": {
+    "message": "Potsuri"
+  },
+  "form_young_kaminari": {
+    "message": "Piriri"
+  },
+  "form_young_obake": {
+    "message": "Sorori"
+  },
+  "form_young_tsurara": {
+    "message": "Tsurara"
+  },
+  "form_young_koishi": {
+    "message": "Koron"
   },
   "form_young_hinoko": {
     "message": "Hinoko"
@@ -62,6 +101,15 @@
   "form_adult_phoenix": {
     "message": "Fenia"
   },
+  "form_adult_hedgehog": {
+    "message": "Haribi"
+  },
+  "form_adult_ferret": {
+    "message": "Feren"
+  },
+  "form_adult_rooster": {
+    "message": "Tosaka"
+  },
   "form_adult_serpent": {
     "message": "Mizuchi"
   },
@@ -70,6 +118,18 @@
   },
   "form_adult_kraken": {
     "message": "Krakel"
+  },
+  "form_adult_seal": {
+    "message": "Azarii"
+  },
+  "form_adult_otter": {
+    "message": "Rakkoro"
+  },
+  "form_adult_dolphin": {
+    "message": "Irukan"
+  },
+  "form_adult_whale": {
+    "message": "Geiou"
   },
   "form_adult_golem": {
     "message": "Gango"
@@ -80,6 +140,18 @@
   "form_adult_tree": {
     "message": "Jumoku"
   },
+  "form_adult_mushroom": {
+    "message": "Pokotake"
+  },
+  "form_adult_bunny": {
+    "message": "Usami"
+  },
+  "form_adult_sunflower": {
+    "message": "Himawa"
+  },
+  "form_adult_stag": {
+    "message": "Hanajika"
+  },
   "form_adult_griffin": {
     "message": "Griffo"
   },
@@ -89,6 +161,18 @@
   "form_adult_pegasus": {
     "message": "Pegaro"
   },
+  "form_adult_butterfly": {
+    "message": "Papiyo"
+  },
+  "form_adult_dandelion": {
+    "message": "Tanpo"
+  },
+  "form_adult_swallow": {
+    "message": "Tsubakuro"
+  },
+  "form_adult_stormbird": {
+    "message": "Ikazuchi"
+  },
   "form_adult_robot": {
     "message": "Robotta"
   },
@@ -97,6 +181,18 @@
   },
   "form_adult_cyborg": {
     "message": "Cyboro"
+  },
+  "form_adult_clock": {
+    "message": "Chikuta"
+  },
+  "form_adult_drone": {
+    "message": "Purope"
+  },
+  "form_adult_toaster": {
+    "message": "Tosuta"
+  },
+  "form_adult_mecha": {
+    "message": "Kishimaru"
   },
   "form_adult_ghost": {
     "message": "Yure"
@@ -110,6 +206,15 @@
   "form_adult_vampire": {
     "message": "Vamiru"
   },
+  "form_adult_pumpkin": {
+    "message": "Jakko"
+  },
+  "form_adult_blackcat": {
+    "message": "Kuronya"
+  },
+  "form_adult_koala": {
+    "message": "Nemura"
+  },
   "form_adult_unicorn": {
     "message": "Unia"
   },
@@ -122,6 +227,15 @@
   "form_adult_astra": {
     "message": "Astra"
   },
+  "form_adult_jellyfish": {
+    "message": "Hoshikura"
+  },
+  "form_adult_fairy": {
+    "message": "Lumina"
+  },
+  "form_adult_rainbow": {
+    "message": "Nijimo"
+  },
   "form_adult_bear": {
     "message": "Kumaro"
   },
@@ -133,6 +247,15 @@
   },
   "form_adult_grandpudding": {
     "message": "Grancusta"
+  },
+  "form_adult_elephant": {
+    "message": "Paon"
+  },
+  "form_adult_balloon": {
+    "message": "Pukari"
+  },
+  "form_adult_pancake": {
+    "message": "Hotton"
   },
   "food_rice": {
     "message": "Rice"
@@ -500,6 +623,21 @@
   "hint_child_mochi": {
     "message": "Just raising it normally...?"
   },
+  "hint_child_pico": {
+    "message": "Raised in the flower garden...?"
+  },
+  "hint_child_awa": {
+    "message": "Raised at the beach...?"
+  },
+  "hint_child_tane": {
+    "message": "Raised in the forest...?"
+  },
+  "hint_child_ame": {
+    "message": "Raised in the sweets shop...?"
+  },
+  "hint_child_yuki": {
+    "message": "Raised in the snowfield...?"
+  },
   "hint_young_kirari": {
     "message": "A sparkly one, cared for even better...? Sometimes..."
   },
@@ -508,6 +646,30 @@
   },
   "hint_young_poyo": {
     "message": "A plump one, left to grow plump...?"
+  },
+  "hint_young_tomoshi": {
+    "message": "Raised in a room full of lights...?"
+  },
+  "hint_young_kingyo": {
+    "message": "Raised in a room full of watery things...?"
+  },
+  "hint_young_kogane": {
+    "message": "Raised in a room full of plants...?"
+  },
+  "hint_young_kumo": {
+    "message": "Raised in a room full of sky things...?"
+  },
+  "hint_young_kaminari": {
+    "message": "Raised in a room full of gadgets...?"
+  },
+  "hint_young_obake": {
+    "message": "Raised in a room full of night things...?"
+  },
+  "hint_young_tsurara": {
+    "message": "Raised in a room full of sparkly things...?"
+  },
+  "hint_young_koishi": {
+    "message": "Raised in a room full of cozy furniture...?"
   },
   "hint_young_hinoko": {
     "message": "A pet that loves meat...?"
@@ -536,6 +698,15 @@
   "hint_adult_phoenix": {
     "message": "A fiery one, cared for flawlessly...? Sometimes..."
   },
+  "hint_adult_hedgehog": {
+    "message": "A fiery one that loves the stop game...?"
+  },
+  "hint_adult_ferret": {
+    "message": "A fiery one, grown slim...?"
+  },
+  "hint_adult_rooster": {
+    "message": "A fiery one, cared for in the mornings...?"
+  },
   "hint_adult_serpent": {
     "message": "A watery one that loves catching games...?"
   },
@@ -544,6 +715,18 @@
   },
   "hint_adult_kraken": {
     "message": "A watery one, raised plainly...?"
+  },
+  "hint_adult_seal": {
+    "message": "A watery one that loves the stop game...?"
+  },
+  "hint_adult_otter": {
+    "message": "A watery one, grown slim...?"
+  },
+  "hint_adult_dolphin": {
+    "message": "A watery one, cared for in the mornings...?"
+  },
+  "hint_adult_whale": {
+    "message": "A watery one wearing a necklace...? Sometimes..."
   },
   "hint_adult_golem": {
     "message": "An earthy one that loves catching games...?"
@@ -554,6 +737,18 @@
   "hint_adult_tree": {
     "message": "An earthy one, raised plainly...?"
   },
+  "hint_adult_mushroom": {
+    "message": "An earthy one that loves the stop game...?"
+  },
+  "hint_adult_bunny": {
+    "message": "An earthy one, grown slim...?"
+  },
+  "hint_adult_sunflower": {
+    "message": "An earthy one, cared for in the mornings...?"
+  },
+  "hint_adult_stag": {
+    "message": "An earthy one wearing a flower crown...? Sometimes..."
+  },
   "hint_adult_griffin": {
     "message": "A breezy one that loves catching games...?"
   },
@@ -563,6 +758,18 @@
   "hint_adult_pegasus": {
     "message": "A breezy one, raised plainly...?"
   },
+  "hint_adult_butterfly": {
+    "message": "A breezy one that loves the stop game...?"
+  },
+  "hint_adult_dandelion": {
+    "message": "A breezy one, grown slim...?"
+  },
+  "hint_adult_swallow": {
+    "message": "A breezy one, cared for in the mornings...?"
+  },
+  "hint_adult_stormbird": {
+    "message": "A breezy one wearing a scarf...? Sometimes..."
+  },
   "hint_adult_robot": {
     "message": "A metallic one that loves catching games...?"
   },
@@ -571,6 +778,18 @@
   },
   "hint_adult_cyborg": {
     "message": "A metallic one, raised plainly...?"
+  },
+  "hint_adult_clock": {
+    "message": "A metallic one that loves the stop game...?"
+  },
+  "hint_adult_drone": {
+    "message": "A metallic one, grown slim...?"
+  },
+  "hint_adult_toaster": {
+    "message": "A metallic one, cared for in the mornings...?"
+  },
+  "hint_adult_mecha": {
+    "message": "A metallic one wearing a medal...? Sometimes..."
   },
   "hint_adult_ghost": {
     "message": "A shadowy one that loves catching games...?"
@@ -584,6 +803,15 @@
   "hint_adult_vampire": {
     "message": "A shadowy one, neglected to the extreme...? At nightfall..."
   },
+  "hint_adult_pumpkin": {
+    "message": "A shadowy one that loves the stop game...?"
+  },
+  "hint_adult_blackcat": {
+    "message": "A shadowy one, grown slim...?"
+  },
+  "hint_adult_koala": {
+    "message": "A shadowy one, cared for in the mornings...?"
+  },
   "hint_adult_unicorn": {
     "message": "A sparkly one that loves catching games...?"
   },
@@ -596,6 +824,15 @@
   "hint_adult_astra": {
     "message": "Never making a single mistake...? Sometimes..."
   },
+  "hint_adult_jellyfish": {
+    "message": "A sparkly one that loves the stop game...?"
+  },
+  "hint_adult_fairy": {
+    "message": "A sparkly one, grown slim...?"
+  },
+  "hint_adult_rainbow": {
+    "message": "A sparkly one, cared for in the mornings...?"
+  },
   "hint_adult_bear": {
     "message": "A plump one that loves catching games...?"
   },
@@ -607,6 +844,15 @@
   },
   "hint_adult_grandpudding": {
     "message": "A plump one, grown even plumper...? Very rarely..."
+  },
+  "hint_adult_elephant": {
+    "message": "A plump one that loves the stop game...?"
+  },
+  "hint_adult_balloon": {
+    "message": "A plump one, grown slim...?"
+  },
+  "hint_adult_pancake": {
+    "message": "A plump one, cared for in the mornings...?"
   },
   "roam_say_egg": {
     "message": "…(wobble)"
@@ -1232,5 +1478,14 @@
         "content": "$2"
       }
     }
-  }
+  },
+  "zukan_section_early": { "message": "Egg, baby and children" },
+  "family_solar": { "message": "Fire" },
+  "family_water": { "message": "Water" },
+  "family_earth": { "message": "Earth" },
+  "family_wind": { "message": "Wind" },
+  "family_metal": { "message": "Machine" },
+  "family_lunar": { "message": "Night" },
+  "family_ether": { "message": "Star" },
+  "family_heavy": { "message": "Hefty" }
 }

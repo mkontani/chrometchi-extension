@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vitest';
+import { makeEnv } from './__fixtures__/env';
 import { makePet } from './__fixtures__/pet';
 import { createEgg } from './factory';
 import { createRng } from './rng';
 import { stepMinute } from './step';
 
-const awake = () => ({ asleep: false, rng: createRng(1), hour: 12 });
+const awake = () => ({ asleep: false, rng: createRng(1), hour: 12, env: makeEnv() });
 
 describe('stepMinute', () => {
   test('asleep minutes do not age or decay the pet', () => {

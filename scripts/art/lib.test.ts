@@ -74,9 +74,9 @@ describe('png helpers', () => {
 });
 
 describe('requiredSpritePaths', () => {
-  test('664 paths: 2 poses for each of 4 egg patterns + 7 poses, a side view and 8 walk frames for each of 41 other forms', () => {
+  test('1332 paths: 2 poses for each of 10 egg patterns + 7 poses, a side view and 8 walk frames for each of 82 other forms', () => {
     const paths = requiredSpritePaths(FORMS);
-    expect(paths).toHaveLength(664);
+    expect(paths).toHaveLength(1332);
     expect(paths).toContain('src/assets/sprites/egg/dots/idle1.png');
     expect(paths).not.toContain('src/assets/sprites/egg/idle0.png');
     expect(paths).toContain('src/assets/sprites/baby_puni/sad.png');

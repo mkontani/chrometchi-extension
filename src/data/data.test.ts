@@ -6,6 +6,7 @@ import type { RefuseReason, Stage } from '@/core/types';
 import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
 import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
+import { ZUKAN_ORDER } from './zukan';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
 import { ACCESSORIES, ACCESSORY_IDS, WEAR_PLACES } from './accessories';
@@ -33,13 +34,14 @@ const en = load('en');
 
 const ORDER: Stage[] = ['egg', 'baby', 'child', 'young', 'adult'];
 const isFallback = (when: object) => Object.keys(when).length === 0;
+const NEW_CHILDREN = ['child_pico', 'child_awa', 'child_tane', 'child_ame', 'child_yuki'];
 /** Spec 7.3: a new player can afford one item of every kind. */
 const AFFORDABLE = 100;
 
 describe('form data', () => {
-  test('form ids are unique and there are 42 forms', () => {
-    expect(new Set(FORMS.map((f) => f.id)).size).toBe(42);
-    expect(FORMS).toHaveLength(42);
+  test('form ids are unique and there are 83 forms', () => {
+    expect(new Set(FORMS.map((f) => f.id)).size).toBe(83);
+    expect(FORMS).toHaveLength(83);
   });
 
   test('every non-adult form has >=2 children and exactly one {} fallback', () => {
@@ -62,8 +64,50 @@ describe('form data', () => {
     }
   });
 
-  test('4 hidden adults have priority 100', () => {
-    expect(FORMS.filter((f) => f.priority === 100 && f.stage === 'adult')).toHaveLength(4);
+  test('8 hidden adults have priority 100', () => {
+    expect(FORMS.filter((f) => f.priority === 100 && f.stage === 'adult')).toHaveLength(8);
+  });
+
+  test('every form that needs an item worn is a rare: chance 0.5, priority 100', () => {
+    const rares = FORMS.filter((f) => f.when.wearing !== undefined);
+    expect(rares.map((f) => f.id)).toEqual(['adult_whale', 'adult_stag', 'adult_stormbird', 'adult_mecha']);
+    for (const f of rares) expect([f.when.chance, f.priority], f.id).toEqual([0.5, 100]);
+  });
+
+  test('each new condition sits at its priority tier (spec 9.2-9.4)', () => {
+    const tier = ({ stage, when }: (typeof FORMS)[number]): number | undefined => {
+      if (when.wearing !== undefined) return 100;
+      if (when.room !== undefined) return 75;
+      if (when.morningCare !== undefined) return 70;
+      if (when.decorKind !== undefined) return 60;
+      if (stage === 'adult' && when.weight === 'light') return 60;
+      if (when.dominantGame === 'stop') return 50;
+      return undefined;
+    };
+    const tiered = FORMS.filter((f) => tier(f) !== undefined);
+    expect(tiered).toHaveLength(41);
+    for (const f of tiered) expect(f.priority, f.id).toBe(tier(f));
+  });
+
+  test('the 5 new children join every young form but kirari, and the room and decor forms come from all 9', () => {
+    const children = FORMS.filter((f) => f.stage === 'child').map((f) => f.id);
+    expect(children).toHaveLength(9);
+    for (const f of FORMS.filter((x) => x.stage === 'young')) {
+      if (f.id === 'young_kirari') expect(f.from, f.id).toEqual(['child_hoshi']);
+      else expect(f.from, f.id).toEqual(expect.arrayContaining(NEW_CHILDREN));
+      if (f.when.decorKind !== undefined) expect([...f.from].sort(), f.id).toEqual([...children].sort());
+    }
+    for (const f of FORMS.filter((x) => x.when.room !== undefined)) {
+      expect([f.stage, f.family, f.priority, f.from], f.id).toEqual(['child', 'none', 75, ['baby_puni']]);
+    }
+  });
+
+  test('every adult comes from both young forms of its family', () => {
+    for (const f of FORMS.filter((x) => x.stage === 'adult')) {
+      const young = FORMS.filter((y) => y.stage === 'young' && y.family === f.family).map((y) => y.id);
+      expect(young, f.family).toHaveLength(2);
+      expect([...f.from].sort(), f.id).toEqual([...young].sort());
+    }
   });
 
   test('the heavy line uses original pudding forms, not slimes', () => {
@@ -200,7 +244,7 @@ describe('i18n', () => {
       ...FOODS.map((f) => `food_${f.id}`),
       ...GAMES.map((g) => `game_${g}`),
     ];
-    expect(keys).toHaveLength(42 + 23 + 3);
+    expect(keys).toHaveLength(83 + 23 + 3);
     for (const key of keys) {
       expect(ja[key]?.message, `ja ${key}`).toBeTruthy();
       expect(en[key]?.message, `en ${key}`).toBeTruthy();
@@ -229,10 +273,24 @@ describe('i18n', () => {
 
   test('every form except egg and baby has a hint in both locales', () => {
     const hinted = FORMS.filter((f) => f.stage !== 'egg' && f.stage !== 'baby');
-    expect(hinted).toHaveLength(40);
+    expect(hinted).toHaveLength(81);
     for (const f of hinted) {
       expect(ja[`hint_${f.id}`]?.message, `ja ${f.id}`).toBeTruthy();
       expect(en[`hint_${f.id}`]?.message, `en ${f.id}`).toBeTruthy();
+    }
+  });
+
+  test("a room child's hint names its room, and a wearing rare's hint names its item and ends with sometimes", () => {
+    const named = FORMS.filter((f) => f.when.room !== undefined || f.when.wearing !== undefined);
+    expect(named).toHaveLength(9);
+    for (const f of named) {
+      const { room, wearing } = f.when;
+      const key = room ? `room_${room}` : `acc_${wearing}`;
+      expect(ja[`hint_${f.id}`]?.message, f.id).toContain(ja[key]?.message);
+      expect(en[`hint_${f.id}`]?.message.toLowerCase(), f.id).toContain(en[key]?.message.toLowerCase());
+      if (!wearing) continue;
+      expect(ja[`hint_${f.id}`]?.message, f.id).toMatch(/ときどき…$/);
+      expect(en[`hint_${f.id}`]?.message, f.id).toMatch(/Sometimes\.\.\.$/);
     }
   });
 
@@ -465,7 +523,7 @@ describe('form anchors', () => {
   };
 
   test('every form but the egg has anchors', () => {
-    expect(wearers).toHaveLength(41);
+    expect(wearers).toHaveLength(82);
     expect(Object.keys(FORM_ANCHORS).sort()).toEqual([...wearers].sort());
     expect(FORM_ANCHORS.egg).toBeUndefined();
   });
@@ -515,6 +573,24 @@ describe('form anchors', () => {
       expect(neck[1] + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
     }
   });
+
+  test('in idle1, where the neck point can sink and the feet stay, a bow tie still hangs at most 1 px below the feet (Gate R2)', () => {
+    const bowtie = ACCESSORIES.find((a) => a.id === 'bowtie');
+    const tie = readPng(resolve(__dirname, '../assets/ui/acc/bowtie.png'));
+    expect(bowtie && tie).toBeTruthy();
+    if (!bowtie || !tie) return;
+    const below = opaqueBox(tie).bottom - bowtie.anchor.y;
+    for (const id of wearers) {
+      const pet = readPng(resolve(__dirname, `../assets/sprites/${id}/idle1.png`));
+      const anchors = FORM_ANCHORS[id];
+      expect(pet && anchors, id).toBeTruthy();
+      if (!pet || !anchors) continue;
+      // PetStage's idle1 rule: a point with y <= squashRow is drawn 1 px lower.
+      const [, y] = anchors.neck;
+      const neckY = y <= anchors.squashRow ? y + 1 : y;
+      expect(neckY + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
+    }
+  });
 });
 
 /** Whether `count` rows of `a` from row `aFrom` are byte for byte the rows of `b` from row `bFrom`. */
@@ -532,3 +608,24 @@ function opaqueBox(png: PngData): { left: number; top: number; right: number; bo
   const ys = opaque.map((i) => Math.floor(i / png.width));
   return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs) + 1, bottom: Math.max(...ys) + 1 };
 }
+
+describe('ZUKAN_ORDER', () => {
+  test('ZUKAN_ORDER lists every form exactly once', () => {
+    const ids = [
+      ...ZUKAN_ORDER.early,
+      ...ZUKAN_ORDER.families.flatMap((f) => [...f.young, ...f.adults]),
+    ];
+    expect(ids.length).toBe(FORMS.length);
+    expect(new Set(ids)).toEqual(new Set(FORMS.map((f) => f.id)));
+  });
+
+  test('each family lists its own 2 young and 7 adults', () => {
+    expect(ZUKAN_ORDER.early.length).toBe(11);
+    for (const { family, young, adults } of ZUKAN_ORDER.families) {
+      expect(young.length).toBe(2);
+      expect(adults.length).toBe(7);
+      for (const id of young) expect(FORMS.find((f) => f.id === id)).toMatchObject({ stage: 'young', family });
+      for (const id of adults) expect(FORMS.find((f) => f.id === id)).toMatchObject({ stage: 'adult', family });
+    }
+  });
+});

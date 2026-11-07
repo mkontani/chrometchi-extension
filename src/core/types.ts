@@ -69,6 +69,12 @@ export interface CareHistory {
   stageMistakes: number;
   foodCounts: Record<FoodTag, number>;
   gameCounts: Record<GameId, number>;
+  /** awake minutes spent in each room this stage */
+  roomMinutes: Partial<Record<RoomId, number>>;
+  /** feed, play, clean and medicine results this stage */
+  care: number;
+  /** the part of `care` given in the morning */
+  morningCare: number;
 }
 
 export interface PetState {
@@ -178,7 +184,22 @@ export interface EvolutionCondition {
   weight?: 'light' | 'normal' | 'heavy';
   /** local [start, end) */
   hours?: [number, number];
+  /** the room the pet grew up in this stage */
+  room?: RoomId;
+  /** the most common decor kind in that room */
+  decorKind?: DecorKind;
+  /** the accessory worn at the moment of evolution */
+  wearing?: AccessoryId;
+  /** at least 10 care this stage, half or more of it in the morning */
+  morningCare?: true;
   chance?: number;
+}
+
+/** What evolution reads of the home. `room` is the room shown this minute. */
+export interface EvolutionEnv {
+  room: RoomId;
+  decorIn(room: RoomId): readonly DecorId[];
+  worn: Partial<Record<WearPlace, AccessoryId>>;
 }
 
 export interface FormDef {

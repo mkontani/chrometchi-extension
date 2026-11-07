@@ -229,9 +229,12 @@ body {
 .rooms__pic--locked { filter: brightness(0.35); }
 .rooms__how { font-size: 9px; text-align: center; }
 .zukan__count { margin: 0 0 4px; font-size: 12px; text-align: right; }
-.zukan__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
+.zukan__section { margin: 0 0 6px; }
+.zukan__section > h3 { margin: 4px 0 2px; font-size: 11px; }
+/* 7 columns; the early section's 11 forms wrap onto a second row of the same grid. */
+.zukan__row { list-style: none; margin: 0 0 2px; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
 .zukan__cell { display: flex; flex-direction: column; align-items: center; font-size: 9px; text-align: center; min-width: 0; }
-.zukan__cell img { width: 48px; height: 48px; image-rendering: pixelated; }
+.zukan__cell img { width: 100%; max-width: 48px; aspect-ratio: 1; height: auto; image-rendering: pixelated; }
 .zukan__hint { font-size: 8px; color: #6b5d78; }
 .silhouette { filter: brightness(0); }
 .memories h3 { font-size: 12px; margin: 8px 0 4px; }

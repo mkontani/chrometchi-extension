@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { makeGame, makePet } from '@/core/__fixtures__/pet';
 import { createRng } from '@/core/rng';
-import type { GameEvent, WarningLevel } from '@/core/types';
+import { BASE_WEIGHT, STAGE_MINUTES } from '@/core/constants';
+import type { GameEvent, PetState, Rng, Stage, WarningLevel } from '@/core/types';
 import { createFreshSave, createSaveRepository } from '@/storage/repository';
 import { createMemoryArea } from '@/storage/__fixtures__/memory-area';
 import { SAVE_KEY, type SaveV1 } from '@/storage/schema';
@@ -13,6 +14,7 @@ const MIN = 60_000;
 interface Overrides {
   notifier?: Notifier;
   badge?: Badge;
+  rng?: Rng;
 }
 
 function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0, over: Overrides = {}) {
@@ -32,7 +34,7 @@ function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0, over: Overrides
   const engine = createEngine({
     repo: createSaveRepository(area, () => clock.now),
     now: () => clock.now,
-    rng: createRng(1),
+    rng: over.rng ?? createRng(1),
     queryIdle: async () => 'active',
     notifier,
     badge: over.badge ?? { update: async (l) => void badgeLevels.push(l) },
@@ -612,5 +614,112 @@ describe('engine', () => {
       await engine.handle({ type: 'seenRewards' });
       expect(stored().progress.unseen).toBe(false);
     });
+  });
+});
+
+describe('care counts', () => {
+  const morning = new Date(2026, 0, 1, 8, 0, 0).getTime();
+  const afternoon = new Date(2026, 0, 1, 15, 0, 0).getTime();
+  const hungry = () => makePet({ stats: { hunger: 40 } });
+  const feed = { type: 'care', action: { kind: 'feed', food: 'rice' } } as const;
+
+  test('care in the morning is counted as morning care', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, morning);
+    await engine.handle(feed);
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 1 });
+  });
+
+  test('care outside the morning is counted as care only', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, afternoon);
+    await engine.handle(feed);
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 0 });
+  });
+
+  test.each([
+    ['play', makePet(), { kind: 'play', game: 'catch', won: true }],
+    ['clean', makePet({ poops: 1 }), { kind: 'clean' }],
+    ['medicine', makePet({ sick: true }), { kind: 'medicine' }],
+  ] as const)('%s in the morning is counted as morning care', async (_kind, pet, action) => {
+    const { engine, stored } = setup({ pet }, morning);
+    const res = await engine.handle({ type: 'care', action });
+    expect(res).toMatchObject({ outcome: { result: 'ok' } });
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 1 });
+  });
+
+  test('refused care is not counted', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, morning);
+    const res = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'fish' } });
+    expect(res).toMatchObject({ outcome: { result: 'refused' } });
+    expect(stored().game.pet.history).toMatchObject({ care: 0, morningCare: 0 });
+  });
+
+  test('petting and lights are not counted', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, morning);
+    await engine.handle({ type: 'care', action: { kind: 'pet' } });
+    await engine.handle({ type: 'care', action: { kind: 'lights', on: false } });
+    expect(stored().game.pet.history).toMatchObject({ care: 0, morningCare: 0 });
+  });
+
+  test('awake minutes are counted in the room that is shown', async () => {
+    const { engine, clock, stored, area } = setup({ pet: makePet({ stage: 'baby', formId: 'baby_puni' }) }, morning);
+    const seeded = stored();
+    area.data.set(SAVE_KEY, {
+      ...seeded,
+      home: { ...seeded.home, room: 'beach' },
+      progress: { ...seeded.progress, claimed: ['zukan:10'] },
+    });
+    clock.now = morning + 3 * MIN;
+    await engine.tick();
+    expect(stored().game.pet.history.roomMinutes).toEqual({ beach: 3 });
+  });
+
+  test('morning care wraps past midnight from a late wake-up time', async () => {
+    const late = new Date(2026, 0, 2, 0, 30, 0).getTime();
+    const { engine, stored, area } = setup({ pet: hungry(), lastTickAt: late }, late);
+    const seeded = stored();
+    area.data.set(SAVE_KEY, { ...seeded, settings: { ...seeded.settings, sleepEndMin: 23 * 60 } });
+    await engine.handle(feed);
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 1 });
+  });
+});
+
+describe('evolution and the home', () => {
+  /** A pet one minute short of the end of its stage, at the weight that is normal for it. */
+  const due = (formId: string, stage: Stage): PetState =>
+    makePet({
+      formId,
+      stage,
+      stageMinutes: STAGE_MINUTES[stage] - 1,
+      awakeMinutes: STAGE_MINUTES[stage] - 1,
+      stats: { weight: BASE_WEIGHT[stage] },
+    });
+  const lucky = { rng: () => 0 };
+
+  test('evolution reads the home at the moment of evolution', async () => {
+    const placed = setup({ pet: due('child_mochi', 'child') });
+    const home = { ...placed.stored().home, ownedDecor: ['lamp' as const] };
+    placed.area.data.set(SAVE_KEY, { ...placed.stored(), home });
+    await placed.engine.handle({ type: 'placeDecor', room: 'home', slot: 'floorL', decor: 'lamp' });
+    placed.clock.now = T0 + 2 * MIN;
+    await placed.engine.tick();
+    expect(placed.stored().game.pet.formId).toBe('young_tomoshi');
+
+    const worn = setup({ pet: due('young_shizuku', 'young') }, T0, lucky);
+    const owned = { ...worn.stored().home, ownedAcc: ['necklace' as const] };
+    worn.area.data.set(SAVE_KEY, { ...worn.stored(), home: owned });
+    await worn.engine.handle({ type: 'wear', place: 'neck', acc: 'necklace' });
+    worn.clock.now = T0 + 2 * MIN;
+    await worn.engine.tick();
+    expect(worn.stored().game.pet.formId).toBe('adult_whale');
+  });
+
+  test('evolution reads the home as it was before the operation, so an item worn in it counts from the next one', async () => {
+    const { engine, clock, stored, area } = setup({ pet: due('young_shizuku', 'young') }, T0, lucky);
+    area.data.set(SAVE_KEY, { ...stored(), home: { ...stored().home, ownedAcc: ['necklace'] } });
+    clock.now = T0 + 2 * MIN;
+    const res = await engine.handle({ type: 'wear', place: 'neck', acc: 'necklace' });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'wear', result: 'ok' } });
+    expect(stored().game.pet.formId).toBe('adult_kraken');
+    expect(stored().home.worn).toEqual({ neck: 'necklace' });
   });
 });

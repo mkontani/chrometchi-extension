@@ -1,13 +1,18 @@
 import { BASE_WEIGHT } from '@/core/constants';
-import type { EvolutionCondition, FormDef, PetState, Rng } from '@/core/types';
+import { decorDef } from '@/data/decor';
+import { accessoryDef } from '@/data/accessories';
+import { grownRoom } from '@/core/care-count';
+import type { DecorKind, EvolutionCondition, EvolutionEnv, FormDef, PetState, Rng } from '@/core/types';
 
 export interface EvolutionContext {
   rng: Rng;
   hour: number;
+  env: EvolutionEnv;
 }
 
 const HEAVY_RATIO = 1.5;
 const LIGHT_RATIO = 0.8;
+const MIN_CARE = 10;
 
 /** The key with the unique maximum count; ties or all zeros give undefined. */
 export function dominant<K extends string>(counts: Record<K, number>): K | undefined {
@@ -26,8 +31,32 @@ export function weightClass(pet: PetState): 'light' | 'normal' | 'heavy' {
   return 'normal';
 }
 
-function matchesDeterministic(cond: EvolutionCondition, pet: PetState, hour: number): boolean {
+/** The unique most common non-null decor kind among the items in the room the pet grew up in. */
+function roomDecorKind(pet: PetState, env: EvolutionEnv): DecorKind | undefined {
+  const counts = new Map<DecorKind, number>();
+  for (const id of env.decorIn(grownRoom(pet.history, env.room))) {
+    const { kind } = decorDef(id);
+    if (kind !== null) counts.set(kind, (counts.get(kind) ?? 0) + 1);
+  }
+  const top = Math.max(0, ...counts.values());
+  const leaders = [...counts].filter(([, n]) => n === top);
+  return leaders.length === 1 ? leaders[0]![0] : undefined;
+}
+
+function matchesHome(cond: EvolutionCondition, pet: PetState, env: EvolutionEnv): boolean {
   const { history } = pet;
+  const checks: boolean[] = [
+    cond.room === undefined || grownRoom(history, env.room) === cond.room,
+    cond.decorKind === undefined || roomDecorKind(pet, env) === cond.decorKind,
+    cond.wearing === undefined || env.worn[accessoryDef(cond.wearing).place] === cond.wearing,
+    cond.morningCare === undefined || (history.care >= MIN_CARE && history.morningCare * 2 >= history.care),
+  ];
+  return checks.every(Boolean);
+}
+
+function matchesDeterministic(cond: EvolutionCondition, pet: PetState, ctx: EvolutionContext): boolean {
+  const { history } = pet;
+  const { hour } = ctx;
   const food = dominant(history.foodCounts);
   const checks: boolean[] = [
     cond.minStageMistakes === undefined || history.stageMistakes >= cond.minStageMistakes,
@@ -38,12 +67,12 @@ function matchesDeterministic(cond: EvolutionCondition, pet: PetState, hour: num
     cond.weight === undefined || weightClass(pet) === cond.weight,
     cond.hours === undefined || (cond.hours[0] <= hour && hour < cond.hours[1]),
   ];
-  return checks.every(Boolean);
+  return checks.every(Boolean) && matchesHome(cond, pet, ctx.env);
 }
 
 /** `chance` is evaluated last so the RNG is consumed only when everything else matched. */
 export function matches(cond: EvolutionCondition, pet: PetState, ctx: EvolutionContext): boolean {
-  if (!matchesDeterministic(cond, pet, ctx.hour)) return false;
+  if (!matchesDeterministic(cond, pet, ctx)) return false;
   return cond.chance === undefined || ctx.rng() < cond.chance;
 }
 

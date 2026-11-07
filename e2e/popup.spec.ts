@@ -1,4 +1,5 @@
 import type { BrowserContext, Page } from '@playwright/test';
+import { STAGE_MINUTES } from '../src/core/constants';
 import { makePet, type PetOverrides } from '../src/core/__fixtures__/pet';
 import { createFreshSave } from '../src/storage/repository';
 import type { SaveV1 } from '../src/storage/schema';
@@ -561,4 +562,33 @@ test('the focus ring on the pet is drawn over what it wears', async ({ context, 
   await expect(pet).toBeFocused();
   expect(await ring()).not.toBe('none');
   expect(await pet.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none');
+});
+
+test('a baby raised in the garden becomes a chick', async ({ context, extensionId, msg }) => {
+  const base = withHome(withProgress(seed(null, -61_000), { claimed: ['ending:first'] }), { room: 'garden' });
+  const pet = makePet({
+    stageMinutes: STAGE_MINUTES.baby - 1,
+    history: { ...makePet().history, roomMinutes: { garden: 20, home: 5 } },
+  });
+  const page = await seedAndOpen(context, extensionId, { ...base, game: { ...base.game, pet } });
+  await expect(petButton(page, msg, 'form_child_pico')).toBeVisible();
+
+  await page.getByRole('button', { name: msg('action_zukan'), exact: true }).click();
+  const cell = page
+    .locator('.zukan__cell')
+    .filter({ has: page.locator('.zukan__name').getByText(msg('form_child_pico'), { exact: true }) });
+  await expect(cell).toHaveCount(1);
+  expect((await readSave(context)).zukan.discovered).toContain('child_pico');
+});
+
+test('the zukan is grouped by family', async ({ popup, msg }) => {
+  await popup.getByRole('button', { name: msg('action_zukan'), exact: true }).click();
+  const headings = [
+    'zukan_section_early', 'family_solar', 'family_water', 'family_earth', 'family_wind',
+    'family_metal', 'family_lunar', 'family_ether', 'family_heavy',
+  ];
+  for (const key of headings) {
+    await expect(popup.getByRole('heading', { name: msg(key), exact: true })).toBeVisible();
+  }
+  await expect(popup.locator('.zukan__section')).toHaveCount(headings.length);
 });

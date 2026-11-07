@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { makeEnv } from './__fixtures__/env';
 import { makePet } from './__fixtures__/pet';
 import { applyCare } from './care';
 import { DEATH_GRACE_MIN } from './constants';
@@ -7,7 +8,7 @@ import { stepMinute } from './step';
 import type { PetState } from './types';
 import { acknowledgeCritical } from './warnings';
 
-const ctx = { asleep: false, rng: createRng(1), hour: 12 };
+const ctx = { asleep: false, rng: createRng(1), hour: 12, env: makeEnv() };
 
 function run(pet: PetState, minutes: number): PetState {
   let p = pet;
