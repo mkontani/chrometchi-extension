@@ -70,7 +70,6 @@ export async function feedRice(send: ReturnType<typeof vi.fn>) {
   await flush();
 }
 
-
 export function stubAudio() {
   const freqs: number[] = [];
   class FakeAudioContext {

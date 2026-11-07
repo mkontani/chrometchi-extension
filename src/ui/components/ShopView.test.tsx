@@ -207,3 +207,40 @@ test('flash after unmount starts no timer', async () => {
   await act(async () => resolve(true));
   expect(vi.getTimerCount()).toBe(0);
 });
+
+test('the bought note sits on its own line, not over the list', async () => {
+  vi.useFakeTimers();
+  view({ coins: 500, onBuy: () => Promise.resolve(true) });
+  await buyCandle();
+  const note = screen.getByText(HINT);
+  expect(note.classList.contains('toast')).toBe(false);
+  expect(note.classList.contains('shop__note')).toBe(true);
+  const list = screen.getAllByRole('listitem')[0]?.closest('ul') as HTMLElement;
+  expect(note.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const tabs = screen.getByRole('tablist');
+  expect(tabs.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+test('the note line is there before anything is bought', () => {
+  view();
+  const note = screen.getByRole('status');
+  expect(note.textContent).toBe('');
+});
+
+test('a refused buy right after a good one leaves no bought note', async () => {
+  vi.useFakeTimers();
+  const onBuy = vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+  view({ coins: 500, onBuy });
+  await buyCandle();
+  expect(screen.getByText(HINT)).toBeTruthy();
+  await buyCandle();
+  expect(screen.queryByText(HINT)).toBeNull();
+  expect(screen.getByRole('status').textContent).toBe('');
+});
+
+test('the buy confirm in the shop uses the normal button', () => {
+  view({ coins: 500 });
+  fireEvent.click(screen.getByRole('button', { name: 'Buy Candle' }));
+  const ok = screen.getByRole('button', { name: 'Buy' });
+  expect(ok.classList.contains('dialog__btn--danger')).toBe(false);
+});

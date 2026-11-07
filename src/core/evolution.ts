@@ -2,6 +2,7 @@ import { BASE_WEIGHT } from '@/core/constants';
 import { decorDef } from '@/data/decor';
 import { accessoryDef } from '@/data/accessories';
 import { grownRoom } from '@/core/care-count';
+import { uniqueTop } from '@/core/tally';
 import type { DecorKind, EvolutionCondition, EvolutionEnv, FormDef, PetState, Rng } from '@/core/types';
 
 export interface EvolutionContext {
@@ -16,12 +17,7 @@ const MIN_CARE = 10;
 
 /** The key with the unique maximum count; ties or all zeros give undefined. */
 export function dominant<K extends string>(counts: Record<K, number>): K | undefined {
-  const entries = Object.entries(counts) as [K, number][];
-  const max = Math.max(...entries.map(([, n]) => n));
-  if (max <= 0) return undefined;
-  const top = entries.filter(([, n]) => n === max);
-  const [only] = top;
-  return top.length === 1 && only ? only[0] : undefined;
+  return uniqueTop(counts);
 }
 
 export function weightClass(pet: PetState): 'light' | 'normal' | 'heavy' {
@@ -38,9 +34,7 @@ function roomDecorKind(pet: PetState, env: EvolutionEnv): DecorKind | undefined 
     const { kind } = decorDef(id);
     if (kind !== null) counts.set(kind, (counts.get(kind) ?? 0) + 1);
   }
-  const top = Math.max(0, ...counts.values());
-  const leaders = [...counts].filter(([, n]) => n === top);
-  return leaders.length === 1 ? leaders[0]![0] : undefined;
+  return uniqueTop([...counts]);
 }
 
 function matchesHome(cond: EvolutionCondition, pet: PetState, env: EvolutionEnv): boolean {

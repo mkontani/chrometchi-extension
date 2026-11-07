@@ -71,6 +71,7 @@ export function CatalogList<Id extends string>({ items, owned, coins, onBuy }: P
           message={t('shop_buy_confirm', [item.name, String(item.price)])}
           confirmLabel={t('shop_buy')}
           cancelLabel={t('confirm_no')}
+          tone="normal"
           onConfirm={() => {
             setAsking(null);
             onBuy(item.id);

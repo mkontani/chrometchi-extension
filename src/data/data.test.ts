@@ -10,7 +10,7 @@ import { ZUKAN_ORDER } from './zukan';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
 import { ACCESSORIES, ACCESSORY_IDS, WEAR_PLACES } from './accessories';
-import { FORM_ANCHORS } from './anchors';
+import { FORM_ANCHORS, wornPoint } from './anchors';
 import { DECOR, DECOR_IDS } from './decor';
 import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
 import {
@@ -585,9 +585,7 @@ describe('form anchors', () => {
       const anchors = FORM_ANCHORS[id];
       expect(pet && anchors, id).toBeTruthy();
       if (!pet || !anchors) continue;
-      // PetStage's idle1 rule: a point with y <= squashRow is drawn 1 px lower.
-      const [, y] = anchors.neck;
-      const neckY = y <= anchors.squashRow ? y + 1 : y;
+      const [, neckY] = wornPoint(anchors, 'neck', 'idle1');
       expect(neckY + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
     }
   });
@@ -626,6 +624,24 @@ describe('ZUKAN_ORDER', () => {
       expect(adults.length).toBe(7);
       for (const id of young) expect(FORMS.find((f) => f.id === id)).toMatchObject({ stage: 'young', family });
       for (const id of adults) expect(FORMS.find((f) => f.id === id)).toMatchObject({ stage: 'adult', family });
+    }
+  });
+
+  test('every family lists its 7 adults in the same order: games, stop, light, morning care, rare', () => {
+    const adult = (id: string) => FORMS.find((f) => f.id === id);
+    for (const { family, adults } of ZUKAN_ORDER.families) {
+      const forms = adults.map((id) => adult(id));
+      expect(forms.map((f) => f?.id), `${family} adults are all forms`).toEqual(adults);
+      expect(forms[6]?.priority, `${family} rare`).toBe(100);
+      expect(forms[3]?.when.dominantGame, `${family} stop`).toBe('stop');
+      expect(forms[4]?.when.weight, `${family} light`).toBe('light');
+      expect(forms[5]?.when.morningCare, `${family} morning`).toBe(true);
+      for (const f of forms.slice(0, 3)) {
+        expect(f?.when.dominantGame, `${family} ${f?.id}`).not.toBe('stop');
+        expect(f?.when.weight, `${family} ${f?.id}`).not.toBe('light');
+        expect(f?.when.morningCare, `${family} ${f?.id}`).toBeUndefined();
+        expect(f?.priority, `${family} ${f?.id}`).not.toBe(100);
+      }
     }
   });
 });

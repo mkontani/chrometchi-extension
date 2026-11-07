@@ -68,12 +68,14 @@ function Row({ food, stock, onSell }: RowProps) {
 /** The shop: furniture and accessories to buy, and the ingredients to sell. A refused sell changes nothing. */
 export function ShopView({ pantry, coins, ownedDecor, ownedAcc, onSell, onBuy, onBuyAcc }: Props) {
   const [tab, setTab] = useState<Tab>('decor');
-  const [bought, flashBought] = useBoughtNote();
+  const [bought, flashBought, clearBought] = useBoughtNote();
   const buy = async (decor: DecorId) => {
     if (await onBuy(decor)) flashBought('shop_bought');
+    else clearBought();
   };
   const buyAcc = async (acc: AccessoryId) => {
     if (await onBuyAcc(acc)) flashBought('shop_bought_acc');
+    else clearBought();
   };
   const tabs: readonly TabDef<Tab>[] = [
     { id: 'decor', label: t('shop_tab_decor') },
@@ -84,9 +86,9 @@ export function ShopView({ pantry, coins, ownedDecor, ownedAcc, onSell, onBuy, o
     <div class="shop">
       <p class="shop__coins">{t('shop_coins', String(coins))}</p>
       <TabBar<Tab> tabs={tabs} active={tab} onTab={setTab} label={t('shop_title')} />
+      <BoughtNote shown={bought} />
       {tab === 'decor' ? <DecorShop owned={ownedDecor} coins={coins} onBuy={(decor) => void buy(decor)} /> : null}
       {tab === 'acc' ? <AccessoryShop owned={ownedAcc} coins={coins} onBuy={(acc) => void buyAcc(acc)} /> : null}
-      <BoughtNote shown={bought} />
       {tab === 'sell' ? (
         <ScrollList class="shop__list">
           {INGREDIENT_IDS.map((food) => (

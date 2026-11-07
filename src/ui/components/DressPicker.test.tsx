@@ -31,3 +31,12 @@ test('says where to buy when nothing is owned for the place', () => {
   render(<DressPicker owned={['glasses']} place="head" worn={{}} onWear={vi.fn()} />);
   expect(screen.getByText('dress_empty')).toBeTruthy();
 });
+
+test('pressing the item already worn sends nothing', () => {
+  const onWear = vi.fn();
+  render(<DressPicker owned={['ribbon', 'crown']} place="head" worn={{ head: 'ribbon' }} onWear={onWear} />);
+  fireEvent.click(screen.getByRole('button', { name: 'acc_ribbon' }));
+  expect(onWear).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'acc_crown' }));
+  expect(onWear).toHaveBeenCalledWith('crown');
+});

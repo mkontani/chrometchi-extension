@@ -19,7 +19,7 @@ function Item({ id, pressed, onWear }: { id: AccessoryId; pressed: boolean; onWe
   const name = t(`acc_${id}`);
   return (
     <li class="picker__cell">
-      <button type="button" class="picker__btn" aria-label={name} aria-pressed={pressed} onClick={() => onWear(id)}>
+      <button type="button" class="picker__btn" aria-label={name} aria-pressed={pressed} onClick={() => (pressed ? undefined : onWear(id))}>
         {url ? <img src={url} width={size} height={size} alt="" /> : null}
         <span class="picker__name">{name}</span>
       </button>

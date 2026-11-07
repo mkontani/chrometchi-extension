@@ -1,5 +1,5 @@
 import { advanceTime } from '@/core/advance';
-import { applyCare } from '@/core/care';
+import { applyCare, CARE_KINDS } from '@/core/care';
 import { recordEnding, startNextGeneration, unlockFromEvents } from '@/core/lifecycle';
 import { feedFromPantry } from '@/core/pantry';
 import { cook, type Cooked } from '@/core/cooking';
@@ -20,9 +20,9 @@ import type {
   CareOutcome,
   GameEvent,
   Gained,
-  PetState as Pet,
   IdleState,
   MissionKind,
+  PetState,
   Rng,
   Settings,
   WarningLevel,
@@ -108,11 +108,9 @@ function farmMutator(req: Extract<EngineRequest, { type: 'farm' }>): Mutator {
   };
 }
 
-const COUNTED_CARE: readonly CareAction['kind'][] = ['feed', 'play', 'clean', 'medicine'];
-
 /** The pet with this care counted toward its stage history, when it was a counted kind and went through. */
-function withCareCounted(pet: Pet, kind: CareAction['kind'], outcome: CareOutcome, save: SaveV1, now: number): Pet {
-  if (outcome.result !== 'ok' || !COUNTED_CARE.includes(kind)) return pet;
+function withCareCounted(pet: PetState, kind: CareAction['kind'], outcome: CareOutcome, save: SaveV1, now: number): PetState {
+  if (outcome.result !== 'ok' || !CARE_KINDS.has(kind)) return pet;
   return { ...pet, history: countCare(pet.history, minuteOfDay(now), save.settings.sleepEndMin) };
 }
 

@@ -1,4 +1,4 @@
-import type { FormId } from '@/core/types';
+import type { FormId, Pose, WearPlace } from '@/core/types';
 
 /**
  * Where a form wears things, as [x, y] in its 32 px art (pixel-edge coordinates, like the
@@ -119,3 +119,13 @@ export const FORM_ANCHORS: Readonly<Record<FormId, FormAnchors>> = Object.fromEn
     { head: [hx, hy], face: [fx, fy], neck: [nx, ny], squashRow },
   ]),
 );
+
+/**
+ * The form's point for a place in this pose. idle1 is idle0 with row squashRow removed, so the rows
+ * above it sink 1 px. Points are pixel edges: edge squashRow is the bottom of row squashRow - 1, so it
+ * sinks too, and only the edges below it stay. Every other pose is its own picture and keeps idle0's points.
+ */
+export function wornPoint(anchors: FormAnchors, place: WearPlace, pose: Pose): [number, number] {
+  const [x, y] = anchors[place];
+  return pose === 'idle1' && y <= anchors.squashRow ? [x, y + 1] : [x, y];
+}

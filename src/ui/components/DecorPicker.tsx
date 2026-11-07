@@ -20,7 +20,7 @@ function Item({ id, pressed, onPlace }: { id: DecorId; pressed: boolean; onPlace
   const name = t(`decor_${id}`);
   return (
     <li class="picker__cell">
-      <button type="button" class="picker__btn" aria-label={name} aria-pressed={pressed} onClick={() => onPlace(id)}>
+      <button type="button" class="picker__btn" aria-label={name} aria-pressed={pressed} onClick={() => (pressed ? undefined : onPlace(id))}>
         {url ? <img src={url} width={size} height={size} alt="" /> : null}
         <span class="picker__name">{name}</span>
       </button>

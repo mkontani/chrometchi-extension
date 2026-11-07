@@ -32,3 +32,12 @@ test('with nothing to place it says where to buy', () => {
   render(<DecorPicker owned={['clock']} slotKind="floor" placed={null} onPlace={() => undefined} />);
   expect(screen.getByText('decor_empty')).toBeTruthy();
 });
+
+test('pressing the item already placed sends nothing', () => {
+  const onPlace = vi.fn();
+  render(<DecorPicker owned={['candle', 'lamp']} slotKind="floor" placed="candle" onPlace={onPlace} />);
+  fireEvent.click(screen.getByRole('button', { name: 'decor_candle' }));
+  expect(onPlace).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'decor_lamp' }));
+  expect(onPlace).toHaveBeenCalledWith('lamp');
+});

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { DishId, GameState, Kitchen, Home, Pantry, PetState, Progress, RoomId, Settings, Zukan } from '@/core/types';
 import { DEFAULT_SETTINGS, MAX_HIDDEN_SITES, PANTRY_MAX } from '@/core/constants';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
-import { ROOMS } from '@/data/rooms';
+import { ROOM_IDS } from '@/data/rooms';
 import { DISH_IDS, FOOD_IDS } from '@/data/foods';
 import { OUTING_KINDS } from '@/data/outings';
 import { homeSchema } from './homeSchema';
@@ -73,9 +73,9 @@ const episodesSchema = z.object({
 });
 
 const wholeCount = (v: unknown): number =>
-  typeof v === 'number' && Number.isInteger(v) && v >= 0 ? v : 0;
+  typeof v === 'number' && Number.isSafeInteger(v) && v >= 0 ? v : 0;
 
-const KNOWN_ROOMS = new Set<string>(ROOMS.map((r) => r.id));
+const KNOWN_ROOMS = new Set<string>(ROOM_IDS);
 
 /** Rooms this build does not know are dropped; bad counts become 0. Never fails. */
 function parseRoomMinutes(raw: unknown): Partial<Record<RoomId, number>> {
