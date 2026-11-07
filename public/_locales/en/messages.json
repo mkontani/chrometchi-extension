@@ -782,5 +782,33 @@
   },
   "recipe_hint_fruittart": {
     "message": "A snack of fruit and nuts…"
+  },
+  "shop_title": {
+    "message": "Shop"
+  },
+  "shop_sell": {
+    "message": "Sell"
+  },
+  "shop_coins": {
+    "message": "Coins: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_one": {
+    "message": "Sell 1"
+  },
+  "shop_sell_all": {
+    "message": "Sell all"
+  },
+  "coins_aria": {
+    "message": "Coins: $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   }
 }

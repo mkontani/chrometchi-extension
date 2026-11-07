@@ -669,3 +669,13 @@ test('the status bar shows the coins and the shop button does nothing yet', () =
   fireEvent.click(screen.getByLabelText('action_shop'));
   expect(send).not.toHaveBeenCalled();
 });
+
+test('the shop button opens the shop overlay and selling sends a sell request', () => {
+  const kitchen = { ...EMPTY_KITCHEN, pantry: { ...EMPTY_KITCHEN.pantry, fish: 3 } };
+  const { send } = setup(null, {}, { kitchen });
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  expect(screen.getByText('shop_title')).toBeTruthy();
+  const sellAll = screen.getAllByRole('button', { name: 'shop_sell_all' }) as HTMLButtonElement[];
+  fireEvent.click(sellAll.find((b) => !b.disabled) as HTMLButtonElement);
+  expect(send).toHaveBeenCalledWith({ type: 'sell', food: 'fish', amount: 3 });
+});

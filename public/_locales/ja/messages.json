@@ -782,5 +782,33 @@
   },
   "recipe_hint_fruittart": {
     "message": "くだものと きのみの おかし…"
+  },
+  "shop_title": {
+    "message": "おみせ"
+  },
+  "shop_sell": {
+    "message": "うる"
+  },
+  "shop_coins": {
+    "message": "もっているコイン $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_one": {
+    "message": "1つうる"
+  },
+  "shop_sell_all": {
+    "message": "ぜんぶうる"
+  },
+  "coins_aria": {
+    "message": "$P1$コイン",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   }
 }

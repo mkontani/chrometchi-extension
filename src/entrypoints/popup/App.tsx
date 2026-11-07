@@ -21,6 +21,7 @@ import { RecipeBook } from '@/ui/components/RecipeBook';
 import { TabBar } from '@/ui/components/TabBar';
 import { PetStage } from '@/ui/components/PetStage';
 import { PlayPanel } from '@/ui/components/PlayPanel';
+import { ShopView } from '@/ui/components/ShopView';
 import { SettingsView } from '@/ui/components/SettingsView';
 import { StatusBar } from '@/ui/components/StatusBar';
 import { ZukanView } from '@/ui/components/ZukanView';
@@ -48,8 +49,8 @@ function sfxFor(outcome: CareOutcome): SfxName | null {
   }
 }
 
-type Panel = 'feed' | 'play' | 'outing' | 'zukan' | 'settings';
-const PANELS: readonly ActionKind[] = ['feed', 'play', 'outing', 'zukan', 'settings'];
+type Panel = 'feed' | 'play' | 'outing' | 'zukan' | 'shop' | 'settings';
+const PANELS: readonly ActionKind[] = ['feed', 'play', 'outing', 'zukan', 'shop', 'settings'];
 
 /** Raw engine/Chrome errors are not localized, so the UI shows only a generic message. */
 function ErrorNote({ error }: { error: string }) {
@@ -181,12 +182,23 @@ function ZukanTabs({ save }: { save: SaveV1 }) {
   );
 }
 
-function InfoOverlay(props: { kind: 'zukan' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
+function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
   const { kind, save, send, onClose } = props;
   if (kind === 'zukan') {
     return (
       <Overlay title={t('zukan_title')} onClose={onClose}>
         <ZukanTabs save={save} />
+      </Overlay>
+    );
+  }
+  if (kind === 'shop') {
+    return (
+      <Overlay title={t('shop_title')} onClose={onClose}>
+        <ShopView
+          pantry={save.kitchen.pantry}
+          coins={save.progress.coins}
+          onSell={(food, amount) => void send({ type: 'sell', food, amount })}
+        />
       </Overlay>
     );
   }
@@ -287,7 +299,7 @@ export function App() {
         onCancel={outings.cancel}
       />
     );
-  } else if (panel === 'zukan' || panel === 'settings') {
+  } else if (panel === 'zukan' || panel === 'shop' || panel === 'settings') {
     layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
   } else {
     layer = (
