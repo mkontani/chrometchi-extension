@@ -9,6 +9,7 @@ import { FORMS } from './forms';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
 import { ACCESSORIES } from './accessories';
+import { FORM_ANCHORS } from './anchors';
 import { DECOR, DECOR_IDS } from './decor';
 import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
 import {
@@ -428,6 +429,37 @@ describe('accessory data', () => {
       expect(a.anchor.y, a.id).toBeGreaterThanOrEqual(box.top);
       expect(a.anchor.y, a.id).toBeLessThanOrEqual(box.bottom);
     }
+  });
+});
+
+describe('form anchors', () => {
+  const wearers = FORMS.filter((f) => f.stage !== 'egg').map((f) => f.id);
+  const points = (id: string) => {
+    const a = FORM_ANCHORS[id];
+    return a ? [a.head, a.face, a.neck] : [];
+  };
+
+  test('every form but the egg has anchors', () => {
+    expect(wearers).toHaveLength(41);
+    expect(Object.keys(FORM_ANCHORS).sort()).toEqual([...wearers].sort());
+    expect(FORM_ANCHORS.egg).toBeUndefined();
+  });
+
+  test('every anchor lies inside the 32 px art', () => {
+    for (const id of wearers) {
+      expect(points(id), id).toHaveLength(3);
+      for (const [x, y] of points(id)) {
+        // Whole art pixels keep the item on the pet's 4x pixel grid.
+        expect(Number.isInteger(x) && Number.isInteger(y), id).toBe(true);
+        expect(x >= 0 && x <= 32 && y >= 0 && y <= 32, `${id} (${x},${y})`).toBe(true);
+      }
+    }
+  });
+
+  test.each(wearers)('%s: the head point is above the face point and the face point is above the neck point', (id) => {
+    const [head, face, neck] = points(id);
+    expect(head?.[1]).toBeLessThan(face?.[1] ?? -1);
+    expect(face?.[1]).toBeLessThan(neck?.[1] ?? -1);
   });
 });
 

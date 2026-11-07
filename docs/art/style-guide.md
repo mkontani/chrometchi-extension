@@ -281,9 +281,74 @@ Each item's `anchor` in `ACCESSORIES` (`src/data/accessories.ts`) is the point o
   - head items: the bottom-centre of the box;
   - face items: the centre;
   - neck items: the top-centre.
+- **Set by hand:** two head items are hoops, and a bottom-centre anchor stood them on top of the head instead of on it.
+  - `flowercrown` (12,19), was (12,22): near the ends of the ring. The flowers ride on top of the head, and the ring's last 3 rows come down onto it.
+  - `headphones` (10,14), was (10,17): low on the ear cups. The band arches over the head, and the cups' last 3 rows rest on its top. The cups are only 14 px across, so they can't reach the sides of a face.
+  - Why 3 rows: with 4 or 5 (flowercrown 18, headphones 12 or 13), the ring's ends or the cups covered the top of the eyes on the forms with the shortest foreheads (young_fuwari, young_mebuki, adult_bear, adult_hippo).
 - **Whole pixels:** a half pixel rounds up (flowerpin x 7.5 → 8, bell x 7.5 → 8, heartglasses y 8.5 → 9). This keeps the item on the pet's 4x pixel grid.
 - **Where they are written:** the values are literals in the table. `src/data/data.test.ts` checks that each anchor is a whole pixel inside its item's opaque box.
-- **On the stage:** `stage x = 112 + 4·ax − 4·ox` and `stage y = 100 + 4·ay − 4·oy`, where `(ax, ay)` is the item's anchor and `(ox, oy)` the form's point.
+- **On the stage:** the item's top-left is at `stage x = 112 + 4·ax − 4·ox` and `stage y = 100 + 4·ay − 4·oy`, where `(ax, ay)` is the form's point and `(ox, oy)` the item's anchor. This puts the item's anchor exactly on the form's point.
+
+### Form points
+
+Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` (`src/data/anchors.ts`). Each point is `[x, y]` in the form's 32 px art, in pixel-edge coordinates like the item anchors. A worn item's anchor lands on the point for its place.
+
+- **One set of points for every pose.** The happy, eat and sleep poses keep idle0's silhouette: they move 2 px at most, and that is mostly sparkles. No pose needed its own points.
+- **First values** came from a throwaway script on each `idle0`:
+  - head: the topmost opaque row, 3 px down. Its x is the centre of the opaque columns in the top 3 rows.
+  - face: the eyes are two clusters of near-black pixels inside the silhouette (no neighbour is transparent, so the outline doesn't count). They lie on about the same row, either side of the middle, in the top 65% of the body. The point is the centre of the box around both eyes.
+  - neck: 3 px below the lowest eye or mouth pixel, at the face's x. A mouth is a small dark cluster within 5 rows under the eyes.
+- **Hand check:** each form was drawn by the stage rule (4x, pet → neck → face → head) in idle0, happy, eat and sleep, wearing three sets:
+  - tophat + glasses + bowtie;
+  - crown + sunglasses + scarf;
+  - flowercrown + heartglasses + necklace.
+
+  Hats should sit on the head, glasses on the eyes, and neck items under the face.
+- **Rules the check added:**
+  - The head point goes on the head itself, not on what sticks out of it: antennae, sprouts, fins, crests, halos, ear tips or floating gems. The hat then covers them.
+  - Between ears, the head point is 2–3 px below the top of the skull, not the ear tips.
+  - When a face is turned to one side, its points follow its own eyes and head, not the middle of the art.
+  - The neck point sits under the mouth, with a gap of 0–2 px. A bowtie may then hang up to 1 px below the feet, or 2 px where the mouth is low (adult_tree, adult_griffin).
+- **Set by hand:** 33 of the 41 forms. The 8 forms the script got right are child_dango, child_hoshi, adult_turtle, adult_golem, adult_mole, adult_cyborg, adult_vampire and adult_pudding. `x,y` means generated → set:
+
+| form | changed | why |
+|---|---|---|
+| baby_puni | neck 16,18 → 16,22 | the mouth is pink, so the script missed it |
+| child_kemu | head 17,3 → 16,4 | a small tuft set the top row |
+| child_mochi | head 16,5 → 16,7 | the ears set the top row; the hat now sits between them |
+| young_kirari | head 16,4 → 16,10 | the crown spikes are above the head |
+| young_kage | head 15,5 → 16,11; face 15,13 → 16,17; neck 15,16 → 16,22 | the fuse ring is above the body, and the glowing eyes aren't dark, so no eyes were found |
+| young_poyo | neck 16,17 → 16,22 | the open mouth was too big for the mouth filter |
+| young_hinoko | head 18,6 → 14,8; face 16,16 → 13,15; neck 16,26 → 13,21 | the face is left of centre; the ears and tail flame pulled the head right, and the tail's outline was taken for an eye |
+| young_shizuku | head 17,3 → 16,8 | the fin tip |
+| young_mebuki | head 16,4 → 16,10 | the sprout; 2 px below the top of the skull, so the headphones clear the eyes |
+| young_fuwari | head 16,6 → 16,8; face 16,15 → 16,13 | the tuft; the wing lines were taken for eyes. The head point is 2 px below the top of the skull, so the headphones clear the eyes |
+| young_gear | head 16,3 → 16,10 | the antenna |
+| adult_dragon | head 16,4 → 16,6 | the crest between the horns |
+| adult_beast | head 16,3 → 15,5 | the mane spikes; centred over the face |
+| adult_salamander | head 16,5 → 13,10; face 16,14 → 11,17; neck 16,17 → 11,22 | turned left, with a flame crest; no eyes were found |
+| adult_phoenix | head 17,3 → 11,5; face 17,13 → 10,15; neck 17,16 → 10,20 | turned left, with a flame wing on the right; no eyes were found |
+| adult_serpent | head 16,3 → 15,4; neck 15,17 → 15,18 | centred over the face; under the head |
+| adult_kraken | neck 16,20 → 16,22 | the dark red mouth was missed |
+| adult_tree | head 16,3 → 16,5; neck 16,23 → 16,25 | the canopy's top is uneven; the mouth was missed |
+| adult_griffin | neck 16,23 → 16,24 | the beak was missed |
+| adult_owl | head 16,3 → 16,5 | the ear tufts |
+| adult_pegasus | head 16,3 → 16,4; face 16,13 → 16,14; neck 16,16 → 16,20 | the mane top; no eyes were found |
+| adult_robot | face 16,13 → 16,12; neck 16,16 → 16,18 | no eyes were found; the neck is the seam under the head |
+| adult_ufo | head 16,5 → 16,8 | the antenna light |
+| adult_ghost | neck 16,17 → 16,20 | the blue mouth was missed |
+| adult_alien | neck 16,17 → 16,23 | the beak-like mouth runs down to row 21 |
+| adult_bat | head 16,4 → 16,7 | the ears |
+| adult_unicorn | head 16,3 → 16,4; face 16,13 → 16,16; neck 16,16 → 16,22 | the horn; no eyes were found |
+| adult_comet | head 17,5 → 15,5 | the starry tail pulled it right |
+| adult_nexus | head 17,4 → 16,9 | the floating gems above the orb |
+| adult_astra | head 16,3 → 16,7; neck 16,18 → 16,19 | the halo; the red pupils reach row 16 |
+| adult_bear | head 16,3 → 16,4 | the ears set the top row |
+| adult_hippo | neck 16,16 → 16,23 | under the open mouth |
+| adult_grandpudding | head 17,4 → 16,7 | the crown on top |
+
+- **Long neck items:** the scarf hangs 16 px below its anchor and the necklace 15 px, because both are loops seen from the front. On 40 of the 41 forms they hang below the feet, the scarf by 2–10 px and the necklace by 1–9 px. Only adult_bear's fit. The cause is the length of the art, not the points. The lowest edge is at stage y 264, inside the 272 px stage.
+- **Tests:** `src/data/data.test.ts` checks three things: every form but the egg has points; every point is a whole pixel inside the 32 px art; and for each form the head point is above the face point, which is above the neck point.
 
 ## Eggs
 
