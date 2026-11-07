@@ -3,6 +3,7 @@ import { afterEach, expect, test, vi } from 'vitest';
 import type { CareOutcome } from '@/core/types';
 import { createEgg } from '@/core/factory';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
+import { EMPTY_PROGRESS } from '@/core/progress';
 import type { UseGame } from '@/ui/useGame';
 import { App } from './App';
 
@@ -28,6 +29,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
     kitchen: EMPTY_KITCHEN,
+    progress: EMPTY_PROGRESS,
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -653,4 +655,17 @@ test('an ok cook plays the pot effect, then the ready note', async () => {
   advance(2500);
   expect(screen.queryByText('cooked_title')).toBeNull();
   vi.unstubAllGlobals();
+});
+
+test('the status bar shows the coins and the shop button does nothing yet', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, coins: 321, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  expect(screen.getByLabelText('stat_coins').textContent).toContain('321');
+  expect(screen.getByLabelText('action_zukan new_rewards')).toBeTruthy();
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  expect(send).not.toHaveBeenCalled();
 });

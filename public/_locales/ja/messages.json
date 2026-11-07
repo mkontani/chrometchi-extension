@@ -278,6 +278,15 @@
   "action_settings": {
     "message": "せってい"
   },
+  "action_shop": {
+    "message": "おみせ"
+  },
+  "stat_coins": {
+    "message": "コイン"
+  },
+  "new_rewards": {
+    "message": "あたらしいごほうび"
+  },
   "loading": {
     "message": "よみこみちゅう…"
   },

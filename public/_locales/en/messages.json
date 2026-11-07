@@ -278,6 +278,15 @@
   "action_settings": {
     "message": "Settings"
   },
+  "action_shop": {
+    "message": "Shop"
+  },
+  "stat_coins": {
+    "message": "Coins"
+  },
+  "new_rewards": {
+    "message": "New rewards"
+  },
   "loading": {
     "message": "Loading..."
   },

@@ -133,7 +133,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
   );
   return (
     <>
-      <StatusBar pet={pet} />
+      <StatusBar pet={pet} coins={save.progress.coins} />
       {/* The banner and panels overlay the stage so its size never changes. */}
       <div class="stage-area">
         <PetStage
@@ -152,7 +152,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
         {panel && <div class="stage-area__overlay stage-area__overlay--bottom">{choice}</div>}
       </div>
       <OutcomeToast outcome={outcome} />
-      <ActionBar pet={pet} onSelect={onSelect} />
+      <ActionBar pet={pet} badge={save.progress.unseen} onSelect={onSelect} />
       {error && <ErrorNote error={error} />}
     </>
   );
