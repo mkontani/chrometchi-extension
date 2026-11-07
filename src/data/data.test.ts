@@ -6,6 +6,16 @@ import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
 import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
+import {
+  COINS_MAX,
+  ENDING_COINS,
+  MISSIONS,
+  MISSION_KINDS,
+  RECENT_MAX,
+  REWARD_IDS,
+  SELL_PRICE,
+  ZUKAN_MILESTONES,
+} from './economy';
 
 type Messages = Record<string, { message: string }>;
 const load = (locale: string): Messages =>
@@ -238,5 +248,49 @@ describe('i18n', () => {
         expect(name, `${locale} ${f.id}`).not.toMatch(/(っち|ッチ|tchi)$/i);
       }
     }
+  });
+});
+
+describe('economy data', () => {
+  test('the economy numbers match the spec', () => {
+    expect(MISSION_KINDS).toEqual(['clean', 'play', 'feed', 'outing', 'harvest', 'cook']);
+    const table = (targets: number[]) => targets.map((target, i) => ({ target, coins: [30, 80, 200][i] }));
+    expect(MISSIONS).toEqual({
+      clean: table([10, 30, 100]),
+      play: table([10, 30, 100]),
+      feed: table([20, 60, 200]),
+      outing: table([5, 20, 50]),
+      harvest: table([3, 10, 30]),
+      cook: table([5, 20, 50]),
+    });
+    expect(ZUKAN_MILESTONES).toEqual([
+      { count: 10, coins: 50 },
+      { count: 20, coins: 50 },
+      { count: 30, coins: 50 },
+      { count: 40, coins: 50 },
+      { count: 50, coins: 50 },
+      { count: 60, coins: 100 },
+      { count: 70, coins: 100 },
+      { count: 80, coins: 100 },
+    ]);
+    expect(ENDING_COINS).toEqual({ departed: 100, dead: 30 });
+    expect(COINS_MAX).toBe(99999);
+    expect(RECENT_MAX).toBe(5);
+  });
+
+  test('only the 8 ingredients have a sell price, from 1 to 3', () => {
+    expect(Object.keys(SELL_PRICE).sort()).toEqual([...INGREDIENT_IDS].sort());
+    expect(SELL_PRICE).toEqual({
+      nuts: 1, mushroom: 1, egg: 1, fish: 2, veggie: 2, fruit: 2, meat: 3, shrimp: 3,
+    });
+  });
+
+  test('REWARD_IDS lists 8 zukan and 18 mission rewards, without repeats', () => {
+    expect(REWARD_IDS).toHaveLength(26);
+    expect(new Set(REWARD_IDS).size).toBe(26);
+    expect(REWARD_IDS.filter((r) => r.startsWith('zukan:'))).toHaveLength(8);
+    expect(REWARD_IDS.filter((r) => r.startsWith('mission:'))).toHaveLength(18);
+    expect(REWARD_IDS[0]).toBe('zukan:10');
+    expect(REWARD_IDS[8]).toBe('mission:clean:1');
   });
 });

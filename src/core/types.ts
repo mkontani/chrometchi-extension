@@ -224,7 +224,7 @@ export type RefuseReason =
   | 'pantryFull';
 
 export interface CareOutcome {
-  action: CareAction['kind'] | 'forage' | 'farm' | 'cook';
+  action: CareAction['kind'] | 'forage' | 'farm' | 'cook' | 'sell';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }
@@ -233,4 +233,24 @@ export interface CareResult {
   pet: PetState;
   outcome: CareOutcome;
   events: GameEvent[];
+}
+
+export type MissionKind = 'clean' | 'play' | 'feed' | 'outing' | 'harvest' | 'cook';
+export type MissionTierNo = 1 | 2 | 3;
+export type RewardId = `zukan:${number}` | `mission:${MissionKind}:${MissionTierNo}`;
+export type RecentReason = RewardId | 'ending:departed' | 'ending:dead';
+
+export interface RecentReward {
+  reason: RecentReason;
+  coins: number;
+  at: number;
+}
+
+export interface Progress {
+  coins: number;
+  counts: Record<MissionKind, number>;
+  claimed: RewardId[];
+  /** Newest first, at most RECENT_MAX. */
+  recent: RecentReward[];
+  unseen: boolean;
 }
