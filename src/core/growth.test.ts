@@ -89,6 +89,7 @@ describe('stepGrowth room minutes and care counts', () => {
     });
     const r = stepGrowth(pet, { ...ctx(), room: 'garden' });
     expect(r.pet.stage).toBe('child');
-    expect(r.pet.history).toMatchObject({ roomMinutes: {}, care: 0, morningCare: 0 });
+    expect(r.pet.history.roomMinutes).toEqual({});
+    expect(r.pet.history).toMatchObject({ care: 0, morningCare: 0 });
   });
 });

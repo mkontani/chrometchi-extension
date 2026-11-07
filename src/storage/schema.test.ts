@@ -298,8 +298,8 @@ describe('saveSchema care history', () => {
     );
     expect(parsed.success).toBe(true);
     if (!parsed.success) return;
+    expect(parsed.data.game.pet.history.roomMinutes).toEqual({ garden: 4, beach: 0, forest: 0 });
     expect(parsed.data.game.pet.history).toMatchObject({
-      roomMinutes: { garden: 4, beach: 0, forest: 0 },
       care: 0,
       morningCare: 0,
     });
