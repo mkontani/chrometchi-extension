@@ -1,16 +1,24 @@
-import type { IngredientId, Pantry } from '@/core/types';
+import { useState } from 'preact/hooks';
+import type { DecorId, IngredientId, Pantry } from '@/core/types';
 import { SELL_PRICE } from '@/data/economy';
 import { INGREDIENT_IDS } from '@/data/foods';
 import { t } from '@/i18n/t';
 import { iconUrl } from '@/ui/assets';
 import { CoinAmount } from '@/ui/components/CoinAmount';
+import { DecorShop } from '@/ui/components/DecorShop';
 import { countLabel } from '@/ui/components/foodGrid';
+import { ScrollList } from '@/ui/components/ScrollList';
+import { TabBar, type TabDef } from '@/ui/components/TabBar';
 
 interface Props {
   pantry: Pantry;
   coins: number;
+  ownedDecor: readonly DecorId[];
   onSell(food: IngredientId, amount: number): void;
+  onBuy(decor: DecorId): void;
 }
+
+type Tab = 'decor' | 'sell';
 
 interface RowProps {
   food: IngredientId;
@@ -51,17 +59,25 @@ function Row({ food, stock, onSell }: RowProps) {
   );
 }
 
-/** The sell list: every ingredient with its stock and price. A refused sell changes nothing. */
-export function ShopView({ pantry, coins, onSell }: Props) {
+/** The shop: furniture to buy, and the ingredients to sell. A refused sell changes nothing. */
+export function ShopView({ pantry, coins, ownedDecor, onSell, onBuy }: Props) {
+  const [tab, setTab] = useState<Tab>('decor');
+  const tabs: readonly TabDef<Tab>[] = [
+    { id: 'decor', label: t('shop_tab_decor') },
+    { id: 'sell', label: t('shop_tab_sell') },
+  ];
   return (
     <div class="shop">
       <p class="shop__coins">{t('shop_coins', String(coins))}</p>
-      <h3 class="shop__heading">{t('shop_sell')}</h3>
-      <ul class="shop__list">
-        {INGREDIENT_IDS.map((food) => (
-          <Row key={food} food={food} stock={pantry[food] ?? 0} onSell={onSell} />
-        ))}
-      </ul>
+      <TabBar<Tab> tabs={tabs} active={tab} onTab={setTab} />
+      {tab === 'decor' ? <DecorShop owned={ownedDecor} coins={coins} onBuy={onBuy} /> : null}
+      {tab === 'sell' ? (
+        <ScrollList class="shop__list">
+          {INGREDIENT_IDS.map((food) => (
+            <Row key={food} food={food} stock={pantry[food] ?? 0} onSell={onSell} />
+          ))}
+        </ScrollList>
+      ) : null}
     </div>
   );
 }

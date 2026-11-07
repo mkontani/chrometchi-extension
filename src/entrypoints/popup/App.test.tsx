@@ -16,6 +16,7 @@ vi.mock('@/ui/assets', () => ({
   cookUrl: () => 'pot.png',
   backgroundUrl: (id: string) => backgroundUrl(id),
   iconUrl: () => null,
+  decorUrl: () => null,
   assetUrl: () => null,
   gameArtUrl: () => null,
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
@@ -687,6 +688,7 @@ test('the shop button opens the shop overlay and selling sends a sell request', 
   const { send } = setup(null, {}, { kitchen });
   fireEvent.click(screen.getByLabelText('action_shop'));
   expect(screen.getByText('shop_title')).toBeTruthy();
+  fireEvent.click(screen.getByRole('tab', { name: 'shop_tab_sell' }));
   fireEvent.click(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' }));
   expect(send).toHaveBeenCalledWith({ type: 'sell', food: 'fish', amount: 3 });
 });
@@ -805,4 +807,33 @@ test('a refused room switch shows its reason inside the decorate overlay and not
   fireEvent.click(screen.getByLabelText('close'));
   expect(screen.queryByText('decorate_title')).toBeNull();
   expect(screen.queryByText('refuse_locked')).toBeNull();
+});
+
+test('the shop opens on the furniture tab and the sell list is one tab away', () => {
+  const progress = { ...EMPTY_PROGRESS, coins: 500 };
+  const { send } = setup(null, {}, { progress });
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  expect(screen.getByRole('tab', { name: 'shop_tab_decor' }).getAttribute('aria-selected')).toBe('true');
+  expect(screen.queryByRole('button', { name: 'shop_sell_all_aria:food_fish' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy_aria:decor_candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy' }));
+  expect(send).toHaveBeenCalledWith({ type: 'buyDecor', decor: 'candle' });
+  fireEvent.click(screen.getByRole('tab', { name: 'shop_tab_sell' }));
+  expect(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' })).toBeTruthy();
+});
+
+test('a bought item shows its hint and a refused buy shows its reason, inside the shop only', () => {
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  useGame.mockReturnValue({ save, outcome: { action: 'buy', result: 'ok' }, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.getByText('shop_bought')).toBeTruthy();
+  useGame.mockReturnValue({ save, outcome: { action: 'buy', result: 'refused', reason: 'noCoins' }, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.getByText('refuse_noCoins')).toBeTruthy();
+  expect(screen.queryByText('shop_bought')).toBeNull();
+  fireEvent.click(screen.getByLabelText('close'));
+  expect(screen.queryByText('refuse_noCoins')).toBeNull();
 });

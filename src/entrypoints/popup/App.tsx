@@ -9,6 +9,7 @@ import { ActionBar, isActionDisabled, type ActionKind } from '@/ui/components/Ac
 import { CriticalBanner } from '@/ui/components/CriticalBanner';
 import { EndingView } from '@/ui/components/EndingView';
 import { FoodPanel } from '@/ui/components/FoodPanel';
+import { BoughtNote } from '@/ui/components/BoughtNote';
 import { CookedNote } from '@/ui/components/CookedNote';
 import { GainedNote } from '@/ui/components/GainedNote';
 import { MiniGameHost } from '@/ui/components/MiniGameHost';
@@ -235,8 +236,16 @@ function DecorateOverlay({ save, outcome, send, onClose }: DecorateProps) {
   );
 }
 
-function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
-  const { kind, save, send, onClose } = props;
+interface InfoProps {
+  kind: 'zukan' | 'shop' | 'settings';
+  save: SaveV1;
+  outcome: CareOutcome | null;
+  send: UseGame['send'];
+  onClose(): void;
+}
+
+function InfoOverlay(props: InfoProps) {
+  const { kind, save, outcome, send, onClose } = props;
   if (kind === 'zukan') {
     return (
       <Overlay title={t('zukan_title')} onClose={onClose}>
@@ -250,8 +259,12 @@ function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1;
         <ShopView
           pantry={save.kitchen.pantry}
           coins={save.progress.coins}
+          ownedDecor={save.home.ownedDecor}
           onSell={(food, amount) => void send({ type: 'sell', food, amount })}
+          onBuy={(decor) => void send({ type: 'buyDecor', decor })}
         />
+        <OutcomeToast outcome={outcome?.action === 'buy' ? outcome : null} />
+        <BoughtNote outcome={outcome} />
       </Overlay>
     );
   }
@@ -361,7 +374,7 @@ export function App() {
   } else if (panel === 'decorate') {
     layer = <DecorateOverlay save={save} outcome={lastOutcome} send={send} onClose={close} />;
   } else if (panel === 'zukan' || panel === 'shop' || panel === 'settings') {
-    layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
+    layer = <InfoOverlay kind={panel} save={save} outcome={lastOutcome} send={send} onClose={close} />;
   } else {
     layer = (
       <MainScreen

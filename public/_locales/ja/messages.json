@@ -974,5 +974,123 @@
   },
   "room_unlock_first": {
     "message": "はじめての おわかれで"
+  },
+  "shop_tab_decor": {
+    "message": "かぐ"
+  },
+  "shop_tab_sell": {
+    "message": "うる"
+  },
+  "shop_buy": {
+    "message": "かう"
+  },
+  "shop_buy_aria": {
+    "message": "$P1$を かう",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_owned": {
+    "message": "もっている"
+  },
+  "shop_buy_confirm": {
+    "message": "$P1$を $P2$コインで かう？",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "shop_bought": {
+    "message": "もようがえで おけるよ"
+  },
+  "decor_candle": {
+    "message": "ろうそく"
+  },
+  "decor_lamp": {
+    "message": "ランプ"
+  },
+  "decor_fishbowl": {
+    "message": "すいそう"
+  },
+  "decor_vase": {
+    "message": "はなびん"
+  },
+  "decor_plant": {
+    "message": "うえきばち"
+  },
+  "decor_cactus": {
+    "message": "サボテン"
+  },
+  "decor_bonsai": {
+    "message": "ぼんさい"
+  },
+  "decor_bunting": {
+    "message": "ガーランド"
+  },
+  "decor_telescope": {
+    "message": "ぼうえんきょう"
+  },
+  "decor_clock": {
+    "message": "かけどけい"
+  },
+  "decor_musicbox": {
+    "message": "オルゴール"
+  },
+  "decor_toypiano": {
+    "message": "トイピアノ"
+  },
+  "decor_lantern": {
+    "message": "ちょうちん"
+  },
+  "decor_petbed": {
+    "message": "ペットベッド"
+  },
+  "decor_trophy": {
+    "message": "トロフィー"
+  },
+  "decor_globe": {
+    "message": "ちきゅうぎ"
+  },
+  "decor_xmastree": {
+    "message": "ツリー"
+  },
+  "decor_armchair": {
+    "message": "ひじかけいす"
+  },
+  "decor_cushion": {
+    "message": "クッション"
+  },
+  "decor_table": {
+    "message": "テーブル"
+  },
+  "decor_stool": {
+    "message": "スツール"
+  },
+  "decor_rug": {
+    "message": "ラグ"
+  },
+  "decor_ball": {
+    "message": "ボール"
+  },
+  "decor_blocks": {
+    "message": "つみき"
+  },
+  "decor_drum": {
+    "message": "たいこ"
+  },
+  "decor_shelf": {
+    "message": "ほんだな"
+  },
+  "decor_picture": {
+    "message": "え"
+  },
+  "decor_chest": {
+    "message": "たからばこ"
   }
 }
