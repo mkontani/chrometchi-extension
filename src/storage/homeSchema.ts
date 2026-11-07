@@ -7,8 +7,9 @@ const isRoomId = (v: unknown): v is RoomId => typeof v === 'string' && ROOM_ID_S
 
 /** Never fails: anything that is not a known room id becomes home, so loading can never reset the save. */
 export function parseHome(raw: unknown): Home {
-  const room = typeof raw === 'object' && raw !== null ? (raw as { room?: unknown }).room : undefined;
-  return { room: isRoomId(room) ? room : 'home' };
+  const fields = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+  // Other fields pass through so a save never loses what a newer stage stored next to `room`.
+  return { ...fields, room: isRoomId(fields.room) ? fields.room : 'home' };
 }
 
 /** preprocess (not transform) so a save with no `home` key still reaches the parser. */
