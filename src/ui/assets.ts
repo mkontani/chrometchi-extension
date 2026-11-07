@@ -3,7 +3,7 @@ import { FOODS } from '@/data/foods';
 import { GAMES } from '@/data/games';
 import { ROOM_IDS } from '@/data/rooms';
 import type { OutingArtId } from '@/outings/types';
-import type { DecorId, FoodId, FormId, GameId, Pose, RoomId } from '@/core/types';
+import type { AccessoryId, DecorId, FoodId, FormId, GameId, Pose, RoomId } from '@/core/types';
 
 const FILES = import.meta.glob('/src/assets/**/*.png', {
   eager: true,
@@ -75,6 +75,8 @@ export const backgroundUrl = (id: BackgroundId): string | null => lookup(`ui/bg/
 export const gameArtUrl = (id: GameArtId): string | null => lookup(`ui/game/${id}`);
 /** A furniture item (`src/assets/ui/decor/<id>.png`, 24 or 32 px as `decorDef(id).size` says). */
 export const decorUrl = (id: DecorId): string | null => lookup(`ui/decor/${id}`);
+/** An accessory (`src/assets/ui/acc/<id>.png`, 16, 20 or 24 px as `accessoryDef(id).size` says). */
+export const accUrl = (id: AccessoryId): string | null => lookup(`ui/acc/${id}`);
 
 /** A food picture with `bites` taken out of it: 0 is the whole food (its menu icon). */
 export const foodUrl = (food: FoodId, bites: 0 | 1 | 2): string | null =>

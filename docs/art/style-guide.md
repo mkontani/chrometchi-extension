@@ -239,6 +239,52 @@ The tuning also follows these:
 | forest | – | – | (48, 156, 64×76) | (240, 156, 64×76) | The roots reach row 49 at room x 0–14 and row 48 at x 73–86. The floor items move in beside the pet, onto open grass. Full-width items touch the root tips by 1–3 px. |
 | snowfield | – | – | start | start | Open snow. |
 
+## Accessories
+
+The 25 items are in `src/assets/ui/acc/<id>.png`. They are on the palette, with a transparent background. The owner reviews them at Gate P, together with the forms' points.
+
+- **Sizes** (as `ACCESSORIES` says):
+  - 20x20: strawhat, wizardhat, headphones and scarf;
+  - 24x24: flowercrown;
+  - 16x16: the other 20.
+- **Source:** the 2026-11-06 art batch, already snapped to the palette. `npx tsx scripts/art/check.ts --palette --size <N>x<N>` passes for each size group.
+- **No faces.** All 25 were checked at 4x. The tiara's centre is a heart gem, not a face.
+- **Scale:** 4x, the pet's pixel size, so an item's pixels match the pet's.
+
+### The two redraws
+
+Two items from the batch did not read at 16 px. The heart glasses did not look like hearts, and the necklace was a plain ring.
+
+- **Settings:** `edit_image_pixen` on the old 16x16 art, seeds 1 to 3. All six were snapped in one `reduce_colors(palette_image=docs/art/palette.png)` call, then checked with `check.ts --palette --size 16x16`.
+- **`heartglasses`:**
+  - Prompt: `a pair of pink heart-shaped sunglasses, the two lenses clearly heart shaped, cute pixel icon, thick black outline, item only, front view, no face`.
+  - Pick: seed 3. Its two pink lenses have a notched top and a pointed bottom, joined by a red bridge.
+  - The other seeds: seed 1 was nearly the old art, with flat-bottomed lenses. Seed 2 had heart shapes, but they were red, with purple pixels left in one lens.
+  - Hand fix: the `#c7405d` shade pixels are made the same on both hearts: the tip, plus the pixel above it and to the right. The outline was already closed.
+- **`necklace`:**
+  - Prompt: `a small pearl necklace with a pink heart pendant hanging at the bottom, cute pixel icon, thick black outline, item only, front view, no face`.
+  - Pick: seed 1, the cleanest pearl chain. Each seed added a pendant, but none was heart-shaped:
+    - seed 1: a rounded drop;
+    - seed 2: a mottled gem;
+    - seed 3: a soft drop, on a chain with several open outline pixels.
+  - Hand fix: rows 10–15 are repainted as an 8-px heart, hung from the chain's black bottom line:
+    - `#f58fb0` body;
+    - one `#ffffff` highlight on the left lobe;
+    - `#c7405d` shade down the lower right.
+  - Hand fix: one chain pixel on the right at row 8 had no outline. It is moved in by 1 px and outlined in `#000000`, mirroring the left side.
+
+### Anchors
+
+Each item's `anchor` in `ACCESSORIES` (`src/data/accessories.ts`) is the point of its art that lands on the form's point for its place.
+
+- **Measuring:** take the box around the item's opaque pixels, in pixel-edge coordinates, so that a full 16 px item spans 0–16. Then:
+  - head items: the bottom-centre of the box;
+  - face items: the centre;
+  - neck items: the top-centre.
+- **Whole pixels:** a half pixel rounds up (flowerpin x 7.5 → 8, bell x 7.5 → 8, heartglasses y 8.5 → 9). This keeps the item on the pet's 4x pixel grid.
+- **Where they are written:** the values are literals in the table. `src/data/data.test.ts` checks that each anchor is a whole pixel inside its item's opaque box.
+- **On the stage:** `stage x = 112 + 4·ax − 4·ox` and `stage y = 100 + 4·ay − 4·oy`, where `(ax, ay)` is the item's anchor and `(ox, oy)` the form's point.
+
 ## Eggs
 
 - **Eggs never have a face** (no eyes, mouth or cheeks). This is owner feedback from Gate A.

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
+import { type PngData, readPng } from '../../scripts/art/lib';
 import type { RefuseReason, Stage } from '@/core/types';
 import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
 import { POT_ITEMS, RECIPES } from './recipes';
@@ -413,4 +414,27 @@ describe('accessory data', () => {
       'necklace neck 150 16',
     ]);
   });
+
+  test('every accessory anchor lies inside its art', () => {
+    for (const a of ACCESSORIES) {
+      const png = readPng(resolve(__dirname, `../assets/ui/acc/${a.id}.png`));
+      expect(png, a.id).not.toBeNull();
+      if (!png) continue;
+      const box = opaqueBox(png);
+      // Whole art pixels keep the item on the pet's 4x pixel grid.
+      expect(Number.isInteger(a.anchor.x) && Number.isInteger(a.anchor.y), a.id).toBe(true);
+      expect(a.anchor.x, a.id).toBeGreaterThanOrEqual(box.left);
+      expect(a.anchor.x, a.id).toBeLessThanOrEqual(box.right);
+      expect(a.anchor.y, a.id).toBeGreaterThanOrEqual(box.top);
+      expect(a.anchor.y, a.id).toBeLessThanOrEqual(box.bottom);
+    }
+  });
 });
+
+/** The box around a picture's opaque pixels, in pixel-edge coordinates (right and bottom are exclusive). */
+function opaqueBox(png: PngData): { left: number; top: number; right: number; bottom: number } {
+  const opaque = Array.from({ length: png.width * png.height }, (_, i) => i).filter((i) => png.data[i * 4 + 3] !== 0);
+  const xs = opaque.map((i) => i % png.width);
+  const ys = opaque.map((i) => Math.floor(i / png.width));
+  return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs) + 1, bottom: Math.max(...ys) + 1 };
+}
