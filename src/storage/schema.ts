@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import type { DishId, GameState, Kitchen, Pantry, PetState, Progress, Settings, Zukan } from '@/core/types';
+import type { DishId, GameState, Kitchen, Home, Pantry, PetState, Progress, Settings, Zukan } from '@/core/types';
 import { DEFAULT_SETTINGS, MAX_HIDDEN_SITES, PANTRY_MAX } from '@/core/constants';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
 import { DISH_IDS, FOOD_IDS } from '@/data/foods';
 import { OUTING_KINDS } from '@/data/outings';
+import { homeSchema } from './homeSchema';
 import { progressSchema } from './progressSchema';
 
 /** The single list of notification kinds; the type and the save schema both derive from it. */
@@ -34,6 +35,7 @@ export interface SaveV1 {
   zukan: Zukan;
   kitchen: Kitchen;
   progress: Progress;
+  home: Home;
   settings: Settings;
   meta: SaveMeta;
 }
@@ -209,6 +211,7 @@ export const saveSchema: z.ZodType<SaveV1> = z.object({
   zukan: zukanSchema,
   kitchen: z.preprocess(withEmptyKitchen, kitchenSchema),
   progress: progressSchema,
+  home: homeSchema,
   settings: z.preprocess(withDefaultSettings, settingsSchema),
   meta: metaSchema,
 });

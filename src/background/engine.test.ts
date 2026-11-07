@@ -487,6 +487,35 @@ describe('engine', () => {
       expect(stored().progress.coins).toBe(6);
     });
 
+    test('setRoom moves to an owned room and saves it', async () => {
+      const { engine, stored, area } = setup();
+      seed(area, stored, { progress: { ...stored().progress, claimed: ['zukan:10'] } });
+      const res = await engine.handle({ type: 'setRoom', room: 'beach' });
+      expect(res).toMatchObject({ ok: true, outcome: { action: 'setRoom', result: 'ok' } });
+      expect(stored().home).toEqual({ room: 'beach' });
+    });
+
+    test('setRoom keeps the other home fields', async () => {
+      const { engine, stored, area } = setup();
+      const home = { room: 'home', decor: ['lamp'] } as unknown as ReturnType<typeof stored>['home'];
+      seed(area, stored, { home, progress: { ...stored().progress, claimed: ['zukan:10'] } });
+      await engine.handle({ type: 'setRoom', room: 'beach' });
+      expect(stored().home).toEqual({ room: 'beach', decor: ['lamp'] });
+    });
+
+    test('setRoom refuses a locked room and a sleeping pet', async () => {
+      const { engine, stored } = setup();
+      const locked = await engine.handle({ type: 'setRoom', room: 'beach' });
+      expect(locked).toMatchObject({ outcome: { action: 'setRoom', result: 'refused', reason: 'locked' } });
+      expect(stored().home).toEqual({ room: 'home' });
+
+      const asleep = setup({ pet: makePet({ asleep: true }) });
+      seed(asleep.area, asleep.stored, { progress: { ...asleep.stored().progress, claimed: ['zukan:10'] } });
+      const res = await asleep.engine.handle({ type: 'setRoom', room: 'beach' });
+      expect(res).toMatchObject({ outcome: { result: 'refused', reason: 'asleep' } });
+      expect(asleep.stored().home).toEqual({ room: 'home' });
+    });
+
     test('seenRewards clears the dot even when the same operation pays a reward', async () => {
       const { engine, stored, area } = setup();
       const discovered = Array.from({ length: 10 }, (_, i) => `f${i}`);

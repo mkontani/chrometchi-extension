@@ -382,3 +382,58 @@ test('an old save without progress gets its zukan coins', async ({ context, exte
   await expect(statusCoins(page)).toHaveText('50');
   await expect(zukanDot(page)).toHaveCount(1);
 });
+
+const decorateButton = (page: Page, msg: (key: string) => string) =>
+  page.getByRole('button', { name: msg('action_decorate'), exact: true });
+const roomButton = (page: Page, msg: (key: string) => string, room: string) =>
+  page.locator('.rooms__btn').filter({ has: page.locator('.rooms__name', { hasText: msg(`room_${room}`) }) });
+const stageImage = async (stage: ReturnType<Page['locator']>) =>
+  stage.evaluate((el) => (el as HTMLElement).style.backgroundImage);
+
+test('switching to an owned room changes the stage', async ({ context, extensionId, msg }) => {
+  const save = withProgress(seed({}), { claimed: ['zukan:10'] });
+  const page = await seedAndOpen(context, extensionId, save);
+
+  await decorateButton(page, msg).click();
+  // Backgrounds are inlined as data URIs, so the beach_day picture is told apart by its bytes: the
+  // picker's thumbnail for the beach is that same picture.
+  const beach = `url("${await roomButton(page, msg, 'beach').locator('img').getAttribute('src')}")`;
+  expect(await stageImage(page.locator('.stage'))).not.toBe(beach);
+  await roomButton(page, msg, 'beach').click();
+  await expect.poll(() => stageImage(page.locator('.decorate .stage'))).toBe(beach);
+  await expect(roomButton(page, msg, 'beach')).toHaveAttribute('aria-pressed', 'true');
+
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+  await expect.poll(() => stageImage(page.locator('.stage'))).toBe(beach);
+  expect((await readSave(context)).home.room).toBe('beach');
+});
+
+test('an old save owns the rooms its rewards unlocked', async ({ context, extensionId, msg }) => {
+  const base = seed({});
+  const old: Partial<SaveV1> = { ...base };
+  delete old.progress; // from before coins and rooms existed
+  delete old.home;
+  const discovered = Array.from({ length: 23 }, (_, i) => `form_${i}`);
+  const save = {
+    ...old,
+    zukan: {
+      ...base.zukan,
+      discovered,
+      memories: [
+        { generation: 1, finalForm: 'adult_dragon', path: ['egg'], awakeMinutes: 60, ending: 'departed', endedAt: 1 },
+      ],
+    },
+  } as unknown as SaveV1;
+  const page = await seedAndOpen(context, extensionId, save);
+
+  await decorateButton(page, msg).click();
+  for (const room of ['home', 'garden', 'beach', 'forest']) {
+    await expect(roomButton(page, msg, room)).toBeEnabled();
+  }
+  await expect(roomButton(page, msg, 'sweets')).toHaveAttribute('aria-disabled', 'true');
+});
+
+test('the decorate button is disabled while the pet sleeps', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, seed({ asleep: true }));
+  await expect(decorateButton(page, msg)).toBeDisabled();
+});

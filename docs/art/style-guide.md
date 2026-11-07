@@ -135,6 +135,53 @@ Two 16x16 icons (`src/assets/ui/icons/coin.png` and `src/assets/ui/icons/shop.pn
   - Seed 2's dark opening with gray teeth read as a mouth. Seed 3 was small and cluttered.
   - Hand fix: the snap turned the awning's hot pink into `#ef8080` salmon. That one color is mapped to `#f58fb0` pink, so the awning stays pink and white as the prompt asks. Nothing else changed.
 
+## Rooms
+
+The 11 rooms (`src/assets/ui/bg/<room>_{day,night}.png`, 88x68, opaque, drawn at 4x on the 352x272 stage). Each is an empty version of the picture it replaces. The walls, floor, windows and the room's identity stay, and the free-standing furniture and clutter are gone, so stage 3's furniture has space. The sources were the old `room_day` (for `home`) and the 2026-11-06 room pictures (for the other 10).
+
+- **Slot areas kept plain** (room px; stage 3 may still move them): wall L (6,6,14x14), wall R (68,6,14x14), ceiling (28,0,32x10), floor L (3,39,18x19), floor R (67,39,18x19), rug (32,51,24x12). Outside rooms (garden, beach, forest, snowfield) keep only the floor and rug areas plain.
+- **Day:** `edit_image_pixen` on the source day picture at 88x68, seeds 1 to 3.
+  - Inside: `the same room with all the furniture and clutter taken out, keep the walls, the floor, the windows and the <identity words>, plain empty wall areas on the upper left and upper right, plain empty floor on the lower left and lower right, simple, flat colors, no characters`
+  - Outside: `the same place with the clutter taken out, keep the sky and the <identity words>, trees or scenery only at the far edges, plain open ground on the lower left, lower right and in the middle, simple, flat colors, no characters`
+- **Night:** `edit_image_pixen` on the chosen day picture, seed 1. All 11 seed-1 nights were kept.
+  - Inside: `the same room at night, lights off, dark blue tones, soft moonlight through the window, keep the same layout`
+  - Outside: `the same scene at night, dark blue sky with stars and a moon, dark blue tones, keep the same layout`
+  - Brighten a night before the snap when most of it would snap to `#0f0b26`. Each channel becomes `c*mul+add`: cabin x1.4+6 (78% to 29% near-black), washitsu x1.3+5 (62% to 41%).
+- **Snap:** each day/night pair goes through one `reduce_colors(palette_image=docs/art/palette.png)` call together. Check with `npx tsx scripts/art/check.ts --palette --opaque --size 88x68 src/assets/ui/bg/*.png`. Rooms are opaque, so they need `--opaque`.
+- **No characters or faces.** Watch windows and pictures: all 3 sweets seeds kept a crowned figure with eyes in the window.
+- **Picks:**
+
+| room | identity words | pick | notes |
+|---|---|---|---|
+| home | pink walls, wooden floor and round window | s1 | s2 lost the curtains; s3 kept the ceiling lamp |
+| garden | white picket fence and blue sky | s2 | s1 turned the lawn to dirt; s3 kept bushes in the floor corners |
+| beach | sea and sky | s1 | the palm trunk stays in floor R (it is the beach) |
+| forest | soft green trees and grass | s1 | s2 and s3 became an open meadow; the roots reach the top of floor L and R |
+| sweets | pastel walls and checkered floor | s3 | the shelves are gone; s2 had bunting in the ceiling slot. Hand fix: the window's crown and eyes are repainted as the curtain stripes and a snowy peak |
+| snowfield | see notes | r3 | all 3 seeds with `snowy hills and sky` turned the snow into sand. Retry (seeds 1 to 3) with the outside prompt changed to `keep the sky and the white snow covered ground, snowy pine trees and snowy hills, …, plain open white snow on the lower left, …`; r3 has pines at the edges |
+| castle | stone walls, arched window and red carpet | s1 | s2 and s3 lost the red carpet. Hand fix: the snap turned the carpet brown, so its pixels are set to `#c7405d`, the old castle's carpet color |
+| washitsu | shoji doors and tatami floor | s1 | s2 lost the shoji and tatami. Hand fix: the hanging lantern in the ceiling slot is painted out with each row's main ceiling color |
+| space | round porthole with stars and lavender metal walls | s1 | Hand fix: the ceiling light panel is painted out in the ceiling gray, and the two panel edge lines are redrawn |
+| cabin | log walls and snowy window | s3 | the fireplace is gone; s1 left an empty frame and a rug outline |
+| library | wooden walls and a window | s1 | the bookshelves are gone; an empty board frame stays on the back wall |
+
+### Slot exceptions for stage 3
+
+Stage 3 must place its slots around these:
+
+- The beach palm trunk is in floor R.
+- The forest roots reach floor L and floor R.
+- The library window reaches wall R.
+- Because of the perspective, the floor slots in castle, washitsu, space and home partly sit on wall or door pixels.
+
+### The もようがえ icon
+
+`src/assets/ui/icons/decorate.png`, 16x16, an action button shown at 32px like the shop.
+
+- **Settings:** the same as the coin and shop icons. Prompt: `a small cozy pink armchair, cute pixel icon, thick black outline, simple, front view, no face`.
+- **Pick:** seed 1. Seed 2 had two dark dots on the backrest that read as eyes, and the marks on seed 3's backrest read as a mouth.
+- **Hand fix:** the snap turned the pink into `#ef8080` salmon, which is mapped to `#f58fb0` pink, as for the shop. The two `#c7405d` tuft dots at the top of the backrest are repainted pink so they cannot read as eyes. The outline was already a closed `#000000` line.
+
 ## Eggs
 
 - **Eggs never have a face** (no eyes, mouth or cheeks). This is owner feedback from Gate A.

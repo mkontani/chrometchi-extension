@@ -1,8 +1,9 @@
 import { eggPattern } from '@/data/eggs';
 import { FOODS } from '@/data/foods';
 import { GAMES } from '@/data/games';
+import { ROOM_IDS } from '@/data/rooms';
 import type { OutingArtId } from '@/outings/types';
-import type { FoodId, FormId, GameId, Pose } from '@/core/types';
+import type { FoodId, FormId, GameId, Pose, RoomId } from '@/core/types';
 
 const FILES = import.meta.glob('/src/assets/**/*.png', {
   eager: true,
@@ -12,7 +13,7 @@ const FILES = import.meta.glob('/src/assets/**/*.png', {
 
 export type IconId =
   | 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'settings'
-  | 'shop' | 'coin'
+  | 'shop' | 'coin' | 'decorate'
   | 'heart_full' | 'heart_half' | 'heart_empty' | 'back'
   | `food_${FoodId}`
   | `game_${GameId}`;
@@ -20,12 +21,13 @@ export type EffectId =
   | 'poop' | 'zzz' | 'sweat' | 'sparkle' | 'note' | 'skull' | 'pill'
   | 'crumb' | 'dust0' | 'dust1' | 'dust2' | 'star';
 export type CookArtId = 'pot';
-export type BackgroundId = 'room_day' | 'room_night';
+/** Each room has a day picture and a night one (shown while the pet sleeps). */
+export type BackgroundId = `${RoomId}_day` | `${RoomId}_night`;
 export type GameArtId = 'rock' | 'cup' | 'treat';
 
 export const ICON_IDS: readonly IconId[] = [
   'feed', 'play', 'outing', 'clean', 'medicine', 'lights', 'zukan', 'settings',
-  'shop', 'coin',
+  'shop', 'coin', 'decorate',
   'heart_full', 'heart_half', 'heart_empty', 'back',
   ...FOODS.map((f) => `food_${f.id}` as const),
   ...GAMES.map((g) => `game_${g}` as const),
@@ -47,7 +49,8 @@ export const OUTING_ART_SIZE: Readonly<Record<OutingArtId, number>> = {
 };
 /** Art for the cooking effect (`src/assets/ui/cook/<id>.png`, 32×32). */
 export const COOK_ART_IDS: readonly CookArtId[] = ['pot'];
-export const BACKGROUND_IDS: readonly BackgroundId[] = ['room_day', 'room_night'];
+/** `src/assets/ui/bg/<room>_{day,night}.png`, in `ROOM_IDS` order, day then night. */
+export const BACKGROUND_IDS: readonly BackgroundId[] = ROOM_IDS.flatMap((r) => [`${r}_day` as const, `${r}_night` as const]);
 export const GAME_ART_IDS: readonly GameArtId[] = ['rock', 'cup', 'treat'];
 
 /** The bundled URL of `src/assets/<path>.png`, or null when there is no such file. */

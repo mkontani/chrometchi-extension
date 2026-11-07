@@ -326,6 +326,9 @@
   "refuse_outingLimit": {
     "message": "That's enough for today."
   },
+  "refuse_locked": {
+    "message": "Not unlocked yet"
+  },
   "refuse_farmNotReady": {
     "message": "Not now."
   },
@@ -897,5 +900,64 @@
         "content": "$2"
       }
     }
+  },
+  "reward_first": {
+    "message": "Your first farewell"
+  },
+  "reward_room": {
+    "message": "Got the $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "action_decorate": {
+    "message": "Decorate"
+  },
+  "decorate_title": {
+    "message": "Decorate"
+  },
+  "room_home": {
+    "message": "Home"
+  },
+  "room_garden": {
+    "message": "Flower garden"
+  },
+  "room_beach": {
+    "message": "Beach"
+  },
+  "room_forest": {
+    "message": "Forest"
+  },
+  "room_sweets": {
+    "message": "Sweets shop"
+  },
+  "room_snowfield": {
+    "message": "Snowfield"
+  },
+  "room_castle": {
+    "message": "Castle"
+  },
+  "room_washitsu": {
+    "message": "Tatami room"
+  },
+  "room_space": {
+    "message": "Spaceship"
+  },
+  "room_cabin": {
+    "message": "Log cabin"
+  },
+  "room_library": {
+    "message": "Library"
+  },
+  "room_list": {
+    "message": "Rooms"
+  },
+  "room_locked": {
+    "message": "Locked"
+  },
+  "room_unlock_first": {
+    "message": "After your first farewell"
   }
 }

@@ -19,6 +19,7 @@ const save: SaveV1 = {
   zukan: createZukan(),
   kitchen: EMPTY_KITCHEN,
   progress: EMPTY_PROGRESS,
+  home: { room: 'home' },
   settings: { ...DEFAULT_SETTINGS },
   meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
 };

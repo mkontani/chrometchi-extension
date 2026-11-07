@@ -14,12 +14,13 @@ vi.mock('@/ui/assets', () => ({
   spriteUrl: (_f: string, pose: string) => `sprite-${pose}.png`,
   effectUrl: () => null,
   cookUrl: () => 'pot.png',
-  backgroundUrl: () => null,
+  backgroundUrl: (id: string) => backgroundUrl(id),
   iconUrl: () => null,
   assetUrl: () => null,
   gameArtUrl: () => null,
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
 }));
+const backgroundUrl = vi.hoisted(() => vi.fn<(id: string) => string | null>(() => null));
 const useGame = vi.fn<() => UseGame>();
 vi.mock('@/ui/useGame', () => ({ useGame: () => useGame() }));
 const requestRoamAccess = vi.fn<() => Promise<boolean>>();
@@ -32,6 +33,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
     kitchen: EMPTY_KITCHEN,
     progress: EMPTY_PROGRESS,
+    home: { room: 'home' },
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -55,6 +57,14 @@ test('shows only the localized generic error; the raw detail goes to the console
   expect(screen.queryByText('boom')).toBeNull();
   expect(warn).toHaveBeenCalledWith(expect.any(String), 'boom');
   warn.mockRestore();
+});
+
+test('a current room that is not owned shows home', () => {
+  backgroundUrl.mockClear();
+  useGame.mockReturnValue({ save: fullSave({}, { home: { room: 'castle' } }), outcome: null, error: null, send: vi.fn() });
+  render(<App />);
+  expect(backgroundUrl).toHaveBeenCalledWith('home_day');
+  expect(backgroundUrl).not.toHaveBeenCalledWith('castle_day');
 });
 
 test('clicking clean sends the care request', () => {
@@ -758,4 +768,41 @@ test('the missions tab shows a dot while there are new rewards', () => {
   const missions = screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' });
   expect(missions.querySelector('.panel__tab-dot')).not.toBeNull();
   expect(screen.getByRole('tab', { name: 'zukan_tab_pets' }).querySelector('.panel__tab-dot')).toBeNull();
+});
+
+test('the decorate button opens the room list and choosing a room sends setRoom', () => {
+  const claimed = ['zukan:10' as const];
+  const { send } = setup(null, {}, { progress: { ...EMPTY_PROGRESS, claimed } });
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByText('decorate_title')).toBeTruthy();
+  expect(document.querySelector('.stage')).not.toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'room_beach' }));
+  expect(send).toHaveBeenCalledWith({ type: 'setRoom', room: 'beach' });
+  expect(screen.getByRole('button', { name: /room_castle/ }).getAttribute('aria-disabled')).toBe('true');
+});
+
+test('the decorate overlay closes when the pet falls asleep', () => {
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByText('decorate_title')).toBeTruthy();
+  useGame.mockReturnValue({ save: fullSave({ asleep: true }), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.queryByText('decorate_title')).toBeNull();
+  expect(screen.getByLabelText('action_decorate')).toBeTruthy();
+});
+
+test('a refused room switch shows its reason inside the decorate overlay and not on the home screen afterwards', () => {
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  const refused: CareOutcome = { action: 'setRoom', result: 'refused', reason: 'locked' };
+  useGame.mockReturnValue({ save, outcome: refused, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.getByText('refuse_locked')).toBeTruthy();
+  fireEvent.click(screen.getByLabelText('close'));
+  expect(screen.queryByText('decorate_title')).toBeNull();
+  expect(screen.queryByText('refuse_locked')).toBeNull();
 });

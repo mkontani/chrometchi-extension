@@ -57,7 +57,20 @@ describe('bookkeepProgress', () => {
     };
     const first = bookkeepProgress(withMemories, { events: [], now: NOW });
     expect(first.progress.coins).toBe(100);
-    expect(first.progress.recent.every((r) => !r.reason.startsWith('ending:'))).toBe(true);
+    expect(first.progress.claimed).toContain('ending:first');
+    expect(bookkeepProgress(first, { events: [], now: NOW + 1 })).toBe(first);
+  });
+
+  test('an old save with memories is given ending:first on its first tick', () => {
+    const fresh = saveWith(EMPTY_PROGRESS);
+    const save: SaveV1 = {
+      ...fresh,
+      zukan: { ...fresh.zukan, memories: [{ ending: 'dead' }] as never },
+    };
+    const first = bookkeepProgress(save, { events: [], now: NOW });
+    expect(first.progress.claimed).toEqual(['ending:first']);
+    expect(first.progress.coins).toBe(0);
+    expect(first.progress.unseen).toBe(true);
     expect(bookkeepProgress(first, { events: [], now: NOW + 1 })).toBe(first);
   });
 

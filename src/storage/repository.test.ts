@@ -135,6 +135,10 @@ test('a fresh save has an empty kitchen', () => {
   expect(createFreshSave(NOW).kitchen).toEqual(EMPTY_KITCHEN);
 });
 
+test('a fresh save starts in the home room', () => {
+  expect(createFreshSave(NOW).home).toEqual({ room: 'home' });
+});
+
 test('a fresh save starts with empty progress', () => {
   expect(createFreshSave(NOW).progress).toEqual(EMPTY_PROGRESS);
 });

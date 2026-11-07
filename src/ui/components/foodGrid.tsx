@@ -7,7 +7,7 @@ export const countLabel = (n: number) =>
   n === Infinity ? "∞" : `×${Math.max(0, n)}`;
 
 /** The ▼ cue that scrolls a food grid down by one row. */
-export function MoreCue({ listRef }: { listRef: RefObject<HTMLDivElement> }) {
+export function MoreCue({ listRef }: { listRef: RefObject<HTMLElement> }) {
   return (
     <button
       type="button"

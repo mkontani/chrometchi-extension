@@ -49,18 +49,27 @@ test('clicking calls onSelect with the kind', () => {
 
 afterEach(cleanup);
 
-test('the action bar has 5 columns with an empty slot for the stage-2 button', () => {
+test('the action bar has 5 columns and the decorate button takes the fifth slot', () => {
   const { container } = render(<ActionBar pet={makePet()} badge={false} onSelect={() => {}} />);
   const labels = screen.getAllByRole('button').map((b) => b.getAttribute('aria-label'));
   expect(labels).toEqual([
-    'action_feed', 'action_play', 'action_outing', 'action_clean',
+    'action_feed', 'action_play', 'action_outing', 'action_clean', 'action_decorate',
     'action_medicine', 'action_lights', 'action_zukan', 'action_shop', 'action_settings',
   ]);
   const nav = container.querySelector('.action-bar') as HTMLElement;
   expect(nav.children).toHaveLength(10);
-  const spacer = nav.children[4] as HTMLElement;
-  expect(spacer.tagName).not.toBe('BUTTON');
-  expect(spacer.getAttribute('aria-hidden')).toBe('true');
+  expect(nav.children[4]?.getAttribute('aria-label')).toBe('action_decorate');
+});
+
+test('the decorate button is disabled while asleep or an egg', () => {
+  render(<ActionBar pet={makePet()} badge={false} onSelect={() => {}} />);
+  expect(isDisabled('action_decorate')).toBe(false);
+  cleanup();
+  render(<ActionBar pet={makePet({ asleep: true })} badge={false} onSelect={() => {}} />);
+  expect(isDisabled('action_decorate')).toBe(true);
+  cleanup();
+  render(<ActionBar pet={makePet({ stage: 'egg' })} badge={false} onSelect={() => {}} />);
+  expect(isDisabled('action_decorate')).toBe(true);
 });
 
 test('the shop button is never disabled', () => {
