@@ -280,6 +280,18 @@ test('placed items are dimmed while the pet sleeps', () => {
   expect(night.container.querySelectorAll('img.decor.decor--night')).toHaveLength(2);
 });
 
+test('the lights-off darkness covers placed items', () => {
+  const pet = makePet({ asleep: true, lightsOn: false });
+  const { container } = render(
+    <PetStage generation={1} room="home" pet={pet} reaction={null} decor={PLACED} effect={withFrame({ dim: 1 })} />,
+  );
+  const all = [...container.querySelectorAll('*')];
+  const dim = container.querySelector('.stage__dim') as Element;
+  const lastItem = Math.max(...[...container.querySelectorAll('img.decor')].map((el) => all.indexOf(el)));
+  expect(container.querySelectorAll('img.decor')).toHaveLength(2);
+  expect(all.indexOf(dim)).toBeGreaterThan(lastItem);
+});
+
 test('no items are drawn by default', () => {
   const { container } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} />);
   expect(container.querySelectorAll('img.decor')).toHaveLength(0);
