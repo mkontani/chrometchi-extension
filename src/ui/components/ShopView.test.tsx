@@ -226,3 +226,14 @@ test('the note line is there before anything is bought', () => {
   const note = screen.getByRole('status');
   expect(note.textContent).toBe('');
 });
+
+test('a refused buy right after a good one leaves no bought note', async () => {
+  vi.useFakeTimers();
+  const onBuy = vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+  view({ coins: 500, onBuy });
+  await buyCandle();
+  expect(screen.getByText(HINT)).toBeTruthy();
+  await buyCandle();
+  expect(screen.queryByText(HINT)).toBeNull();
+  expect(screen.getByRole('status').textContent).toBe('');
+});

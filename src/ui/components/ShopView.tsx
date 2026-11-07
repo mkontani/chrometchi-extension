@@ -68,12 +68,14 @@ function Row({ food, stock, onSell }: RowProps) {
 /** The shop: furniture and accessories to buy, and the ingredients to sell. A refused sell changes nothing. */
 export function ShopView({ pantry, coins, ownedDecor, ownedAcc, onSell, onBuy, onBuyAcc }: Props) {
   const [tab, setTab] = useState<Tab>('decor');
-  const [bought, flashBought] = useBoughtNote();
+  const [bought, flashBought, clearBought] = useBoughtNote();
   const buy = async (decor: DecorId) => {
     if (await onBuy(decor)) flashBought('shop_bought');
+    else clearBought();
   };
   const buyAcc = async (acc: AccessoryId) => {
     if (await onBuyAcc(acc)) flashBought('shop_bought_acc');
+    else clearBought();
   };
   const tabs: readonly TabDef<Tab>[] = [
     { id: 'decor', label: t('shop_tab_decor') },
