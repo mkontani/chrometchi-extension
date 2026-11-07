@@ -247,7 +247,7 @@ The 25 items are in `src/assets/ui/acc/<id>.png`. They are on the palette, with 
   - 20x20: strawhat, wizardhat, headphones and scarf;
   - 24x24: flowercrown;
   - 16x16: the other 20.
-- **Source:** the 2026-11-06 art batch, already snapped to the palette. `npx tsx scripts/art/check.ts --palette --size <N>x<N>` passes for each size group.
+- **Source:** the 2026-11-06 art batch, already snapped to the palette. Five items were redrawn: the heart glasses and the necklace in Task 3, then the scarf, necklace and flower crown again at Gate P (below). `npx tsx scripts/art/check.ts --palette --size <N>x<N>` passes for each size group.
 - **No faces.** All 25 were checked at 4x. The tiara's centre is a heart gem, not a face.
 - **Scale:** 4x, the pet's pixel size, so an item's pixels match the pet's.
 
@@ -272,6 +272,41 @@ Two items from the batch did not read at 16 px. The heart glasses did not look l
     - one `#ffffff` highlight on the left lobe;
     - `#c7405d` shade down the lower right.
   - Hand fix: one chain pixel on the right at row 8 had no outline. It is moved in by 1 px and outlined in `#000000`, mirroring the left side.
+  - This necklace was replaced at Gate P (below).
+
+### The Gate P redraws (shorter)
+
+At Gate P (2026-11-07) the owner approved the other 22 items and asked for three of them to be shorter:
+- the scarf (16 px) and the necklace (15 px) hung their loops down the body and past the feet;
+- the flower crown was a ring that stood above the head.
+
+Each item is now 8 px tall. The replaced art is kept in `.superpowers/sdd/2026-11-07-dressup/art/` as `scarf_old.png`, `necklace_old2.png` and `flowercrown_old.png`.
+
+- **Settings:**
+  - `create_image_pixen` for the scarf (20x20) and the flower crown (24x24), with `no_background true`, `outline 'single color black outline'` and `detail 'low detail'`;
+  - `edit_image_pixen` for the necklace, on its Task 3 art (16x16);
+  - seeds 1 to 3 each;
+  - each size group snapped in one `reduce_colors(palette_image=docs/art/palette.png)` call.
+- **No seed came out short enough.** At 20 and 24 px, Pixen fills the canvas: all three scarves were 16–18 px tall, all three flower crowns were full rings 20–22 px tall, and two of the three necklaces kept the long loop (13 and 15 px). So each pick is cut down by hand on the palette:
+  - the cut is drawn as fill pixels;
+  - a 1 px `#000000` outline is added around every fill pixel's sides;
+  - the result is checked for one piece, a closed black edge, and `check.ts --palette --size <N>x<N>`.
+- **`scarf`** (20x20, now 18x8):
+  - Prompt: `a short red and white striped knit scarf wrapped once around a neck, seen from the front, only a small knot and a very short tail, cute pixel icon, thick black outline, item only, no face`. This is the owner's prompt, with "red and white" added to keep the old stripes.
+  - Pick: seed 3, the cleanest red and white knit.
+  - Hand cut: a 3-row band round the neck, a knot right of centre, and a 2-row tail. It uses seed 3's colours with diagonal knit stripes: `#e53b44` and `#ffffff`, with `#c7405d` and `#e6e0dc` on the shaded underside.
+  - Why diagonal: a first cut with straight 2-px stripes put a white block at each raised end, and the two blocks read like eyes.
+- **`necklace`** (16x16, now 14x8):
+  - Edit: `make this necklace short like a choker that sits at the neck: one gently curved row of small pearls across the top, with a small pink heart pendant hanging just under the middle of the chain, total height about 7 pixels, wider than tall, item only, thick black outline, no face`.
+  - Pick: seed 2, the only short choker. It has a U-shaped chain and a small heart, but is still 11 px tall.
+  - Hand cut: the chain's raised arms are dropped. A gently curved pearl choker (`#e6e0dc` and `#ffffff`) now carries seed 2's heart unchanged: `#f58fb0`, a `#ffffff` highlight and `#c7405d` shade.
+  - Seed 1 kept the old loop. Seed 3 kept a long loop with a smaller heart.
+- **`flowercrown`** (24x24, now 20x8):
+  - Prompt: `a flower crown band seen straight from the front, a row of small pink and yellow flowers with green leaves, wide and short, cute pixel icon, thick black outline, item only, no face`.
+  - All 3 seeds were rings: round wreaths, the third with an oval hole.
+  - Hand cut: the band is the flower row of the old crown (rows 2–9), a pink flower in the middle with yellow flowers and green leaves at each side. Row 9's fill is turned into the closing black line, so the band ends just under the flowers.
+  - Why the old row: it is already pink and yellow flowers with green leaves, in the approved style. Seed 3's flower row is muddier and uneven.
+- **No faces:** all three were checked at 12x.
 
 ### Anchors
 
@@ -281,10 +316,10 @@ Each item's `anchor` in `ACCESSORIES` (`src/data/accessories.ts`) is the point o
   - head items: the bottom-centre of the box;
   - face items: the centre;
   - neck items: the top-centre.
-- **Set by hand:** two head items are hoops, and a bottom-centre anchor stood them on top of the head instead of on it.
-  - `flowercrown` (12,19), was (12,22): near the ends of the ring. The flowers ride on top of the head, and the ring's last 3 rows come down onto it.
-  - `headphones` (10,14), was (10,17): low on the ear cups. The band arches over the head, and the cups' last 3 rows rest on its top. The cups are only 14 px across, so they can't reach the sides of a face.
-  - Why 3 rows: with 4 or 5 (flowercrown 18, headphones 12 or 13), the ring's ends or the cups covered the top of the eyes on the forms with the shortest foreheads (young_fuwari, young_mebuki, adult_bear, adult_hippo).
+- **Set by hand:**
+  - `headphones` (10,14), was (10,17): low on the ear cups. A bottom-centre anchor stood the headphones on top of the head. Now the band arches over the head and the cups' last 3 rows rest on its top. The cups are only 14 px across, so they can't reach the sides of a face. With 4 or 5 rows (anchor 13 or 12), the cups covered the top of the eyes on the forms with the shortest foreheads (young_fuwari, young_mebuki, adult_bear, adult_hippo).
+  - `flowercrown` (12,15), 1 px above its bottom-centre (12,16), so the band's bottom row rests on the head instead of on its top line. At (12,14) it came close to adult_bear's eyes. The old ring was (12,19), set by hand from (12,22).
+- **The Gate P redraws** are measured by the rule: `scarf` (10,5), was (10,2), and `necklace` (8,4), was (8,1).
 - **Whole pixels:** a half pixel rounds up (flowerpin x 7.5 → 8, bell x 7.5 → 8, heartglasses y 8.5 → 9). This keeps the item on the pet's 4x pixel grid.
 - **Where they are written:** the values are literals in the table. `src/data/data.test.ts` checks that each anchor is a whole pixel inside its item's opaque box.
 - **On the stage:** the item's top-left is at `stage x = 112 + 4·ax − 4·ox` and `stage y = 100 + 4·ay − 4·oy`, where `(ax, ay)` is the form's point and `(ox, oy)` the item's anchor. This puts the item's anchor exactly on the form's point.
@@ -308,7 +343,8 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
   - The head point goes on the head itself, not on what sticks out of it: antennae, sprouts, fins, crests, halos, ear tips or floating gems. The hat then covers them.
   - Between ears, the head point is 2–3 px below the top of the skull, not the ear tips.
   - When a face is turned to one side, its points follow its own eyes and head, not the middle of the art.
-  - The neck point sits under the mouth, with a gap of 0–2 px. A bowtie may then hang up to 1 px below the feet, or 2 px where the mouth is low (adult_tree, adult_griffin).
+  - The neck point sits under the mouth, with a gap of 0–2 px, and a bow tie hangs at most 1 px below the feet.
+  - Where the mouth is low (adult_tree, adult_griffin), the bow tie's wings come up beside the mouth, so the tie ends at the feet (Gate P).
 - **Set by hand:** 33 of the 41 forms. The 8 forms the script got right are child_dango, child_hoshi, adult_turtle, adult_golem, adult_mole, adult_cyborg, adult_vampire and adult_pudding. `x,y` means generated → set:
 
 | form | changed | why |
@@ -330,8 +366,8 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
 | adult_phoenix | head 17,3 → 11,5; face 17,13 → 10,15; neck 17,16 → 10,20 | turned left, with a flame wing on the right; no eyes were found |
 | adult_serpent | head 16,3 → 15,4; neck 15,17 → 15,18 | centred over the face; under the head |
 | adult_kraken | neck 16,20 → 16,22 | the dark red mouth was missed |
-| adult_tree | head 16,3 → 16,5; neck 16,23 → 16,25 | the canopy's top is uneven; the mouth was missed |
-| adult_griffin | neck 16,23 → 16,24 | the beak was missed |
+| adult_tree | head 16,3 → 16,5 | the canopy's top is uneven. The neck is back at the generated 16,23 after Gate P, so the bow tie ends at the feet |
+| adult_griffin | neck 16,23 → 16,22 | the beak was missed; at Gate P the point moved up so the bow tie ends at the feet, with its wings beside the beak |
 | adult_owl | head 16,3 → 16,5 | the ear tufts |
 | adult_pegasus | head 16,3 → 16,4; face 16,13 → 16,14; neck 16,16 → 16,20 | the mane top; no eyes were found |
 | adult_robot | face 16,13 → 16,12; neck 16,16 → 16,18 | no eyes were found; the neck is the seam under the head |
@@ -347,8 +383,18 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
 | adult_hippo | neck 16,16 → 16,23 | under the open mouth |
 | adult_grandpudding | head 17,4 → 16,7 | the crown on top |
 
-- **Long neck items:** the scarf hangs 16 px below its anchor and the necklace 15 px, because both are loops seen from the front. On 40 of the 41 forms they hang below the feet, the scarf by 2–10 px and the necklace by 1–9 px. Only adult_bear's fit. The cause is the length of the art, not the points. The lowest edge is at stage y 264, inside the 272 px stage.
-- **Tests:** `src/data/data.test.ts` checks three things: every form but the egg has points; every point is a whole pixel inside the 32 px art; and for each form the head point is above the face point, which is above the neck point.
+- **Neck items and the feet** (idle0, final points):
+  - The bow tie, the scarf and the necklace hang 8 px below the neck point. They reach at most 1 px below the feet, on 7 forms: child_hoshi, child_mochi, young_kage, young_gear, adult_ufo, adult_vampire and adult_comet.
+  - The bell hangs 9 px, reaching up to 2 px below the feet on 17 forms.
+  - The medal hangs 12 px, reaching 1–5 px below the feet on 34 forms.
+  - The owner approved the bell and the medal as they are at Gate P.
+  - Before Gate P, the scarf (16 px) and the necklace (15 px) hung up to 10 px below the feet; see the Gate P redraws.
+- **Tests:** `src/data/data.test.ts` checks:
+  - every form but the egg has points;
+  - every point is a whole pixel inside the 32 px art;
+  - for each form, the head point is above the face point, which is above the neck point;
+  - a bow tie hangs at most 1 px below the feet of any form;
+  - the scarf, necklace and flower crown are at most 8 px tall.
 
 ## Eggs
 

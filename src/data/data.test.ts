@@ -430,6 +430,16 @@ describe('accessory data', () => {
       expect(a.anchor.y, a.id).toBeLessThanOrEqual(box.bottom);
     }
   });
+
+  test('the scarf, necklace and flower crown are short, at most 8 px tall (Gate P)', () => {
+    for (const id of ['scarf', 'necklace', 'flowercrown']) {
+      const png = readPng(resolve(__dirname, `../assets/ui/acc/${id}.png`));
+      expect(png, id).not.toBeNull();
+      if (!png) continue;
+      const box = opaqueBox(png);
+      expect(box.bottom - box.top, id).toBeLessThanOrEqual(8);
+    }
+  });
 });
 
 describe('form anchors', () => {
@@ -460,6 +470,21 @@ describe('form anchors', () => {
     const [head, face, neck] = points(id);
     expect(head?.[1]).toBeLessThan(face?.[1] ?? -1);
     expect(face?.[1]).toBeLessThan(neck?.[1] ?? -1);
+  });
+
+  test('a bow tie hangs at most 1 px below the feet (Gate P)', () => {
+    const bowtie = ACCESSORIES.find((a) => a.id === 'bowtie');
+    const tie = readPng(resolve(__dirname, '../assets/ui/acc/bowtie.png'));
+    expect(bowtie && tie).toBeTruthy();
+    if (!bowtie || !tie) return;
+    const below = opaqueBox(tie).bottom - bowtie.anchor.y;
+    for (const id of wearers) {
+      const pet = readPng(resolve(__dirname, `../assets/sprites/${id}/idle0.png`));
+      const neck = FORM_ANCHORS[id]?.neck;
+      expect(pet && neck, id).toBeTruthy();
+      if (!pet || !neck) continue;
+      expect(neck[1] + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
+    }
   });
 });
 

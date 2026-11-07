@@ -19,8 +19,8 @@ type Row = readonly [AccessoryId, WearPlace, number, 16 | 20 | 24, number, numbe
  * Anchors are measured from each picture's opaque pixels (pixel-edge coordinates):
  * head items at the bottom-centre, face items at the centre, neck items at the top-centre.
  * A half pixel rounds up, so the item stays on the pet's 4x pixel grid.
- * Two hoops are set by hand so they sit on the head rather than above it, without covering the eyes
- * (style guide, Anchors): flowercrown near the ends of its ring, headphones low on its ear cups.
+ * Two head items are set by hand so they sit on the head, without covering the eyes (style guide,
+ * Anchors): headphones low on its ear cups, and flowercrown 1 px above its bottom so the band rests on the head.
  */
 const ROWS: readonly Row[] = [
   ['ribbon', 'head', 50, 16, 8, 14],
@@ -29,7 +29,7 @@ const ROWS: readonly Row[] = [
   ['tophat', 'head', 120, 16, 8, 13],
   ['beret', 'head', 80, 16, 8, 12],
   ['strawhat', 'head', 80, 20, 10, 17],
-  ['flowercrown', 'head', 150, 24, 12, 19],
+  ['flowercrown', 'head', 150, 24, 12, 15],
   ['chefhat', 'head', 100, 16, 8, 13],
   ['beanie', 'head', 80, 16, 8, 15],
   ['santahat', 'head', 120, 16, 8, 13],
@@ -44,10 +44,10 @@ const ROWS: readonly Row[] = [
   ['sunglasses', 'face', 100, 16, 8, 8],
   ['heartglasses', 'face', 120, 16, 8, 9],
   ['bowtie', 'neck', 60, 16, 8, 4],
-  ['scarf', 'neck', 100, 20, 10, 2],
+  ['scarf', 'neck', 100, 20, 10, 5],
   ['bell', 'neck', 60, 16, 8, 4],
   ['medal', 'neck', 200, 16, 8, 2],
-  ['necklace', 'neck', 150, 16, 8, 1],
+  ['necklace', 'neck', 150, 16, 8, 4],
 ];
 
 export const ACCESSORIES: readonly AccessoryDef[] = ROWS.map(([id, place, price, size, x, y]) => ({
