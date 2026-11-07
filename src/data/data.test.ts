@@ -626,4 +626,21 @@ describe('ZUKAN_ORDER', () => {
       for (const id of adults) expect(FORMS.find((f) => f.id === id)).toMatchObject({ stage: 'adult', family });
     }
   });
+
+  test('every family lists its 7 adults in the same order: games, stop, light, morning care, rare', () => {
+    const adult = (id: string) => FORMS.find((f) => f.id === id);
+    for (const { family, adults } of ZUKAN_ORDER.families) {
+      const forms = adults.map((id) => adult(id));
+      expect(forms[6]?.priority, `${family} rare`).toBe(100);
+      expect(forms[3]?.when.dominantGame, `${family} stop`).toBe('stop');
+      expect(forms[4]?.when.weight, `${family} light`).toBe('light');
+      expect(forms[5]?.when.morningCare, `${family} morning`).toBe(true);
+      for (const f of forms.slice(0, 3)) {
+        expect(f?.when.dominantGame, `${family} ${f?.id}`).not.toBe('stop');
+        expect(f?.when.weight, `${family} ${f?.id}`).not.toBe('light');
+        expect(f?.when.morningCare, `${family} ${f?.id}`).toBeUndefined();
+        expect(f?.priority, `${family} ${f?.id}`).not.toBe(100);
+      }
+    }
+  });
 });
