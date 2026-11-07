@@ -21,16 +21,16 @@ export function DecorSlots({ room, placed, selected, onSelect }: Props) {
     <>
       {roomSlotIds(room).map((slot) => {
         const rect = ROOM_SLOTS[room][slot];
+        if (!rect) return null;
         const item = placed[slot];
         const name = t(`slot_${slot}`);
-        if (!rect) return null;
         return (
           <button
             key={slot}
             type="button"
             class="slot"
             aria-pressed={slot === selected}
-            aria-label={item ? `${name}: ${t(`decor_${item}`)}` : name}
+            aria-label={item ? t('slot_filled', [name, t(`decor_${item}`)]) : name}
             style={{ left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` }}
             onClick={() => onSelect(slot)}
           />

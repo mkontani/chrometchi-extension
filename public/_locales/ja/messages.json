@@ -804,9 +804,6 @@
   "shop_title": {
     "message": "おみせ"
   },
-  "shop_sell": {
-    "message": "うる"
-  },
   "shop_coins": {
     "message": "もっているコイン $P1$",
     "placeholders": {
@@ -1122,5 +1119,16 @@
   },
   "decor_empty": {
     "message": "おみせで かえるよ"
+  },
+  "slot_filled": {
+    "message": "$P1$: $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   }
 }

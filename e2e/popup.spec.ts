@@ -468,6 +468,7 @@ const slotButton = (page: Page, msg: Msg, slot: string) =>
   page.getByRole('button', { name: new RegExp(`^${msg(`slot_${slot}`)}`) });
 
 test('a placed plant stands in the room, and stays after a room switch', async ({ context, extensionId, msg }) => {
+  // claimed 'zukan:10' is what unlocks the beach.
   const save = withHome(withProgress(seed({}), { claimed: ['zukan:10'] }), { ownedDecor: ['plant'] });
   const page = await seedAndOpen(context, extensionId, save);
 
@@ -489,6 +490,7 @@ test('a placed plant stands in the room, and stays after a room switch', async (
 });
 
 test('the beach offers no wall slots', async ({ context, extensionId, msg }) => {
+  // claimed 'zukan:10' is what unlocks the beach.
   const save = withHome(withProgress(seed({}), { claimed: ['zukan:10'] }), { room: 'beach' });
   const page = await seedAndOpen(context, extensionId, save);
 

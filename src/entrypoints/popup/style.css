@@ -298,7 +298,6 @@ body {
 .recipes__text { display: flex; flex-direction: column; min-width: 0; font-size: 11px; }
 .recipes__detail { font-size: 9px; color: #6b5d78; }
 .shop__coins { margin: 0 0 4px; font-size: 12px; text-align: right; }
-.shop__heading { margin: 0 0 4px; font-size: 12px; }
 .shop__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 3px; }
 .shop__row { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border: 2px solid var(--ink); background: var(--cream); min-width: 0; }
 .shop__row img { flex: none; image-rendering: pixelated; }
@@ -311,8 +310,8 @@ body {
 /* The shop lists scroll inside the overlay, with the ▼ cue at the bottom. */
 .overlay:has(.shop) .overlay__body { overflow: hidden; display: flex; flex-direction: column; }
 .shop { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 4px; }
-.shop__scroll { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.shop__scroll > .shop__list { flex: 1; min-height: 0; overflow-y: auto; align-content: start; }
+.scroll-list { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.scroll-list > .shop__list { flex: 1; min-height: 0; overflow-y: auto; align-content: start; }
 
 .missions__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 3px; }
 .missions__row { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border: 2px solid var(--ink); background: var(--cream); min-width: 0; }
@@ -329,7 +328,7 @@ body {
 .overlay:has(.decorate) .panel__header { padding: 0 8px; }
 .picker { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; padding: 0 8px; }
 .picker__empty { margin: 0; font-size: 12px; text-align: center; }
-.picker .shop__scroll { flex: 1; min-height: 0; }
+.picker .scroll-list { flex: 1; min-height: 0; }
 .picker__list {
   list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; align-content: start;
   flex: 1; min-height: 0; overflow-y: auto;

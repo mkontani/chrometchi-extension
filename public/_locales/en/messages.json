@@ -804,9 +804,6 @@
   "shop_title": {
     "message": "Shop"
   },
-  "shop_sell": {
-    "message": "Sell"
-  },
   "shop_coins": {
     "message": "Coins: $P1$",
     "placeholders": {
@@ -1122,5 +1119,16 @@
   },
   "decor_empty": {
     "message": "Buy some in the shop"
+  },
+  "slot_filled": {
+    "message": "$P1$: $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   }
 }

@@ -7,7 +7,7 @@ import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
-import { DECOR } from './decor';
+import { DECOR, DECOR_IDS } from './decor';
 import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
 import {
   COINS_MAX,
@@ -202,6 +202,13 @@ describe('i18n', () => {
     }
   });
 
+  test('every furniture item has a name in both locales', () => {
+    for (const id of DECOR_IDS) {
+      expect(ja[`decor_${id}`]?.message, `ja ${id}`).toBeTruthy();
+      expect(en[`decor_${id}`]?.message, `en ${id}`).toBeTruthy();
+    }
+  });
+
   test('every form except egg and baby has a hint in both locales', () => {
     const hinted = FORMS.filter((f) => f.stage !== 'egg' && f.stage !== 'baby');
     expect(hinted).toHaveLength(40);
@@ -366,6 +373,7 @@ describe('furniture data', () => {
         expect([r.x, r.y, r.w, r.h].every((v) => v % 4 === 0), at).toBe(true);
         expect(r.x >= 0 && r.y >= 0 && r.x + r.w <= STAGE.w && r.y + r.h <= STAGE.h, at).toBe(true);
         expect(r.w, at).toBeGreaterThanOrEqual(widest(kind));
+        // Ceiling and rug items may overflow the rect's height (style guide), so only floor and wall are checked.
         if (kind === 'floor' || kind === 'wall') expect(r.h, at).toBeGreaterThanOrEqual(widest(kind));
       }
       for (const [i, a] of rects.entries()) {

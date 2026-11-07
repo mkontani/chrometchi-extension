@@ -11,7 +11,7 @@ interface Props {
 export function ScrollList({ class: className, children }: Props) {
   const [listRef, more] = useScrollCue<HTMLUListElement>();
   return (
-    <div class="shop__scroll">
+    <div class="scroll-list">
       <ul class={className} ref={listRef}>
         {children}
       </ul>
