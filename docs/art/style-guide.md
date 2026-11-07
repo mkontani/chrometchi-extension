@@ -199,6 +199,7 @@ The 28 items are in `src/assets/ui/decor/<id>.png`. Each is 24x24 or 32x32 (as `
   - floor items are bottom-centred;
   - wall and rug items are centred;
   - ceiling items are top-centred.
+  - This per-slot-kind alignment is the owner-approved rule (Gate N, 2026-11-07). It replaces spec 7.2's "bottom-centred for all".
 - **Layers, back to front:** room picture → wall and ceiling → rug → pet → floor.
 - **Night:** while the pet sleeps (the night picture), every item gets `filter: invert(1) sepia(0.6) invert(1) brightness(0.6)`.
   - The filter pulls each color toward a moonlit blue, then dims it. White becomes `#999999`, and the pink armchair becomes a muted mauve. This sits close to the night pictures' tone, while the items still read.
