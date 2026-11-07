@@ -572,6 +572,24 @@ describe('form anchors', () => {
       expect(neck[1] + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
     }
   });
+
+  test('in idle1, where the neck point can sink and the feet stay, a bow tie still hangs at most 1 px below the feet (Gate R2)', () => {
+    const bowtie = ACCESSORIES.find((a) => a.id === 'bowtie');
+    const tie = readPng(resolve(__dirname, '../assets/ui/acc/bowtie.png'));
+    expect(bowtie && tie).toBeTruthy();
+    if (!bowtie || !tie) return;
+    const below = opaqueBox(tie).bottom - bowtie.anchor.y;
+    for (const id of wearers) {
+      const pet = readPng(resolve(__dirname, `../assets/sprites/${id}/idle1.png`));
+      const anchors = FORM_ANCHORS[id];
+      expect(pet && anchors, id).toBeTruthy();
+      if (!pet || !anchors) continue;
+      // PetStage's idle1 rule: a point with y <= squashRow is drawn 1 px lower.
+      const [, y] = anchors.neck;
+      const neckY = y <= anchors.squashRow ? y + 1 : y;
+      expect(neckY + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
+    }
+  });
 });
 
 /** Whether `count` rows of `a` from row `aFrom` are byte for byte the rows of `b` from row `bFrom`. */

@@ -371,9 +371,9 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
 - **The idle1 rule** (spec 8.2: worn items bounce with the pet):
   - `scripts/art/idle1.ts squash` makes idle1 from idle0 by removing one row low in the body. Every row above it sinks 1 px, and the feet stay put.
   - `FORM_ANCHORS` records that row as `squashRow`. The values were read from the sprites, by comparing each idle0 with its idle1, and are written as literals.
-  - In idle1, a point with `y <= squashRow` is drawn 1 art px (4 stage px) lower, so the hat and glasses sink with the head and face. Points are pixel edges: edges 0 to `squashRow` move down one, and the edges below stay put. With today's points, the head point sinks on all 41 forms, the face point on 38 and the neck point on 17.
-  - A point on the edge `y = squashRow` sinks too. That edge is the bottom of row `squashRow` − 1, which sinks; the removed row was below it. On baby_puni, young_poyo and young_hinoko the neck point is on that edge. If the neck item stayed put there, it would cover the gap row under the mouth in idle1 and touch the mouth every other frame.
-  - The face points of child_mochi, adult_ufo, adult_salamander, adult_nexus and adult_grandpudding are on that edge as well, so their glasses sink with the upper half of the eyes.
+  - In idle1, a point with `y <= squashRow` is drawn 1 art px (4 stage px) lower, so the hat and glasses sink with the head and face. Points are pixel edges: edges 0 to `squashRow` move down one, and the edges below stay put. With today's points, the head point sinks on all 82 forms, the face point on 78 and the neck point on 42.
+  - A point on the edge `y = squashRow` sinks too. That edge is the bottom of row `squashRow` − 1, which sinks; the removed row was below it. On baby_puni, young_poyo and young_hinoko the neck point is on that edge, and on six stage-5 forms: child_pico, young_obake, adult_hedgehog, adult_ferret, adult_seal and adult_rainbow. If the neck item stayed put there, it would cover the gap row under the mouth in idle1 and touch the mouth every other frame.
+  - The face points of child_mochi, adult_ufo, adult_salamander, adult_nexus and adult_grandpudding are on that edge as well, and those of young_kingyo, young_tsurara, adult_stag and adult_toaster, so their glasses sink with the upper half of the eyes.
   - Every other pose (happy, eat, sick, sleep and sad) is its own picture, approved at Gate P, and uses idle0's points.
   - A new or redrawn idle1 must still be idle0 with one row removed. Otherwise the data test fails, and the form needs its own idle1 points.
   - The check still is `.superpowers/sdd/2026-11-07-dressup/art/idle1-check.png`: child_kemu, adult_kraken and baby_puni in idle0 and idle1, wearing tophat + glasses + bowtie.
@@ -393,15 +393,16 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
   - When a face is turned to one side, its points follow its own eyes and head, not the middle of the art.
   - The neck point sits under the mouth, with a gap of 0–2 px, and a bow tie hangs at most 1 px below the feet.
   - Where the mouth is low (adult_tree, adult_griffin), the bow tie's wings come up beside the mouth, so the tie ends at the feet (Gate P).
-- **Set by hand:** 33 of the 41 forms. The 8 forms the script got right are child_dango, child_hoshi, adult_turtle, adult_golem, adult_mole, adult_cyborg, adult_vampire and adult_pudding. `x,y` means generated → set:
+- **Set by hand (stage 4):** 34 of the first 41 forms. The 7 forms the script got right are child_dango, adult_turtle, adult_golem, adult_mole, adult_cyborg, adult_vampire and adult_pudding. `x,y` means generated → set:
 
 | form | changed | why |
 |---|---|---|
 | baby_puni | neck 16,18 → 16,22 | the mouth is pink, so the script missed it |
 | child_kemu | head 17,3 → 16,4 | a small tuft set the top row |
 | child_mochi | head 16,5 → 16,7 | the ears set the top row; the hat now sits between them |
+| child_hoshi | neck 16,23 → 16,22 | for Gate R2: in idle1 the neck point sinks and the feet stay, so the neck items hung 2 px below the feet; 1 px under the mouth now |
 | young_kirari | head 16,4 → 16,10 | the crown spikes are above the head |
-| young_kage | head 15,5 → 16,11; face 15,13 → 16,17; neck 15,16 → 16,22 | the fuse ring is above the body, and the glowing eyes aren't dark, so no eyes were found |
+| young_kage | head 15,5 → 16,11; face 15,13 → 16,17; neck 15,16 → 16,21 | the fuse ring is above the body, and the glowing eyes aren't dark, so no eyes were found. The neck was 16,22 until stage 5, which moved it up 1 px for the same idle1 reason as child_hoshi; it is right under the mouth now |
 | young_poyo | neck 16,17 → 16,22 | the open mouth was too big for the mouth filter |
 | young_hinoko | head 18,6 → 14,8; face 16,16 → 13,15; neck 16,26 → 13,21 | the face is left of centre; the ears and tail flame pulled the head right, and the tail's outline was taken for an eye |
 | young_shizuku | head 17,3 → 16,8 | the fin tip |
@@ -431,17 +432,71 @@ Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` 
 | adult_hippo | neck 16,16 → 16,23 | under the open mouth |
 | adult_grandpudding | head 17,4 → 16,7 | the crown on top |
 
-- **Neck items and the feet** (idle0, final points):
-  - The bow tie, the scarf and the necklace hang 8 px below the neck point. They reach at most 1 px below the feet, on 7 forms: child_hoshi, child_mochi, young_kage, young_gear, adult_ufo, adult_vampire and adult_comet.
-  - The bell hangs 9 px, reaching up to 2 px below the feet on 17 forms.
-  - The medal hangs 12 px, reaching 1–5 px below the feet on 34 forms.
+- **Set by hand (stage 5, Gate R2):** 36 of the 41 new forms.
+  - The first values came from the same script.
+  - Task 4 set six of them by hand so that the bow-tie test passed.
+  - The rest were tuned by eye on the Gate R2 sheets, `.superpowers/sdd/2026-11-07-new-forms/art/gate-r2-*.png`. They show every new form in idle0, idle1, happy, eat and sleep, wearing the three sets at 3x.
+  - The 5 forms the script got right are child_awa, young_obake, young_koishi, adult_mushroom and adult_jellyfish.
+- **Rules the stage-5 check added:**
+  - A hat drawn into the art, such as the koala's nightcap or the pumpkin's witch hat, counts as something that sticks out. The worn hat sits on the head and covers it, as the crowns of young_kirari and adult_grandpudding do. adult_mecha's helmet is its head, so its hat stays on the helmet.
+  - Where the face reaches the bottom of the art (adult_pumpkin, adult_pancake), the bow-tie rule wins over the gap under the mouth. The neck point is the lowest one the rule allows, and the neck items cover the lower mouth.
+- **The table** for the stage-5 forms. `x,y` means generated → set:
+
+| form | changed | why |
+|---|---|---|
+| child_pico | head 16,4 → 16,8 | the crest set the top row; 2 px below the top of the skull, so the headphones clear the eyes |
+| child_tane | head 16,5 → 16,9; face 16,13 → 16,18; neck 16,19 → 16,21 | the stem set the top row, and the hat now sits on the acorn cap; no eyes were found, as the brown eyes (rows 16–19) are too light for the eye filter; under the mouth (rows 19–20) |
+| child_ame | neck 16,23 → 16,20 | Task 4: the bow tie hung below the bottom. Its wings come up beside the low mouth (row 20) |
+| child_yuki | head 16,4 → 16,9; neck 16,19 → 16,22 | the stem and its two leaves; the brown mouth (rows 18–20) was missed |
+| young_tomoshi | head 16,4 → 16,11; face 16,12 → 16,18; neck 16,18 → 16,21 | the flame on top; no eyes were found (rows 16–19); under the mouth (row 20) |
+| young_kingyo | face 12,18 → 11,19; neck 12,22 → 10,22 | the face is turned left. The eyes are 13 px apart (cols 1–5 and 12–19), so the glasses are centred between them. The neck follows the low-left mouth; the bow-tie rule keeps it at row 22 |
+| young_kogane | head 16,5 → 16,9 | the antennae; 2 px below the top of the head, so the flower crown clears the heart glasses |
+| young_kumo | head 15,3 → 16,3; face 17,15 → 16,15; neck 17,22 → 16,21 | the face and neck were 1 px right of the eyes (cols 9–22); all three are centred on them now |
+| young_kaminari | head 14,3 → 16,8; face 16,20 → 16,15; neck 16,23 → 16,22 | the spikes; the face was 5 px below the eyes (rows 11–17) |
+| young_tsurara | head 17,5 → 16,8; face 17,19 → 16,17; neck 17,22 → 16,21 | the hat stood on the icicle's tip; the face was 2 px below the eyes (rows 15–18) and 1 px right |
+| adult_hedgehog | head 16,4 → 16,7 | the spines; 2 px below the top of the solid spines |
+| adult_ferret | neck 15,19 → 15,21 | the mouth (rows 17–20) was missed |
+| adult_rooster | head 15,4 → 15,10; neck 15,19 → 15,21 | the comb; the beak was missed, and the point is under it now, with the bow tie's wings beside the wattle |
+| adult_seal | neck 16,18 → 16,22 | the mouth (rows 17–20) was missed |
+| adult_otter | neck 16,17 → 16,18 | the bow tie covered the mouth (row 17) |
+| adult_dolphin | face 16,19 → 16,12; neck 16,24 → 16,18 | the face was 6 px below the eyes. They are 7 rows tall (9–15), and the half pixel rounds down so the glasses cover them |
+| adult_whale | head 15,3 → 13,11; neck 12,26 → 12,25 | the spout; the hat covers its base. Task 4: the bow tie hung 2 px below the feet |
+| adult_bunny | head 16,5 → 16,11; neck 16,19 → 16,21 | the sprout between the ears; on the top of the skull, so the headphones clear the eyes; under the mouth (rows 19–20) |
+| adult_sunflower | head 16,3 → 16,10 | the petals; on the face disc |
+| adult_stag | head 16,3 → 16,9; face 16,9 → 16,16; neck 16,12 → 16,23 | the antlers; the face was taken from the line of the ears (the eyes are rows 14–16); the neck is at the join under the muzzle |
+| adult_butterfly | head 16,3 → 16,10; face 16,19 → 16,15; neck 16,29 → 16,20 | the antennae. Task 4: the wing markings were taken for eyes |
+| adult_dandelion | head 16,4 → 16,7; face 17,15 → 16,15; neck 17,19 → 16,22 | the bud on top; centred on the eyes (cols 8–22); the red mouth (rows 18–20) was missed |
+| adult_swallow | head 27,5 → 12,8; face 17,16 → 11,16; neck 17,22 → 11,21 | the tail set the head. The face is turned left: the eyes are cols 4–7 and 13–17, and the beak is cols 9–10 |
+| adult_stormbird | head 14,4 → 13,9; neck 13,26 → 13,21 | the lightning crest. Task 4: the chest pattern was taken for a mouth |
+| adult_clock | head 16,4 → 16,8 | the bell knob; 2 px below the top of the body, so the headphones clear the eyes |
+| adult_drone | head 16,5 → 16,10; face 16,18 → 16,17; neck 16,23 → 16,22 | the antenna; the eyes are rows 15–18; at the join under the mouth |
+| adult_toaster | head 16,3 → 12,12; face 16,20 → 10,21; neck 16,26 → 10,25 | the toast. The hat sits on the toaster's top, between the face and the middle of the box. Task 4: the face is turned left |
+| adult_mecha | face 16,8 → 16,12; neck 16,12 → 16,17 | the helmet was taken for the face (the eyes are rows 11–13); the neck is the join under the chin strap |
+| adult_pumpkin | head 17,3 → 16,13; face 19,9 → 16,22; neck 19,13 → 16,25 | the vine and the witch hat set the head, and the witch hat the face. The eyes (rows 19–24) are 16 px apart, wider than any glasses, so the glasses sit between them. The neck is at the bow-tie limit |
+| adult_blackcat | head 16,5 → 16,9 | the ear tips; between the ears, 3 px below the top of the skull |
+| adult_koala | head 20,3 → 16,11; face 16,17 → 16,16; neck 16,26 → 16,22 | the nightcap's tip; the hat sits on the head over the nightcap. Task 4: the big nose was taken as part of the face |
+| adult_fairy | head 19,5 → 16,8; face 17,15 → 16,15; neck 17,19 → 16,22 | the wand's star and the antennae; centred on the eyes (cols 8–22); under the mouth (rows 19–20) |
+| adult_rainbow | head 16,4 → 16,9; neck 16,19 → 16,22 | the rainbow; on the cloud inside the arc; under the mouth (rows 18–20) |
+| adult_elephant | head 16,3 → 16,4; face 16,15 → 16,13 | the tuft; the eyes are rows 11–14, beside the trunk |
+| adult_balloon | neck 16,17 → 16,22 | the mouth (rows 19–20) was missed |
+| adult_pancake | head 16,4 → 16,5; face 16,12 → 16,23; neck 16,18 → 16,25 | the butter. No eyes were found: the face is on the bottom pancake, with eyes 15 px apart (rows 20–25). The neck is at the bow-tie limit |
+
+- **What still looks off** (Gate R2):
+  - adult_pumpkin and adult_pancake: as in the table, the face items sit between eyes that are wider apart than the glasses, and the neck items cover the lower mouth.
+  - young_tsurara's and adult_pancake's eat poses draw the face higher than idle0 (3 and 8 px), so in eat the glasses sit on the mouth. One set of points serves every pose.
+
+- **Neck items and the feet** (final points, all 82 forms):
+  - The bow tie, the scarf and the necklace hang 8 px below the neck point. In idle0 they reach at most 1 px below the feet, on 10 forms: child_mochi, child_ame, young_gear, adult_whale, adult_ufo, adult_toaster, adult_vampire, adult_pumpkin, adult_comet and adult_pancake.
+  - In idle1 the neck point can sink while the feet stay. They still reach at most 1 px below the feet there (Gate R2).
+  - The bell hangs 9 px, reaching up to 2 px below the feet in idle0, on 34 forms.
+  - The medal hangs 12 px, reaching 1–5 px below the feet in idle0, on 69 forms.
   - The owner approved the bell and the medal as they are at Gate P.
   - Before Gate P, the scarf (16 px) and the necklace (15 px) hung up to 10 px below the feet; see the Gate P redraws.
 - **Tests:** `src/data/data.test.ts` checks:
   - every form but the egg has points;
   - every point is a whole pixel inside the 32 px art;
   - for each form, the head point is above the face point, which is above the neck point;
-  - a bow tie hangs at most 1 px below the feet of any form;
+  - a bow tie hangs at most 1 px below the feet of any form, in idle0 and in idle1;
   - each idle1 is its idle0 with the rows above `squashRow` moved down one;
   - the scarf, necklace and flower crown are at most 8 px tall.
 
