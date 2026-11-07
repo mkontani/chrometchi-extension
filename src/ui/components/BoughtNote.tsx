@@ -27,11 +27,11 @@ export function useBoughtNote(): [BoughtKey | null, (key: BoughtKey) => void] {
   return [shown, flash];
 }
 
-/** A brief hint after a successful buy: where to place or put on what was bought. */
+/** A line under the shop tabs for the hint after a buy. It is always there (empty when idle), so it is a live region before its text changes and the list never jumps. */
 export function BoughtNote({ shown }: { shown: BoughtKey | null }) {
-  return shown ? (
-    <div class="toast" role="status">
-      {t(shown)}
-    </div>
-  ) : null;
+  return (
+    <p class="shop__note" role="status">
+      {shown ? t(shown) : ''}
+    </p>
+  );
 }

@@ -207,3 +207,22 @@ test('flash after unmount starts no timer', async () => {
   await act(async () => resolve(true));
   expect(vi.getTimerCount()).toBe(0);
 });
+
+test('the bought note sits on its own line, not over the list', async () => {
+  vi.useFakeTimers();
+  view({ coins: 500, onBuy: () => Promise.resolve(true) });
+  await buyCandle();
+  const note = screen.getByText(HINT);
+  expect(note.classList.contains('toast')).toBe(false);
+  expect(note.classList.contains('shop__note')).toBe(true);
+  const list = screen.getAllByRole('listitem')[0]?.closest('ul') as HTMLElement;
+  expect(note.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  const tabs = screen.getByRole('tablist');
+  expect(tabs.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+test('the note line is there before anything is bought', () => {
+  view();
+  const note = screen.getByRole('status');
+  expect(note.textContent).toBe('');
+});

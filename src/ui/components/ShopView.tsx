@@ -84,9 +84,9 @@ export function ShopView({ pantry, coins, ownedDecor, ownedAcc, onSell, onBuy, o
     <div class="shop">
       <p class="shop__coins">{t('shop_coins', String(coins))}</p>
       <TabBar<Tab> tabs={tabs} active={tab} onTab={setTab} label={t('shop_title')} />
+      <BoughtNote shown={bought} />
       {tab === 'decor' ? <DecorShop owned={ownedDecor} coins={coins} onBuy={(decor) => void buy(decor)} /> : null}
       {tab === 'acc' ? <AccessoryShop owned={ownedAcc} coins={coins} onBuy={(acc) => void buyAcc(acc)} /> : null}
-      <BoughtNote shown={bought} />
       {tab === 'sell' ? (
         <ScrollList class="shop__list">
           {INGREDIENT_IDS.map((food) => (
