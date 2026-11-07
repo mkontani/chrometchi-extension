@@ -113,6 +113,7 @@ function Worn({ formId, place, id, pose }: WornProps) {
       class="pet__worn"
       src={url}
       alt=""
+      data-acc={id}
       style={{
         left: `${WORN_SCALE * (point[0] - def.anchor.x)}px`,
         top: `${WORN_SCALE * (point[1] - def.anchor.y)}px`,

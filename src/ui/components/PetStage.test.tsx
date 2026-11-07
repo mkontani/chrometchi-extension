@@ -303,22 +303,32 @@ test('no items are drawn by default', () => {
 const wornImg = (c: Element, id: string) => c.querySelector(`img[src="acc-${id}.png"]`) as HTMLImageElement;
 
 test('the stage draws worn items at the current form points', () => {
-  const { container } = render(
-    <PetStage generation={1} room="home" pet={makePet()} reaction={null} worn={{ head: 'crown', face: 'glasses', neck: 'scarf' }} />,
+  const worn = { head: 'crown', face: 'glasses', neck: 'scarf' } as const;
+  const items = [['crown', 'head'], ['glasses', 'face'], ['scarf', 'neck']] as const;
+  const stage = (stageName: 'child' | 'adult', formId: string) => (
+    <PetStage generation={1} room="home" pet={makePet({ stage: stageName, formId })} reaction={null} worn={worn} />
   );
-  const pts = FORM_ANCHORS.child_kemu!;
-  const expectAt = (id: 'crown' | 'glasses' | 'scarf', place: 'head' | 'face' | 'neck') => {
-    const def = accessoryDef(id);
-    const img = wornImg(container, id);
-    expect(img.style.left).toBe(`${4 * pts[place][0] - 4 * def.anchor.x}px`);
-    expect(img.style.top).toBe(`${4 * pts[place][1] - 4 * def.anchor.y}px`);
-    expect(img.style.width).toBe(`${4 * def.size}px`);
-    expect(img.style.height).toBe(`${4 * def.size}px`);
-    expect(img.getAttribute('alt')).toBe('');
-  };
-  expectAt('crown', 'head');
-  expectAt('glasses', 'face');
-  expectAt('scarf', 'neck');
+  const { container, rerender } = render(stage('adult', 'adult_phoenix'));
+  const boxes = () =>
+    items.map(([id]) => {
+      const img = wornImg(container, id);
+      expect(img.getAttribute('alt')).toBe('');
+      // The built extension inlines small art as data URLs, so the item is named here too.
+      expect(img.dataset.acc).toBe(id);
+      return [img.style.left, img.style.top, img.style.width, img.style.height];
+    });
+  const expected = (formId: string) =>
+    items.map(([id, place]) => {
+      const [x, y] = FORM_ANCHORS[formId]![place];
+      const def = accessoryDef(id);
+      return [`${4 * (x - def.anchor.x)}px`, `${4 * (y - def.anchor.y)}px`, `${4 * def.size}px`, `${4 * def.size}px`];
+    });
+  expect(boxes()).toEqual(expected('adult_phoenix'));
+  const phoenix = boxes();
+  rerender(stage('child', 'child_kemu'));
+  expect(boxes()).toEqual(expected('child_kemu'));
+  // adult_phoenix faces left, so each of its points sits elsewhere than child_kemu's.
+  boxes().forEach(([left, top], i) => expect([left, top]).not.toEqual(phoenix[i]!.slice(0, 2)));
 });
 
 test('worn items move with the pet slide and bounce', () => {

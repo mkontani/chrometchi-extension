@@ -510,16 +510,23 @@ test('buying a crown and wearing it draws it on the pet', async ({ context, exte
   await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
   await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
   await expect(page.getByText(msg('shop_bought_acc'))).toBeVisible();
-  expect((await readSave(context)).home.ownedAcc).toEqual(['crown']);
+  await expect(page.locator('.shop__coins')).toContainText('40'); // 300 - 260
+  const bought = await readSave(context);
+  expect(bought.progress.coins).toBe(40);
+  expect(bought.home.ownedAcc).toEqual(['crown']);
   await page.getByRole('button', { name: msg('close'), exact: true }).click();
 
   await decorateButton(page, msg).click();
   await page.getByRole('tab', { name: msg('decorate_tab_dress') }).click();
   await page.getByRole('button', { name: msg('acc_crown'), exact: true }).click();
-  await expect(page.locator('.decorate .stage img.pet__worn')).toHaveCount(1);
+  const wornOnDecorate = page.locator('.decorate .stage img.pet__worn');
+  await expect(wornOnDecorate).toHaveCount(1);
+  await expect(wornOnDecorate).toHaveAttribute('data-acc', 'crown');
 
   await page.getByRole('button', { name: msg('close'), exact: true }).click();
-  await expect(page.locator('.stage img.pet__worn')).toHaveCount(1);
+  const wornOnStage = page.locator('.stage img.pet__worn');
+  await expect(wornOnStage).toHaveCount(1);
+  await expect(wornOnStage).toHaveAttribute('data-acc', 'crown');
   expect((await readSave(context)).home.worn.head).toBe('crown');
 });
 
