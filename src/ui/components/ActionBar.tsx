@@ -5,8 +5,7 @@ import { IconButton } from './IconButton';
 
 export type ActionKind = 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'shop' | 'settings' | 'decorate';
 
-// null marks a slot left empty.
-const SLOTS: readonly (ActionKind | null)[] = [
+const SLOTS: readonly ActionKind[] = [
   'feed', 'play', 'outing', 'clean', 'decorate',
   'medicine', 'lights', 'zukan', 'shop', 'settings',
 ];
@@ -36,20 +35,16 @@ interface Props {
 export function ActionBar({ pet, badge, onSelect }: Props) {
   return (
     <nav class="action-bar">
-      {SLOTS.map((kind, i) =>
-        kind === null ? (
-          <div key={`slot-${i}`} class="action-bar__spacer" aria-hidden="true" />
-        ) : (
-          <IconButton
-            key={kind}
-            id={kind as IconId}
-            label={t(`action_${kind}`)}
-            disabled={isActionDisabled(kind, pet)}
-            badge={kind === 'zukan' && badge}
-            onClick={() => onSelect(kind)}
-          />
-        ),
-      )}
+      {SLOTS.map((kind) => (
+        <IconButton
+          key={kind}
+          id={kind as IconId}
+          label={t(`action_${kind}`)}
+          disabled={isActionDisabled(kind, pet)}
+          badge={kind === 'zukan' && badge}
+          onClick={() => onSelect(kind)}
+        />
+      ))}
     </nav>
   );
 }

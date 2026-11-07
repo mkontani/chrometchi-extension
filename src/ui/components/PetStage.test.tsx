@@ -127,7 +127,7 @@ test('effects render nothing when urls are null', () => {
 });
 
 test('the pet button names the action and the form for screen readers', () => {
-  render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} />);
+  render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} onPetClick={vi.fn()} />);
   expect(screen.getByRole('button', { name: 'action_pet: form_child_kemu' })).toBeTruthy();
 });
 
@@ -216,4 +216,14 @@ test('stars show for a sleeping egg with the lights off and no effect', () => {
 test('the flash is drawn', () => {
   const { container } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} effect={withFrame({ flash: true })} />);
   expect(container.querySelector('.stage__flash')).not.toBeNull();
+});
+
+test('the pet is not a button when it cannot be petted', () => {
+  const { rerender } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} />);
+  const img = screen.getByAltText('form_child_kemu');
+  expect(img.getAttribute('role')).toBeNull();
+  expect(img.getAttribute('tabindex')).toBeNull();
+  expect(img.getAttribute('aria-label')).toBeNull();
+  rerender(<PetStage generation={1} room="home" pet={makePet()} reaction={null} onPetClick={vi.fn()} />);
+  expect(screen.getByRole('button', { name: 'action_pet: form_child_kemu' }).getAttribute('tabindex')).toBe('0');
 });

@@ -113,9 +113,7 @@ export function PetStage({ pet, generation, room, reaction, fromPlay = false, ef
         width={128}
         height={128}
         alt={formName}
-        role="button"
-        tabIndex={0}
-        aria-label={`${t('action_pet')}: ${formName}`}
+        {...(onPetClick ? { role: 'button', tabIndex: 0, 'aria-label': `${t('action_pet')}: ${formName}` } : {})}
         style={effect?.petDx ? `left: ${PET.x + effect.petDx}px` : undefined}
         onClick={onPetClick}
         onKeyDown={onKeyDown}

@@ -430,7 +430,7 @@ test('an old save owns the rooms its rewards unlocked', async ({ context, extens
   for (const room of ['home', 'garden', 'beach', 'forest']) {
     await expect(roomButton(page, msg, room)).toBeEnabled();
   }
-  await expect(roomButton(page, msg, 'sweets')).toBeDisabled();
+  await expect(roomButton(page, msg, 'sweets')).toHaveAttribute('aria-disabled', 'true');
 });
 
 test('the decorate button is disabled while the pet sleeps', async ({ context, extensionId, msg }) => {

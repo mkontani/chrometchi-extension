@@ -778,7 +778,7 @@ test('the decorate button opens the room list and choosing a room sends setRoom'
   expect(document.querySelector('.stage')).not.toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'room_beach' }));
   expect(send).toHaveBeenCalledWith({ type: 'setRoom', room: 'beach' });
-  expect((screen.getByRole('button', { name: /room_castle/ }) as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByRole('button', { name: /room_castle/ }).getAttribute('aria-disabled')).toBe('true');
 });
 
 test('the decorate overlay closes when the pet falls asleep', () => {

@@ -951,6 +951,9 @@
   "room_library": {
     "message": "Library"
   },
+  "room_list": {
+    "message": "Rooms"
+  },
   "room_locked": {
     "message": "Locked"
   },
