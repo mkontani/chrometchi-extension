@@ -17,6 +17,8 @@ describe('parseEngineRequest', () => {
       { type: 'startNewEgg' },
       { type: 'dismissNotice', notice: 'renewal' },
       { type: 'hideRoamSite', host: 'news.example.com' },
+      { type: 'sell', food: 'fish', amount: 3 },
+      { type: 'seenRewards' },
     ];
     for (const raw of valid) expect(parseEngineRequest(raw)).toEqual(raw);
   });
@@ -105,5 +107,14 @@ describe('farm request', () => {
       { type: 'farm' },
     ];
     for (const raw of bad) expect(parseEngineRequest(raw)).toBeNull();
+  });
+
+  test('sell requests that are not a positive whole amount of an ingredient are rejected', () => {
+    for (const amount of [0, -1, 1.5, 100]) {
+      expect(parseEngineRequest({ type: 'sell', food: 'fish', amount })).toBeNull();
+    }
+    for (const food of ['rice', 'candy', 'steak', 'gold']) {
+      expect(parseEngineRequest({ type: 'sell', food, amount: 1 })).toBeNull();
+    }
   });
 });
