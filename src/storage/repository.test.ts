@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { EMPTY_KITCHEN } from '@/core/kitchen';
+import { EMPTY_PROGRESS } from '@/core/progress';
 import { makeGame } from '@/core/__fixtures__/pet';
 import { createFreshSave, createSaveRepository } from './repository';
 import { LEGACY_KEYS, NOTIFY_KINDS, SAVE_KEY, saveSchema } from './schema';
@@ -132,4 +133,8 @@ describe('save repository', () => {
 
 test('a fresh save has an empty kitchen', () => {
   expect(createFreshSave(NOW).kitchen).toEqual(EMPTY_KITCHEN);
+});
+
+test('a fresh save starts with empty progress', () => {
+  expect(createFreshSave(NOW).progress).toEqual(EMPTY_PROGRESS);
 });
