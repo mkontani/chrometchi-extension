@@ -2,7 +2,7 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import type { AccessoryId, DecorId, PetState, Pose, RoomId, SlotId, WearPlace } from '@/core/types';
 import { accessoryDef } from '@/data/accessories';
-import { FORM_ANCHORS, type FormAnchors } from '@/data/anchors';
+import { FORM_ANCHORS, wornPoint } from '@/data/anchors';
 import { decorDef } from '@/data/decor';
 import { ROOM_SLOTS, SLOT_KIND } from '@/data/slots';
 import { deriveWarning } from '@/core/warnings';
@@ -82,16 +82,6 @@ function Decor({ room, item, night }: { room: RoomId; item: PlacedDecor; night: 
 const WORN_SCALE = 4;
 /** Drawn after the pet, so neck sits under face, and face under head. */
 const WORN_ORDER: readonly WearPlace[] = ['neck', 'face', 'head'];
-
-/**
- * The form's point for a place in this pose. idle1 is idle0 with row squashRow removed, so the rows
- * above it sink 1 px. Points are pixel edges: edge squashRow is the bottom of row squashRow - 1, so it
- * sinks too, and only the edges below it stay. Every other pose is its own picture and keeps idle0's points.
- */
-function wornPoint(anchors: FormAnchors, place: WearPlace, pose: Pose): [number, number] {
-  const [x, y] = anchors[place];
-  return pose === 'idle1' && y <= anchors.squashRow ? [x, y + 1] : [x, y];
-}
 
 interface WornProps {
   formId: PetState['formId'];

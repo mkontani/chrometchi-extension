@@ -10,7 +10,7 @@ import { ZUKAN_ORDER } from './zukan';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
 import { ACCESSORIES, ACCESSORY_IDS, WEAR_PLACES } from './accessories';
-import { FORM_ANCHORS } from './anchors';
+import { FORM_ANCHORS, wornPoint } from './anchors';
 import { DECOR, DECOR_IDS } from './decor';
 import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
 import {
@@ -585,9 +585,7 @@ describe('form anchors', () => {
       const anchors = FORM_ANCHORS[id];
       expect(pet && anchors, id).toBeTruthy();
       if (!pet || !anchors) continue;
-      // PetStage's idle1 rule: a point with y <= squashRow is drawn 1 px lower.
-      const [, y] = anchors.neck;
-      const neckY = y <= anchors.squashRow ? y + 1 : y;
+      const [, neckY] = wornPoint(anchors, 'neck', 'idle1');
       expect(neckY + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
     }
   });
