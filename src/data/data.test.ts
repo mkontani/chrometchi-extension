@@ -6,6 +6,7 @@ import type { RefuseReason, Stage } from '@/core/types';
 import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
 import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
+import { ZUKAN_ORDER } from './zukan';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
 import { ACCESSORIES, ACCESSORY_IDS, WEAR_PLACES } from './accessories';
@@ -607,3 +608,24 @@ function opaqueBox(png: PngData): { left: number; top: number; right: number; bo
   const ys = opaque.map((i) => Math.floor(i / png.width));
   return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs) + 1, bottom: Math.max(...ys) + 1 };
 }
+
+describe('ZUKAN_ORDER', () => {
+  test('ZUKAN_ORDER lists every form exactly once', () => {
+    const ids = [
+      ...ZUKAN_ORDER.early,
+      ...ZUKAN_ORDER.families.flatMap((f) => [...f.young, ...f.adults]),
+    ];
+    expect(ids.length).toBe(FORMS.length);
+    expect(new Set(ids)).toEqual(new Set(FORMS.map((f) => f.id)));
+  });
+
+  test('each family lists its own 2 young and 7 adults', () => {
+    expect(ZUKAN_ORDER.early.length).toBe(11);
+    for (const { family, young, adults } of ZUKAN_ORDER.families) {
+      expect(young.length).toBe(2);
+      expect(adults.length).toBe(7);
+      for (const id of young) expect(FORMS.find((f) => f.id === id)).toMatchObject({ stage: 'young', family });
+      for (const id of adults) expect(FORMS.find((f) => f.id === id)).toMatchObject({ stage: 'adult', family });
+    }
+  });
+});

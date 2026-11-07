@@ -54,3 +54,36 @@ test('never requests hints for egg or baby', () => {
   expect(screen.queryByText('hint_egg')).toBeNull();
   expect(screen.queryByText('hint_baby_puni')).toBeNull();
 });
+
+const FAMILIES = ['solar', 'water', 'earth', 'wind', 'metal', 'lunar', 'ether', 'heavy'];
+
+test('the zukan shows the early section and the 8 families in order', () => {
+  const { container } = render(<ZukanView zukan={{ discovered: [], memories: [] }} />);
+  const heads = [...container.querySelectorAll('.zukan__section > h3')].map((n) => n.textContent);
+  expect(heads).toEqual(['zukan_section_early', ...FAMILIES.map((f) => `family_${f}`)]);
+});
+
+test('each family shows its 2 young and 7 adults in the spec order', () => {
+  const { container } = render(
+    <ZukanView zukan={{ discovered: ['adult_dragon', 'young_hinoko'], memories: [] }} />,
+  );
+  const sections = [...container.querySelectorAll('.zukan__section')];
+  expect(sections.length).toBe(9);
+  expect(sections[0]?.querySelectorAll('li').length).toBe(11);
+  for (const section of sections.slice(1)) {
+    const rows = section.querySelectorAll('ul.zukan__row');
+    expect(rows[0]?.querySelectorAll('li').length).toBe(2);
+    expect(rows[1]?.querySelectorAll('li').length).toBe(7);
+  }
+  const solar = sections[1]?.querySelectorAll('ul.zukan__row')[1];
+  const imgs = [...(solar?.querySelectorAll('img') ?? [])].map((n) => n.getAttribute('src'));
+  expect(imgs).toEqual([
+    'adult_dragon-idle0.png', 'adult_beast-idle0.png', 'adult_salamander-idle0.png',
+    'adult_hedgehog-idle0.png', 'adult_ferret-idle0.png', 'adult_rooster-idle0.png', 'adult_phoenix-idle0.png',
+  ]);
+});
+
+test('the count is found / 83', () => {
+  render(<ZukanView zukan={{ discovered: ['egg', 'adult_dragon', 'adult_bear'], memories: [] }} />);
+  expect(screen.getByText('zukan_count|3,83')).toBeTruthy();
+});

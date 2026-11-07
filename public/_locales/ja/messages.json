@@ -1478,5 +1478,14 @@
         "content": "$2"
       }
     }
-  }
+  },
+  "zukan_section_early": { "message": "たまご・あかちゃん・こども" },
+  "family_solar": { "message": "ほのお" },
+  "family_water": { "message": "みず" },
+  "family_earth": { "message": "つち" },
+  "family_wind": { "message": "かぜ" },
+  "family_metal": { "message": "きかい" },
+  "family_lunar": { "message": "よる" },
+  "family_ether": { "message": "ほし" },
+  "family_heavy": { "message": "どっしり" }
 }

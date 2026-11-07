@@ -14,6 +14,7 @@ import {
   spriteUrl,
 } from '@/ui/assets';
 import { ACCESSORY_IDS } from '@/data/accessories';
+import { EGG_PATTERNS } from '@/data/eggs';
 import { DECOR_IDS } from '@/data/decor';
 import { FOODS } from '@/data/foods';
 import { ROOM_IDS } from '@/data/rooms';
@@ -27,6 +28,14 @@ test('egg sprites follow the generation pattern, other forms ignore it', () => {
   expect(spriteUrl('egg', 'idle0', 2)).toContain('/sprites/egg/dots/idle0');
   expect(spriteUrl('egg', 'happy', 4)).toContain('/sprites/egg/stars/idle0');
   expect(spriteUrl('baby_puni', 'idle0', 3)).toContain('/sprites/baby_puni/idle0');
+});
+
+test('every egg pattern has its art', () => {
+  EGG_PATTERNS.forEach((pattern, i) => {
+    for (const pose of ['idle0', 'idle1'] as const) {
+      expect(spriteUrl('egg', pose, i + 1), `${pattern}/${pose}`).toContain(`/sprites/egg/${pattern}/${pose}`);
+    }
+  });
 });
 
 test('every UI id resolves to a shipped file', () => {

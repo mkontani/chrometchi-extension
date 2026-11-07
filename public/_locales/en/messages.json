@@ -1478,5 +1478,14 @@
         "content": "$2"
       }
     }
-  }
+  },
+  "zukan_section_early": { "message": "Egg, baby and children" },
+  "family_solar": { "message": "Fire" },
+  "family_water": { "message": "Water" },
+  "family_earth": { "message": "Earth" },
+  "family_wind": { "message": "Wind" },
+  "family_metal": { "message": "Machine" },
+  "family_lunar": { "message": "Night" },
+  "family_ether": { "message": "Star" },
+  "family_heavy": { "message": "Hefty" }
 }
