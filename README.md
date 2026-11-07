@@ -23,6 +23,7 @@ Japanese) is in [`docs/store/listing.md`](docs/store/listing.md), and the privac
 - **Outings**: fishing, hunting and gathering (three trips each a day) and a small farm fill the pantry.
 - **Cooking**: put up to four ingredients in the pot to discover 12 recipes; found recipes stay in the recipe book.
 - **Coins and missions**: coins come from each generation's send-off, zukan milestones, missions (cleaning, playing, feeding, outings, harvests, cooking) and selling ingredients in the shop.
+- **Rooms**: switch between eleven rooms from the decorate screen; new rooms come from rewards.
 - **Time only runs while Chrome is open.** Your pet sleeps at night (configurable) and needs the lights off.
 - **Warnings before death**: notifications and an in-popup banner tell you when life is in danger.
 - **Zukan**: a collection of every form you have discovered, memories of past pets, your recipe book and your missions.
