@@ -17,13 +17,13 @@ import { NoticeDialog } from '@/ui/components/NoticeDialog';
 import { OutingHost } from '@/ui/components/OutingHost';
 import { OutingPanel } from '@/ui/components/OutingPanel';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
+import { DecorateOverlay } from '@/ui/components/DecorateOverlay';
 import { Overlay } from '@/ui/components/Overlay';
 import { RecipeBook } from '@/ui/components/RecipeBook';
 import { TabBar, type TabDef } from '@/ui/components/TabBar';
 import { placedIn } from '@/core/decor';
-import { ownedRooms, shownRoom } from '@/core/rooms';
+import { shownRoom } from '@/core/rooms';
 import { PetStage } from '@/ui/components/PetStage';
-import { RoomPicker } from '@/ui/components/RoomPicker';
 import { PlayPanel } from '@/ui/components/PlayPanel';
 import { ShopView } from '@/ui/components/ShopView';
 import { SettingsView } from '@/ui/components/SettingsView';
@@ -201,38 +201,6 @@ function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
       {tab === 'recipes' ? <RecipeBook recipes={save.kitchen.recipes} /> : null}
       {tab === 'missions' ? <MissionList progress={save.progress} /> : null}
     </>
-  );
-}
-
-/** The live stage with the room list below it; the list scrolls and the stage never shrinks. */
-interface DecorateProps {
-  save: SaveV1;
-  outcome: CareOutcome | null;
-  send: UseGame['send'];
-  onClose(): void;
-}
-
-function DecorateOverlay({ save, outcome, send, onClose }: DecorateProps) {
-  const { claimed } = save.progress;
-  const room = shownRoom(save.home.room, claimed);
-  return (
-    <Overlay title={t('decorate_title')} onClose={onClose}>
-      <div class="decorate">
-        <PetStage
-          pet={save.game.pet}
-          generation={save.game.generation}
-          room={room}
-          decor={placedIn(save.home, room)}
-          reaction={null}
-        />
-        <RoomPicker
-          owned={ownedRooms(claimed)}
-          current={room}
-          onPick={(next) => void send({ type: 'setRoom', room: next })}
-        />
-      </div>
-      <OutcomeToast outcome={outcome?.action === 'setRoom' ? outcome : null} />
-    </Overlay>
   );
 }
 

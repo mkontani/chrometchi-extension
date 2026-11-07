@@ -1,3 +1,4 @@
+import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import type { DecorId, PetState, Pose, RoomId, SlotId } from '@/core/types';
 import { decorDef } from '@/data/decor';
@@ -31,6 +32,8 @@ interface Props {
   /** The running care effect's frame, drawn over the usual picture. */
   effect?: EffectFrame | null;
   onPetClick?(): void;
+  /** Drawn over everything else, e.g. the decorate screen's slot buttons. */
+  children?: ComponentChildren;
 }
 
 export function choosePose(pet: PetState, reaction: Reaction, frame: 0 | 1): Pose {
@@ -120,7 +123,7 @@ function Darkness({ level }: { level: number }) {
   );
 }
 
-export function PetStage({ pet, generation, room, reaction, decor = [], fromPlay = false, effect = null, onPetClick }: Props) {
+export function PetStage({ pet, generation, room, reaction, decor = [], fromPlay = false, effect = null, onPetClick, children }: Props) {
   const frame = useIdleFrame();
   const bg = backgroundUrl(`${room}_${pet.asleep ? 'night' : 'day'}`);
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
@@ -161,6 +164,7 @@ export function PetStage({ pet, generation, room, reaction, decor = [], fromPlay
       <Darkness level={darkness} />
       {reaction === 'happy' && fromPlay && <Effect id="note" cls="effect--note" />}
       {effect && <EffectLayer props={effect.props} flash={effect.flash} />}
+      {children}
     </section>
   );
 }

@@ -837,3 +837,45 @@ test('a bought item shows its hint and a refused buy shows its reason, inside th
   fireEvent.click(screen.getByLabelText('close'));
   expect(screen.queryByText('refuse_noCoins')).toBeNull();
 });
+
+const withDecor = (room: string) =>
+  fullSave(
+    {},
+    {
+      progress: { ...EMPTY_PROGRESS, claimed: ['ending:first'] },
+      home: { room, ownedDecor: ['candle', 'clock'], decor: { [room]: { floorL: 'candle' } } },
+    },
+  );
+
+test('choosing a slot and an item sends placeDecor for the shown room', () => {
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save: withDecor('home'), outcome: null, error: null, send });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByRole('tab', { name: 'decorate_tab_room' }).getAttribute('aria-selected')).toBe('true');
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
+  expect(screen.getByRole('button', { name: 'slot_wallL' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('button', { name: 'slot_floorL: decor_candle' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'decor_clock' }));
+  expect(send).toHaveBeenCalledWith({ type: 'placeDecor', room: 'home', slot: 'wallL', decor: 'clock' });
+  fireEvent.click(screen.getByRole('button', { name: 'slot_floorL: decor_candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'decor_remove' }));
+  expect(send).toHaveBeenCalledWith({ type: 'placeDecor', room: 'home', slot: 'floorL', decor: null });
+});
+
+test('an outdoor room offers only floor and rug slots', () => {
+  useGame.mockReturnValue({ save: withDecor('garden'), outcome: null, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
+  const slots = screen.getAllByRole('button', { name: /^slot_/ }).map((b) => b.getAttribute('aria-label'));
+  expect(slots).toEqual(['slot_rug', 'slot_floorL: decor_candle', 'slot_floorR']);
+});
+
+test('a refused placement shows its reason inside the decorate overlay', () => {
+  const refused: CareOutcome = { action: 'place', result: 'refused', reason: 'wrongSlot' };
+  useGame.mockReturnValue({ save: withDecor('home'), outcome: refused, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByText('refuse_wrongSlot')).toBeTruthy();
+});

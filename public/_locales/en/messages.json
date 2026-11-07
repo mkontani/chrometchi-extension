@@ -1092,5 +1092,35 @@
   },
   "decor_chest": {
     "message": "Treasure chest"
+  },
+  "decorate_tab_room": {
+    "message": "Room"
+  },
+  "decorate_tab_decor": {
+    "message": "Furniture"
+  },
+  "slot_wallL": {
+    "message": "Left wall"
+  },
+  "slot_wallR": {
+    "message": "Right wall"
+  },
+  "slot_ceiling": {
+    "message": "Ceiling"
+  },
+  "slot_rug": {
+    "message": "Rug"
+  },
+  "slot_floorL": {
+    "message": "Left floor"
+  },
+  "slot_floorR": {
+    "message": "Right floor"
+  },
+  "decor_remove": {
+    "message": "Remove"
+  },
+  "decor_empty": {
+    "message": "Buy some in the shop"
   }
 }

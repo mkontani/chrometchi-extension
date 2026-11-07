@@ -1092,5 +1092,35 @@
   },
   "decor_chest": {
     "message": "たからばこ"
+  },
+  "decorate_tab_room": {
+    "message": "へや"
+  },
+  "decorate_tab_decor": {
+    "message": "かぐ"
+  },
+  "slot_wallL": {
+    "message": "かべ・ひだり"
+  },
+  "slot_wallR": {
+    "message": "かべ・みぎ"
+  },
+  "slot_ceiling": {
+    "message": "てんじょう"
+  },
+  "slot_rug": {
+    "message": "しきもの"
+  },
+  "slot_floorL": {
+    "message": "ゆか・ひだり"
+  },
+  "slot_floorR": {
+    "message": "ゆか・みぎ"
+  },
+  "decor_remove": {
+    "message": "はずす"
+  },
+  "decor_empty": {
+    "message": "おみせで かえるよ"
   }
 }

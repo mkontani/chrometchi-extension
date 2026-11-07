@@ -5,10 +5,12 @@ import { useAutoFocus } from '@/ui/useAutoFocus';
 interface Props {
   title: string;
   onClose(): void;
+  /** Shown between the title and the close button, e.g. tabs. */
+  headerExtra?: ComponentChildren;
   children: ComponentChildren;
 }
 
-export function Overlay({ title, onClose, children }: Props) {
+export function Overlay({ title, onClose, headerExtra, children }: Props) {
   const ref = useAutoFocus<HTMLElement>();
   return (
     <section
@@ -19,6 +21,7 @@ export function Overlay({ title, onClose, children }: Props) {
     >
       <header class="panel__header">
         <strong>{title}</strong>
+        {headerExtra}
         <button type="button" class="panel__close" aria-label={t('close')} onClick={onClose}>
           ×
         </button>
