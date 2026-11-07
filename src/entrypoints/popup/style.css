@@ -341,6 +341,14 @@ body {
 }
 .picker__btn img { image-rendering: pixelated; }
 .picker__btn[aria-pressed='true'] { background: var(--pink); }
+.places { display: flex; gap: 4px; padding: 0 8px; }
+.places__btn {
+  flex: 1; border: 3px solid var(--ink); background: #fff; font-family: inherit; font-size: 11px; color: var(--ink);
+  padding: 2px 0; cursor: pointer;
+}
+.places__btn[aria-pressed='true'] { background: var(--pink); }
+.overlay:has(.decorate) .panel__tabs { flex-wrap: nowrap; white-space: nowrap; }
+.overlay:has(.decorate) .panel__tab { padding: 1px 4px; font-size: 9px; }
 .picker__remove {
   border: 3px solid var(--ink); background: var(--pink); font-family: inherit; font-size: 11px; color: var(--ink);
   padding: 2px 8px; cursor: pointer;

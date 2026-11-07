@@ -954,3 +954,57 @@ test("a slot chosen in one room falls back to that room's first slot after switc
   expect(screen.queryByRole('button', { name: 'slot_wallL' })).toBeNull();
   expect(screen.getByRole('button', { name: 'slot_rug' }).getAttribute('aria-pressed')).toBe('true');
 });
+
+const withAcc = (worn: object = {}) =>
+  fullSave({}, { home: { room: 'home', ownedDecor: [], ownedAcc: ['ribbon', 'crown', 'glasses'], decor: {}, worn } });
+
+test('the decorate header has room, furniture and dress-up tabs', () => {
+  useGame.mockReturnValue({ save: withAcc(), outcome: null, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  const names = screen.getAllByRole('tab').map((b) => b.textContent);
+  expect(names).toEqual(['decorate_tab_room', 'decorate_tab_decor', 'decorate_tab_dress']);
+  expect(screen.getByRole('tablist', { name: 'decorate_title' })).toBeTruthy();
+});
+
+test('the dress-up tab lists owned items for the chosen place', () => {
+  useGame.mockReturnValue({ save: withAcc({ face: 'glasses' }), outcome: null, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_dress' }));
+  expect(screen.getByRole('button', { name: 'wear_head' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('button', { name: 'acc_ribbon' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'acc_glasses' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'wear_face, acc_glasses' }));
+  expect(screen.getByRole('button', { name: 'acc_glasses' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'acc_ribbon' })).toBeNull();
+});
+
+test('choosing an item sends wear, and take off sends null', () => {
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save: withAcc({ head: 'ribbon' }), outcome: null, error: null, send });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_dress' }));
+  fireEvent.click(screen.getByRole('button', { name: 'acc_crown' }));
+  expect(send).toHaveBeenCalledWith({ type: 'wear', place: 'head', acc: 'crown' });
+  fireEvent.click(screen.getByRole('button', { name: 'dress_remove' }));
+  expect(send).toHaveBeenCalledWith({ type: 'wear', place: 'head', acc: null });
+});
+
+test('with nothing owned for a place it says where to buy', () => {
+  useGame.mockReturnValue({ save: withAcc(), outcome: null, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_dress' }));
+  fireEvent.click(screen.getByRole('button', { name: 'wear_neck' }));
+  expect(screen.getByText('dress_empty')).toBeTruthy();
+});
+
+test('a refused wear shows its reason inside the decorate overlay', () => {
+  const refused: CareOutcome = { action: 'wear', result: 'refused', reason: 'asleep' };
+  useGame.mockReturnValue({ save: withAcc(), outcome: refused, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByText('refuse_asleep')).toBeTruthy();
+});

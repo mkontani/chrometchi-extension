@@ -1180,6 +1180,24 @@
   "decorate_tab_decor": {
     "message": "かぐ"
   },
+  "decorate_tab_dress": {
+    "message": "きせかえ"
+  },
+  "wear_head": {
+    "message": "あたま"
+  },
+  "wear_face": {
+    "message": "かお"
+  },
+  "wear_neck": {
+    "message": "くび"
+  },
+  "dress_remove": {
+    "message": "はずす"
+  },
+  "dress_empty": {
+    "message": "おみせで かえるよ"
+  },
   "slot_wallL": {
     "message": "かべ・ひだり"
   },

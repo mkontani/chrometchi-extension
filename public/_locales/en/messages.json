@@ -1180,6 +1180,24 @@
   "decorate_tab_decor": {
     "message": "Furniture"
   },
+  "decorate_tab_dress": {
+    "message": "Dress up"
+  },
+  "wear_head": {
+    "message": "Head"
+  },
+  "wear_face": {
+    "message": "Face"
+  },
+  "wear_neck": {
+    "message": "Neck"
+  },
+  "dress_remove": {
+    "message": "Take off"
+  },
+  "dress_empty": {
+    "message": "Buy some in the shop"
+  },
   "slot_wallL": {
     "message": "Left wall"
   },
