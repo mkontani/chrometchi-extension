@@ -26,9 +26,10 @@ Japanese) is in [`docs/store/listing.md`](docs/store/listing.md), and the privac
 - **Rooms**: switch between eleven rooms from the decorate screen; new rooms come from rewards.
 - **Furniture**: buy 28 pieces of furniture in the shop and place them in each room's slots from the decorate screen.
 - **Dress-up**: buy 25 accessories and dress your pet's head, face and neck from the decorate screen.
+- **Growing up**: the room your pet grows up in, the furniture in it, what it wears and morning care all open new paths in its evolution.
 - **Time only runs while Chrome is open.** Your pet sleeps at night (configurable) and needs the lights off.
 - **Warnings before death**: notifications and an in-popup banner tell you when life is in danger.
-- **Zukan**: a collection of every form you have discovered, memories of past pets, your recipe book and your missions.
+- **Zukan**: a collection of every form you have discovered, 83 forms grouped by family, memories of past pets, your recipe book and your missions.
 - **Walks on web pages** (optional): your pet strolls along the bottom of the pages you browse. Click it to hear how it is doing, drag it aside, or hide it on a site. Site access is asked for only when you turn this on.
 - English and Japanese, optional chiptune sound effects (off by default).
 
