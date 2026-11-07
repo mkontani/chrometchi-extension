@@ -174,7 +174,7 @@ test('accessory rows show price or owned, and buying asks first', () => {
   expect(items[0]?.querySelector('img')?.getAttribute('width')).toBe('32');
   const ribbon = items[0] as HTMLElement;
   expect(within(ribbon).getByText('Ribbon')).toBeTruthy();
-  expect(within(ribbon).getByRole('img', { name: 'Coins: 50' })).toBeTruthy();
+  expect(within(ribbon).getByRole('img', { name: 'Coins: 70' })).toBeTruthy();
   const crown = items[1] as HTMLElement;
   expect(within(crown).getByText('Owned')).toBeTruthy();
   expect(within(crown).queryByRole('button')).toBeNull();

@@ -10,14 +10,14 @@ const pet = makePet();
 
 describe('buyDecor', () => {
   test('at exactly the price, one short, and twice', () => {
-    const bought = buyDecor({ progress: coins(50), home: home(), decor: 'candle' });
+    const bought = buyDecor({ progress: coins(70), home: home(), decor: 'candle' });
     expect(bought.outcome).toEqual({ action: 'buy', result: 'ok' });
     expect(bought.progress.coins).toBe(0);
     expect(bought.home.ownedDecor).toEqual(['candle']);
 
-    const short = buyDecor({ progress: coins(49), home: home(), decor: 'candle' });
+    const short = buyDecor({ progress: coins(69), home: home(), decor: 'candle' });
     expect(short.outcome).toEqual({ action: 'buy', result: 'refused', reason: 'noCoins' });
-    expect(short.progress.coins).toBe(49);
+    expect(short.progress.coins).toBe(69);
     expect(short.home.ownedDecor).toEqual([]);
 
     const twice = buyDecor({ progress: coins(500), home: bought.home, decor: 'candle' });

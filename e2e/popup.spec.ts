@@ -452,9 +452,9 @@ test('buying a plant takes its coins and shows it as owned', async ({ context, e
   await row.locator('.shop__btn').click(); // named by shop_buy_aria, which the fixture cannot fill in
   await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
   await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
-  await expect(page.locator('.shop__coins')).toContainText('40');
+  await expect(page.locator('.shop__coins')).toContainText('20');
   const save = await readSave(context);
-  expect(save.progress.coins).toBe(40);
+  expect(save.progress.coins).toBe(20);
   expect(save.home.ownedDecor).toEqual(['plant']);
 
   // The where-to-place hint belongs to the buy, not to the shop: reopening it must not repeat it.

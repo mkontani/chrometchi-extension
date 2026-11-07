@@ -38,7 +38,7 @@ test('lists the 28 items with price or owned', () => {
   expect(within(lamp).queryByRole('button')).toBeNull();
   const candle = rows()[0] as HTMLElement;
   expect(within(candle).getByText('Candle')).toBeTruthy();
-  expect(within(candle).getByRole('img', { name: 'Coins: 50' })).toBeTruthy();
+  expect(within(candle).getByRole('img', { name: 'Coins: 70' })).toBeTruthy();
   expect(within(candle).getByRole('button', { name: 'Buy Candle' }).textContent).toBe('Buy');
 });
 
@@ -53,7 +53,7 @@ test('buying asks first and sends buyDecor only on confirm', () => {
   const onBuy = vi.fn();
   render(<DecorShop owned={[]} coins={1000} onBuy={onBuy} />);
   fireEvent.click(screen.getByRole('button', { name: 'Buy Lamp' }));
-  expect(screen.getByText('Buy Lamp for 100 coins?')).toBeTruthy();
+  expect(screen.getByText('Buy Lamp for 130 coins?')).toBeTruthy();
   expect(onBuy).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(screen.queryByRole('alertdialog')).toBeNull();

@@ -33,6 +33,8 @@ const en = load('en');
 
 const ORDER: Stage[] = ['egg', 'baby', 'child', 'young', 'adult'];
 const isFallback = (when: object) => Object.keys(when).length === 0;
+/** The price a new player can reach early: spec 7.3's 100 coins, scaled by the 1.3 price factor. */
+const AFFORDABLE = 130;
 
 describe('form data', () => {
   test('form ids are unique and there are 42 forms', () => {
@@ -335,25 +337,25 @@ describe('furniture data', () => {
   test('the furniture matches the spec table', () => {
     const row = (d: (typeof DECOR)[number]) => [d.id, d.slot, String(d.kind), d.price, d.size].join(' ');
     expect(DECOR.map(row)).toEqual([
-      'candle floor light 50 24', 'lamp floor light 100 32',
-      'fishbowl floor water 120 32', 'vase floor water 60 32',
-      'plant floor plant 60 32', 'cactus floor plant 60 24', 'bonsai floor plant 150 32',
-      'bunting ceiling sky 60 32', 'telescope floor sky 250 32',
-      'clock wall gadget 100 24', 'musicbox floor gadget 150 24', 'toypiano floor gadget 200 32',
-      'lantern ceiling night 100 24', 'petbed floor night 100 32',
-      'trophy floor sparkle 250 24', 'globe floor sparkle 100 24', 'xmastree floor sparkle 300 32',
-      'armchair floor cozy 200 32', 'cushion rug cozy 50 32', 'table floor cozy 120 32',
-      'stool floor cozy 60 24', 'rug rug cozy 80 32',
-      'ball floor null 50 24', 'blocks floor null 50 24', 'drum floor null 120 24',
-      'shelf floor null 150 32', 'picture wall null 100 24', 'chest floor null 200 32',
+      'candle floor light 70 24', 'lamp floor light 130 32',
+      'fishbowl floor water 160 32', 'vase floor water 80 32',
+      'plant floor plant 80 32', 'cactus floor plant 80 24', 'bonsai floor plant 200 32',
+      'bunting ceiling sky 80 32', 'telescope floor sky 330 32',
+      'clock wall gadget 130 24', 'musicbox floor gadget 200 24', 'toypiano floor gadget 260 32',
+      'lantern ceiling night 130 24', 'petbed floor night 130 32',
+      'trophy floor sparkle 330 24', 'globe floor sparkle 130 24', 'xmastree floor sparkle 390 32',
+      'armchair floor cozy 260 32', 'cushion rug cozy 70 32', 'table floor cozy 160 32',
+      'stool floor cozy 80 24', 'rug rug cozy 100 32',
+      'ball floor null 70 24', 'blocks floor null 70 24', 'drum floor null 160 24',
+      'shelf floor null 200 32', 'picture wall null 130 24', 'chest floor null 260 32',
     ]);
   });
 
-  test('every kind has an item for 100 coins or less', () => {
+  test('every kind has an item for 130 coins or less', () => {
     const kinds = new Set(DECOR.flatMap((d) => (d.kind ? [d.kind] : [])));
     expect(kinds.size).toBe(8);
     for (const kind of kinds) {
-      expect(DECOR.some((d) => d.kind === kind && d.price <= 100), kind).toBe(true);
+      expect(DECOR.some((d) => d.kind === kind && d.price <= AFFORDABLE), kind).toBe(true);
     }
   });
 
@@ -405,14 +407,14 @@ describe('accessory data', () => {
   test('the accessories match the spec table', () => {
     const row = (a: (typeof ACCESSORIES)[number]) => [a.id, a.place, a.price, a.size].join(' ');
     expect(ACCESSORIES.map(row)).toEqual([
-      'ribbon head 50 16', 'crown head 200 16', 'partyhat head 60 16', 'tophat head 120 16',
-      'beret head 80 16', 'strawhat head 80 20', 'flowercrown head 150 24', 'chefhat head 100 16',
-      'beanie head 80 16', 'santahat head 120 16', 'tiara head 200 16', 'cap head 60 16',
-      'wizardhat head 150 20', 'headphones head 150 20', 'flowerpin head 50 16',
-      'starclip head 50 16', 'leaf head 50 16',
-      'glasses face 80 16', 'sunglasses face 100 16', 'heartglasses face 120 16',
-      'bowtie neck 60 16', 'scarf neck 100 20', 'bell neck 60 16', 'medal neck 200 16',
-      'necklace neck 150 16',
+      'ribbon head 70 16', 'crown head 260 16', 'partyhat head 80 16', 'tophat head 160 16',
+      'beret head 100 16', 'strawhat head 100 20', 'flowercrown head 200 24', 'chefhat head 130 16',
+      'beanie head 100 16', 'santahat head 160 16', 'tiara head 260 16', 'cap head 80 16',
+      'wizardhat head 200 20', 'headphones head 200 20', 'flowerpin head 70 16',
+      'starclip head 70 16', 'leaf head 70 16',
+      'glasses face 100 16', 'sunglasses face 130 16', 'heartglasses face 160 16',
+      'bowtie neck 80 16', 'scarf neck 130 20', 'bell neck 80 16', 'medal neck 260 16',
+      'necklace neck 200 16',
     ]);
   });
 

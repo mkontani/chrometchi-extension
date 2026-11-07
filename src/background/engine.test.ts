@@ -521,11 +521,11 @@ describe('engine', () => {
       seed(area, stored, { progress: { ...stored().progress, coins: 150 } });
       const res = await engine.handle({ type: 'buyDecor', decor: 'lamp' });
       expect(res).toMatchObject({ ok: true, outcome: { action: 'buy', result: 'ok' } });
-      expect(stored().progress.coins).toBe(50);
+      expect(stored().progress.coins).toBe(20);
       expect(stored().home.ownedDecor).toEqual(['lamp']);
       const again = await engine.handle({ type: 'buyDecor', decor: 'lamp' });
       expect(again).toMatchObject({ outcome: { action: 'buy', result: 'refused', reason: 'owned' } });
-      expect(stored().progress.coins).toBe(50);
+      expect(stored().progress.coins).toBe(20);
     });
 
     test('decor is kept per room across room switches', async () => {
@@ -555,11 +555,11 @@ describe('engine', () => {
       expect(res).toMatchObject({ outcome: { action: 'buy', result: 'refused', reason: 'noCoins' } });
       const ok = await engine.handle({ type: 'buyAccessory', acc: 'ribbon' });
       expect(ok).toMatchObject({ ok: true, outcome: { action: 'buy', result: 'ok' } });
-      expect(stored().progress.coins).toBe(100);
+      expect(stored().progress.coins).toBe(80);
       expect(stored().home.ownedAcc).toEqual(['ribbon']);
       const again = await engine.handle({ type: 'buyAccessory', acc: 'ribbon' });
       expect(again).toMatchObject({ outcome: { action: 'buy', result: 'refused', reason: 'owned' } });
-      expect(stored().progress.coins).toBe(100);
+      expect(stored().progress.coins).toBe(80);
     });
 
     test.each(['restart', 'startNewEgg'] as const)('a new egg (%s) takes everything off and keeps it owned', async (type) => {
