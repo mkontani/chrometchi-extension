@@ -332,6 +332,25 @@ test('worn items move with the pet slide and bounce', () => {
   expect(petImg().classList.contains('pet--bounce')).toBe(false);
 });
 
+test('worn items sink with the face in idle1', () => {
+  vi.useFakeTimers();
+  // adult_kraken's idle1 drops art row 16: its head and face points are above it, its neck point below.
+  const pts = FORM_ANCHORS.adult_kraken!;
+  expect(pts.face[1]).toBeLessThan(pts.squashRow);
+  expect(pts.neck[1]).toBeGreaterThan(pts.squashRow);
+  const kraken = makePet({ stage: 'adult', formId: 'adult_kraken' });
+  const worn = { head: 'tophat', face: 'glasses', neck: 'bowtie' } as const;
+  const { container, rerender } = render(<PetStage generation={1} room="home" pet={kraken} reaction={null} worn={worn} />);
+  const tops = () => (['tophat', 'glasses', 'bowtie'] as const).map((id) => Number.parseInt(wornImg(container, id).style.top, 10));
+  const [hat0, glasses0, tie0] = tops();
+  act(() => void vi.advanceTimersByTime(500));
+  expect(screen.getByAltText('form_adult_kraken').getAttribute('src')).toBe('sprite-idle1.png');
+  expect(tops()).toEqual([hat0! + 4, glasses0! + 4, tie0]);
+  // Every other pose is its own still picture and keeps the idle0 points.
+  rerender(<PetStage generation={1} room="home" pet={kraken} reaction="happy" worn={worn} />);
+  expect(tops()).toEqual([hat0, glasses0, tie0]);
+});
+
 test('layer order is pet, neck, face, head', () => {
   const { container } = render(
     <PetStage generation={1} room="home" pet={makePet()} reaction={null} worn={{ head: 'crown', face: 'glasses', neck: 'scarf' }} />,

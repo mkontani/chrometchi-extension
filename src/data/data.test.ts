@@ -474,6 +474,20 @@ describe('form anchors', () => {
     expect(face?.[1]).toBeLessThan(neck?.[1] ?? -1);
   });
 
+  test('idle1 equals idle0 with the rows above squashRow moved down one', () => {
+    for (const id of wearers) {
+      const idle0 = readPng(resolve(__dirname, `../assets/sprites/${id}/idle0.png`));
+      const idle1 = readPng(resolve(__dirname, `../assets/sprites/${id}/idle1.png`));
+      const cut = FORM_ANCHORS[id]?.squashRow;
+      expect(idle0 && idle1 && cut !== undefined, id).toBeTruthy();
+      if (!idle0 || !idle1 || cut === undefined) continue;
+      expect(Number.isInteger(cut) && cut > 0 && cut < idle0.height, `${id} squashRow ${cut}`).toBe(true);
+      expect(sameRows(idle1, 1, idle0, 0, cut), `${id}: rows 0-${cut - 1} sink 1 px`).toBe(true);
+      expect(sameRows(idle1, cut + 1, idle0, cut + 1, idle0.height - cut - 1), `${id}: rows below ${cut} stay`).toBe(true);
+      expect(idle1.data.subarray(0, idle1.width * 4).every((v) => v === 0), `${id}: idle1 row 0 is empty`).toBe(true);
+    }
+  });
+
   test('a bow tie hangs at most 1 px below the feet (Gate P)', () => {
     const bowtie = ACCESSORIES.find((a) => a.id === 'bowtie');
     const tie = readPng(resolve(__dirname, '../assets/ui/acc/bowtie.png'));
@@ -489,6 +503,14 @@ describe('form anchors', () => {
     }
   });
 });
+
+/** Whether `count` rows of `a` from row `aFrom` are byte for byte the rows of `b` from row `bFrom`. */
+function sameRows(a: PngData, aFrom: number, b: PngData, bFrom: number, count: number): boolean {
+  const row = a.width * 4;
+  const left = a.data.subarray(aFrom * row, (aFrom + count) * row);
+  const right = b.data.subarray(bFrom * row, (bFrom + count) * row);
+  return left.length === right.length && left.every((v, i) => v === right[i]);
+}
 
 /** The box around a picture's opaque pixels, in pixel-edge coordinates (right and bottom are exclusive). */
 function opaqueBox(png: PngData): { left: number; top: number; right: number; bottom: number } {

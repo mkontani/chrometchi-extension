@@ -2,7 +2,7 @@ import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import type { AccessoryId, DecorId, PetState, Pose, RoomId, SlotId, WearPlace } from '@/core/types';
 import { accessoryDef } from '@/data/accessories';
-import { FORM_ANCHORS } from '@/data/anchors';
+import { FORM_ANCHORS, type FormAnchors } from '@/data/anchors';
 import { decorDef } from '@/data/decor';
 import { ROOM_SLOTS, SLOT_KIND } from '@/data/slots';
 import { deriveWarning } from '@/core/warnings';
@@ -83,11 +83,29 @@ const WORN_SCALE = 4;
 /** Drawn after the pet, so neck sits under face, and face under head. */
 const WORN_ORDER: readonly WearPlace[] = ['neck', 'face', 'head'];
 
+/**
+ * The form's point for a place in this pose. idle1 is idle0 with one low row removed, so a point
+ * above that row sinks 1 px with the face; every other pose is its own picture and keeps idle0's points.
+ */
+function wornPoint(anchors: FormAnchors, place: WearPlace, pose: Pose): [number, number] {
+  const [x, y] = anchors[place];
+  return pose === 'idle1' && y < anchors.squashRow ? [x, y + 1] : [x, y];
+}
+
+interface WornProps {
+  formId: PetState['formId'];
+  place: WearPlace;
+  id: AccessoryId;
+  /** the pose the pet is drawn in, so the item follows the idle bounce frame */
+  pose: Pose;
+}
+
 /** One worn item at 4x; its anchor lands on the form's point (positions are relative to the pet wrapper). */
-function Worn({ formId, place, id }: { formId: PetState['formId']; place: WearPlace; id: AccessoryId }) {
-  const point = (FORM_ANCHORS as Partial<Record<string, (typeof FORM_ANCHORS)[keyof typeof FORM_ANCHORS]>>)[formId]?.[place];
+function Worn({ formId, place, id, pose }: WornProps) {
+  const anchors = (FORM_ANCHORS as Partial<Record<string, FormAnchors>>)[formId];
   const url = accUrl(id);
-  if (!point || !url) return null;
+  if (!anchors || !url) return null;
+  const point = wornPoint(anchors, place, pose);
   const def = accessoryDef(id);
   const size = def.size * WORN_SCALE;
   return (
@@ -192,7 +210,7 @@ export function PetStage({ pet, generation, room, reaction, decor = [], worn = {
         />
         {WORN_ORDER.map((place) => {
           const id = worn[place];
-          return id ? <Worn key={place} formId={pet.formId} place={place} id={id} /> : null;
+          return id ? <Worn key={place} formId={pet.formId} place={place} id={id} pose={pose} /> : null;
         })}
       </div>
       {drawn(true)}
