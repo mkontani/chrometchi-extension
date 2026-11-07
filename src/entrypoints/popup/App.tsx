@@ -19,8 +19,9 @@ import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
 import { RecipeBook } from '@/ui/components/RecipeBook';
 import { TabBar, type TabDef } from '@/ui/components/TabBar';
-import { shownRoom } from '@/core/rooms';
+import { ownedRooms, shownRoom } from '@/core/rooms';
 import { PetStage } from '@/ui/components/PetStage';
+import { RoomPicker } from '@/ui/components/RoomPicker';
 import { PlayPanel } from '@/ui/components/PlayPanel';
 import { ShopView } from '@/ui/components/ShopView';
 import { SettingsView } from '@/ui/components/SettingsView';
@@ -56,8 +57,8 @@ function sfxFor(outcome: CareOutcome): SfxName | null {
   }
 }
 
-type Panel = 'feed' | 'play' | 'outing' | 'zukan' | 'shop' | 'settings';
-const PANELS: readonly ActionKind[] = ['feed', 'play', 'outing', 'zukan', 'shop', 'settings'];
+type Panel = 'feed' | 'play' | 'outing' | 'zukan' | 'shop' | 'settings' | 'decorate';
+const PANELS: readonly ActionKind[] = ['feed', 'play', 'outing', 'zukan', 'shop', 'settings', 'decorate'];
 
 /** Raw engine/Chrome errors are not localized, so the UI shows only a generic message. */
 function ErrorNote({ error }: { error: string }) {
@@ -197,6 +198,24 @@ function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
   );
 }
 
+/** The live stage with the room list below it; the list scrolls and the stage never shrinks. */
+function DecorateOverlay({ save, send, onClose }: { save: SaveV1; send: UseGame['send']; onClose(): void }) {
+  const { claimed } = save.progress;
+  const room = shownRoom(save.home.room, claimed);
+  return (
+    <Overlay title={t('decorate_title')} onClose={onClose}>
+      <div class="decorate">
+        <PetStage pet={save.game.pet} generation={save.game.generation} room={room} reaction={null} />
+        <RoomPicker
+          owned={ownedRooms(claimed)}
+          current={room}
+          onPick={(next) => void send({ type: 'setRoom', room: next })}
+        />
+      </div>
+    </Overlay>
+  );
+}
+
 function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
   const { kind, save, send, onClose } = props;
   if (kind === 'zukan') {
@@ -315,6 +334,8 @@ export function App() {
         onCancel={outings.cancel}
       />
     );
+  } else if (panel === 'decorate') {
+    layer = <DecorateOverlay save={save} send={send} onClose={close} />;
   } else if (panel === 'zukan' || panel === 'shop' || panel === 'settings') {
     layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
   } else {

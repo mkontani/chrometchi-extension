@@ -3,11 +3,11 @@ import { t } from '@/i18n/t';
 import type { IconId } from '@/ui/assets';
 import { IconButton } from './IconButton';
 
-export type ActionKind = 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'shop' | 'settings';
+export type ActionKind = 'feed' | 'play' | 'outing' | 'clean' | 'medicine' | 'lights' | 'zukan' | 'shop' | 'settings' | 'decorate';
 
-// null is the empty slot kept for the stage-2 dress-up button.
+// null marks a slot left empty.
 const SLOTS: readonly (ActionKind | null)[] = [
-  'feed', 'play', 'outing', 'clean', null,
+  'feed', 'play', 'outing', 'clean', 'decorate',
   'medicine', 'lights', 'zukan', 'shop', 'settings',
 ];
 
@@ -16,6 +16,7 @@ export function isActionDisabled(kind: ActionKind, pet: PetState): boolean {
     case 'feed':
     case 'play':
     case 'outing':
+    case 'decorate':
       return pet.asleep || pet.stage === 'egg';
     case 'clean':
       return pet.poops === 0;

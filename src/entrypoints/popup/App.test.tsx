@@ -768,3 +768,14 @@ test('the missions tab shows a dot while there are new rewards', () => {
   expect(missions.querySelector('.panel__tab-dot')).not.toBeNull();
   expect(screen.getByRole('tab', { name: 'zukan_tab_pets' }).querySelector('.panel__tab-dot')).toBeNull();
 });
+
+test('the decorate button opens the room list and choosing a room sends setRoom', () => {
+  const claimed = ['zukan:10' as const];
+  const { send } = setup(null, {}, { progress: { ...EMPTY_PROGRESS, claimed } });
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByText('decorate_title')).toBeTruthy();
+  expect(document.querySelector('.stage')).not.toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'room_beach' }));
+  expect(send).toHaveBeenCalledWith({ type: 'setRoom', room: 'beach' });
+  expect((screen.getByRole('button', { name: /room_castle/ }) as HTMLButtonElement).disabled).toBe(true);
+});

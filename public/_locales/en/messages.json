@@ -900,5 +900,50 @@
         "content": "$2"
       }
     }
+  },
+  "action_decorate": {
+    "message": "Decorate"
+  },
+  "decorate_title": {
+    "message": "Decorate"
+  },
+  "room_home": {
+    "message": "Home"
+  },
+  "room_garden": {
+    "message": "Flower garden"
+  },
+  "room_beach": {
+    "message": "Beach"
+  },
+  "room_forest": {
+    "message": "Forest"
+  },
+  "room_sweets": {
+    "message": "Sweets shop"
+  },
+  "room_snowfield": {
+    "message": "Snowfield"
+  },
+  "room_castle": {
+    "message": "Castle"
+  },
+  "room_washitsu": {
+    "message": "Tatami room"
+  },
+  "room_space": {
+    "message": "Spaceship"
+  },
+  "room_cabin": {
+    "message": "Log cabin"
+  },
+  "room_library": {
+    "message": "Library"
+  },
+  "room_locked": {
+    "message": "Locked"
+  },
+  "room_unlock_first": {
+    "message": "After your first farewell"
   }
 }

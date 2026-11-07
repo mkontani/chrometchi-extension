@@ -900,5 +900,50 @@
         "content": "$2"
       }
     }
+  },
+  "action_decorate": {
+    "message": "もようがえ"
+  },
+  "decorate_title": {
+    "message": "もようがえ"
+  },
+  "room_home": {
+    "message": "おうち"
+  },
+  "room_garden": {
+    "message": "はなのにわ"
+  },
+  "room_beach": {
+    "message": "うみべ"
+  },
+  "room_forest": {
+    "message": "もり"
+  },
+  "room_sweets": {
+    "message": "おかしやさん"
+  },
+  "room_snowfield": {
+    "message": "ゆきのはら"
+  },
+  "room_castle": {
+    "message": "おしろ"
+  },
+  "room_washitsu": {
+    "message": "わしつ"
+  },
+  "room_space": {
+    "message": "うちゅうせん"
+  },
+  "room_cabin": {
+    "message": "ログハウス"
+  },
+  "room_library": {
+    "message": "としょしつ"
+  },
+  "room_locked": {
+    "message": "まだ つかえない"
+  },
+  "room_unlock_first": {
+    "message": "はじめての おわかれで"
   }
 }
