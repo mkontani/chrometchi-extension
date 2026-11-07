@@ -500,3 +500,38 @@ test('the beach offers no wall slots', async ({ context, extensionId, msg }) => 
   for (const slot of ['floorL', 'floorR', 'rug']) await expect(slotButton(page, msg, slot)).toBeVisible();
   for (const slot of ['wallL', 'wallR', 'ceiling']) await expect(slotButton(page, msg, slot)).toHaveCount(0);
 });
+
+test('buying a crown and wearing it draws it on the pet', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, withProgress(seed({}), { coins: 300 }));
+  await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
+  await page.getByRole('tab', { name: msg('shop_tab_acc') }).click();
+  const row = page.locator('.shop__row').filter({ hasText: msg('acc_crown') });
+  await row.locator('.shop__btn').click(); // named by shop_buy_aria, which the fixture cannot fill in
+  await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
+  await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
+  await expect(page.getByText(msg('shop_bought_acc'))).toBeVisible();
+  expect((await readSave(context)).home.ownedAcc).toEqual(['crown']);
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+
+  await decorateButton(page, msg).click();
+  await page.getByRole('tab', { name: msg('decorate_tab_dress') }).click();
+  await page.getByRole('button', { name: msg('acc_crown'), exact: true }).click();
+  await expect(page.locator('.decorate .stage img.pet__worn')).toHaveCount(1);
+
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+  await expect(page.locator('.stage img.pet__worn')).toHaveCount(1);
+  expect((await readSave(context)).home.worn.head).toBe('crown');
+});
+
+test('a new egg wears nothing', async ({ context, extensionId, msg }) => {
+  const base = seed({ lifecycle: 'dead' });
+  const save = withHome(base, { ownedAcc: ['crown'], worn: { head: 'crown' } });
+  const page = await seedAndOpen(context, extensionId, save);
+
+  await page.getByRole('button', { name: msg('new_egg'), exact: true }).click();
+  await expect(petButton(page, msg, 'form_egg')).toBeVisible();
+  await expect(page.locator('.stage img.pet__worn')).toHaveCount(0);
+  const home = (await readSave(context)).home;
+  expect(home.worn).toEqual({});
+  expect(home.ownedAcc).toEqual(['crown']);
+});
