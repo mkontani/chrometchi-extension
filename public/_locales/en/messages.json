@@ -329,6 +329,21 @@
   "refuse_locked": {
     "message": "Not unlocked yet"
   },
+  "refuse_owned": {
+    "message": "You already have it"
+  },
+  "refuse_noCoins": {
+    "message": "Not enough coins"
+  },
+  "refuse_noSlot": {
+    "message": "It can't go there"
+  },
+  "refuse_notOwned": {
+    "message": "You don't have it yet"
+  },
+  "refuse_wrongSlot": {
+    "message": "It can't go there"
+  },
   "refuse_farmNotReady": {
     "message": "Not now."
   },

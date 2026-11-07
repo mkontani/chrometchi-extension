@@ -329,6 +329,21 @@
   "refuse_locked": {
     "message": "まだ つかえないよ"
   },
+  "refuse_owned": {
+    "message": "もう もっているよ"
+  },
+  "refuse_noCoins": {
+    "message": "コインが たりないよ"
+  },
+  "refuse_noSlot": {
+    "message": "そこには おけないよ"
+  },
+  "refuse_notOwned": {
+    "message": "まだ もっていないよ"
+  },
+  "refuse_wrongSlot": {
+    "message": "そこには おけないよ"
+  },
   "refuse_farmNotReady": {
     "message": "いまはできないよ"
   },

@@ -9,7 +9,8 @@ const isRoomId = (v: unknown): v is RoomId => typeof v === 'string' && ROOM_ID_S
 export function parseHome(raw: unknown): Home {
   const fields = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
   // Other fields pass through so a save never loses what a newer stage stored next to `room`.
-  return { ...fields, room: isRoomId(fields.room) ? fields.room : 'home' };
+  // Task 2 parses ownedDecor and decor; until then they start empty.
+  return { ...fields, room: isRoomId(fields.room) ? fields.room : 'home', ownedDecor: [], decor: {} };
 }
 
 /** preprocess (not transform) so a save with no `home` key still reaches the parser. */
