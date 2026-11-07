@@ -23,6 +23,8 @@ const SOLD_SHARE = 0.5;
 const MIN_GENERATIONS = 20;
 const MAX_GENERATIONS = 30;
 
+// Prices were scaled by 1.3, except clock, lantern and globe: they stay at 100 so every furniture kind
+// keeps an item for 100 coins or less (spec 7.3).
 const sum = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0);
 
 function generationsToBuyAll(): number {

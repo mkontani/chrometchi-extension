@@ -33,8 +33,8 @@ const en = load('en');
 
 const ORDER: Stage[] = ['egg', 'baby', 'child', 'young', 'adult'];
 const isFallback = (when: object) => Object.keys(when).length === 0;
-/** The price a new player can reach early: spec 7.3's 100 coins, scaled by the 1.3 price factor. */
-const AFFORDABLE = 130;
+/** Spec 7.3: a new player can afford one item of every kind. */
+const AFFORDABLE = 100;
 
 describe('form data', () => {
   test('form ids are unique and there are 42 forms', () => {
@@ -341,9 +341,9 @@ describe('furniture data', () => {
       'fishbowl floor water 160 32', 'vase floor water 80 32',
       'plant floor plant 80 32', 'cactus floor plant 80 24', 'bonsai floor plant 200 32',
       'bunting ceiling sky 80 32', 'telescope floor sky 330 32',
-      'clock wall gadget 130 24', 'musicbox floor gadget 200 24', 'toypiano floor gadget 260 32',
-      'lantern ceiling night 130 24', 'petbed floor night 130 32',
-      'trophy floor sparkle 330 24', 'globe floor sparkle 130 24', 'xmastree floor sparkle 390 32',
+      'clock wall gadget 100 24', 'musicbox floor gadget 200 24', 'toypiano floor gadget 260 32',
+      'lantern ceiling night 100 24', 'petbed floor night 130 32',
+      'trophy floor sparkle 330 24', 'globe floor sparkle 100 24', 'xmastree floor sparkle 390 32',
       'armchair floor cozy 260 32', 'cushion rug cozy 70 32', 'table floor cozy 160 32',
       'stool floor cozy 80 24', 'rug rug cozy 100 32',
       'ball floor null 70 24', 'blocks floor null 70 24', 'drum floor null 160 24',
@@ -351,7 +351,7 @@ describe('furniture data', () => {
     ]);
   });
 
-  test('every kind has an item for 130 coins or less', () => {
+  test('every kind has an item for 100 coins or less', () => {
     const kinds = new Set(DECOR.flatMap((d) => (d.kind ? [d.kind] : [])));
     expect(kinds.size).toBe(8);
     for (const kind of kinds) {
