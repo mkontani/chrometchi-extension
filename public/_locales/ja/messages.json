@@ -344,6 +344,9 @@
   "refuse_wrongSlot": {
     "message": "そこには おけないよ"
   },
+  "refuse_wrongPlace": {
+    "message": "そこには つけられないよ"
+  },
   "refuse_farmNotReady": {
     "message": "いまはできないよ"
   },

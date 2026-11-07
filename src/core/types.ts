@@ -227,10 +227,11 @@ export type RefuseReason =
   | 'noCoins'
   | 'noSlot'
   | 'notOwned'
-  | 'wrongSlot';
+  | 'wrongSlot'
+  | 'wrongPlace';
 
 export interface CareOutcome {
-  action: CareAction['kind'] | 'forage' | 'farm' | 'cook' | 'sell' | 'setRoom' | 'buy' | 'place';
+  action: CareAction['kind'] | 'forage' | 'farm' | 'cook' | 'sell' | 'setRoom' | 'buy' | 'place' | 'wear';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }
@@ -263,10 +264,20 @@ export interface Rect {
 }
 
 /** Where the pet lives: the room the player chose, and the furniture bought and placed. */
+export type AccessoryId =
+  | 'ribbon' | 'crown' | 'partyhat' | 'tophat' | 'beret' | 'strawhat' | 'flowercrown' | 'chefhat'
+  | 'beanie' | 'santahat' | 'tiara' | 'cap' | 'wizardhat' | 'headphones' | 'flowerpin' | 'starclip' | 'leaf'
+  | 'glasses' | 'sunglasses' | 'heartglasses'
+  | 'bowtie' | 'scarf' | 'bell' | 'medal' | 'necklace';
+
+export type WearPlace = 'head' | 'face' | 'neck';
+
 export interface Home {
   room: RoomId;
   ownedDecor: DecorId[];
   decor: Partial<Record<RoomId, Partial<Record<SlotId, DecorId>>>>;
+  ownedAcc: AccessoryId[];
+  worn: Partial<Record<WearPlace, AccessoryId>>;
 }
 
 export type MissionKind = 'clean' | 'play' | 'feed' | 'outing' | 'harvest' | 'cook';

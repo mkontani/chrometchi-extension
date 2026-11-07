@@ -344,6 +344,9 @@
   "refuse_wrongSlot": {
     "message": "It can't go there"
   },
+  "refuse_wrongPlace": {
+    "message": "It doesn't go there"
+  },
   "refuse_farmNotReady": {
     "message": "Not now."
   },

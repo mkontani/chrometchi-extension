@@ -85,7 +85,7 @@ describe('saveSchema home', () => {
     const parsed = saveSchema.safeParse(old);
     expect(parsed.success).toBe(true);
     if (!parsed.success) return;
-    expect(parsed.data.home).toEqual({ room: 'home', ownedDecor: [], decor: {} });
+    expect(parsed.data.home).toEqual({ room: 'home', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
     expect(parsed.data.game).toEqual(fresh.game);
     expect(parsed.data.progress).toEqual(fresh.progress);
     expect(parsed.data.meta).toEqual(fresh.meta);
@@ -94,13 +94,13 @@ describe('saveSchema home', () => {
   test('an unknown or malformed room becomes home without resetting the save', () => {
     for (const home of ['moon', 5, null, { room: 'moon' }, { room: 5 }, { room: [] }, { room: null }]) {
       const parsed = saveSchema.safeParse({ ...createFreshSave(NOW), home });
-      expect(parsed.success && parsed.data.home).toEqual({ room: 'home', ownedDecor: [], decor: {} });
+      expect(parsed.success && parsed.data.home).toEqual({ room: 'home', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
     }
   });
 
   test('a known room is kept', () => {
     const parsed = saveSchema.safeParse({ ...createFreshSave(NOW), home: { room: 'beach' } });
-    expect(parsed.success && parsed.data.home).toEqual({ room: 'beach', ownedDecor: [], decor: {} });
+    expect(parsed.success && parsed.data.home).toEqual({ room: 'beach', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
   });
 });
 
@@ -112,7 +112,7 @@ describe('saveSchema furniture', () => {
   };
 
   test('a stage-2 home without furniture loads with none', () => {
-    expect(parseHomeOf({ room: 'beach' })).toEqual({ room: 'beach', ownedDecor: [], decor: {} });
+    expect(parseHomeOf({ room: 'beach' })).toEqual({ room: 'beach', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
   });
 
   test('the furniture parser drops unknown, unowned and misplaced items', () => {
@@ -146,6 +146,8 @@ describe('saveSchema furniture', () => {
       room: 'home',
       ownedDecor: [],
       decor: {},
+      ownedAcc: [],
+      worn: {},
       future: ['x'],
     });
   });
@@ -153,12 +155,14 @@ describe('saveSchema furniture', () => {
   test('a malformed furniture section never resets the save', () => {
     for (const bad of [5, null, 'x', [], { a: 1 }]) {
       const home = parseHomeOf({ room: 'beach', ownedDecor: bad, decor: bad });
-      expect(home).toEqual({ room: 'beach', ownedDecor: [], decor: {} });
+      expect(home).toEqual({ room: 'beach', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
     }
     expect(parseHomeOf({ room: 'beach', ownedDecor: ['candle'], decor: { beach: 5, home: [] } })).toEqual({
       room: 'beach',
       ownedDecor: ['candle'],
       decor: {},
+      ownedAcc: [],
+      worn: {},
     });
   });
 });

@@ -7,6 +7,7 @@ import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
+import { ACCESSORIES } from './accessories';
 import { DECOR, DECOR_IDS } from './decor';
 import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
 import {
@@ -223,7 +224,7 @@ describe('i18n', () => {
       full: true, notSick: true, asleep: true, awake: true,
       notAlive: true, egg: true, cooldown: true, noPoop: true, noStock: true, outingLimit: true,
       farmNotReady: true, pantryFull: true, locked: true,
-      owned: true, noCoins: true, noSlot: true, notOwned: true, wrongSlot: true,
+      owned: true, noCoins: true, noSlot: true, notOwned: true, wrongSlot: true, wrongPlace: true,
     };
     for (const reason of Object.keys(reasons)) {
       expect(ja[`refuse_${reason}`]?.message, `ja ${reason}`).toBeTruthy();
@@ -395,5 +396,21 @@ describe('furniture data', () => {
         expect(apart, `${room} ${slot}`).toBe(true);
       }
     }
+  });
+});
+
+describe('accessory data', () => {
+  test('the accessories match the spec table', () => {
+    const row = (a: (typeof ACCESSORIES)[number]) => [a.id, a.place, a.price, a.size].join(' ');
+    expect(ACCESSORIES.map(row)).toEqual([
+      'ribbon head 50 16', 'crown head 200 16', 'partyhat head 60 16', 'tophat head 120 16',
+      'beret head 80 16', 'strawhat head 80 20', 'flowercrown head 150 24', 'chefhat head 100 16',
+      'beanie head 80 16', 'santahat head 120 16', 'tiara head 200 16', 'cap head 60 16',
+      'wizardhat head 150 20', 'headphones head 150 20', 'flowerpin head 50 16',
+      'starclip head 50 16', 'leaf head 50 16',
+      'glasses face 80 16', 'sunglasses face 100 16', 'heartglasses face 120 16',
+      'bowtie neck 60 16', 'scarf neck 100 20', 'bell neck 60 16', 'medal neck 200 16',
+      'necklace neck 150 16',
+    ]);
   });
 });

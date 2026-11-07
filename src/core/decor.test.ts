@@ -4,7 +4,7 @@ import { buyDecor, placeDecor, placedIn } from './decor';
 import { EMPTY_PROGRESS } from './progress';
 import type { Home } from './types';
 
-const home = (over: Partial<Home> = {}): Home => ({ room: 'home', ownedDecor: [], decor: {}, ...over });
+const home = (over: Partial<Home> = {}): Home => ({ room: 'home', ownedDecor: [], decor: {}, ownedAcc: [], worn: {}, ...over });
 const coins = (n: number) => ({ ...EMPTY_PROGRESS, coins: n });
 const pet = makePet();
 

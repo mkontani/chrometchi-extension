@@ -492,28 +492,28 @@ describe('engine', () => {
       seed(area, stored, { progress: { ...stored().progress, claimed: ['zukan:10'] } });
       const res = await engine.handle({ type: 'setRoom', room: 'beach' });
       expect(res).toMatchObject({ ok: true, outcome: { action: 'setRoom', result: 'ok' } });
-      expect(stored().home).toEqual({ room: 'beach', ownedDecor: [], decor: {} });
+      expect(stored().home).toEqual({ room: 'beach', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
     });
 
     test('setRoom keeps the other home fields', async () => {
       const { engine, stored, area } = setup();
-      const home = { room: 'home', ownedDecor: [], decor: {}, future: ['lamp'] } as unknown as ReturnType<typeof stored>['home'];
+      const home = { room: 'home', ownedDecor: [], decor: {}, ownedAcc: [], worn: {}, future: ['lamp'] } as unknown as ReturnType<typeof stored>['home'];
       seed(area, stored, { home, progress: { ...stored().progress, claimed: ['zukan:10'] } });
       await engine.handle({ type: 'setRoom', room: 'beach' });
-      expect(stored().home).toEqual({ room: 'beach', ownedDecor: [], decor: {}, future: ['lamp'] });
+      expect(stored().home).toEqual({ room: 'beach', ownedDecor: [], decor: {}, ownedAcc: [], worn: {}, future: ['lamp'] });
     });
 
     test('setRoom refuses a locked room and a sleeping pet', async () => {
       const { engine, stored } = setup();
       const locked = await engine.handle({ type: 'setRoom', room: 'beach' });
       expect(locked).toMatchObject({ outcome: { action: 'setRoom', result: 'refused', reason: 'locked' } });
-      expect(stored().home).toEqual({ room: 'home', ownedDecor: [], decor: {} });
+      expect(stored().home).toEqual({ room: 'home', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
 
       const asleep = setup({ pet: makePet({ asleep: true }) });
       seed(asleep.area, asleep.stored, { progress: { ...asleep.stored().progress, claimed: ['zukan:10'] } });
       const res = await asleep.engine.handle({ type: 'setRoom', room: 'beach' });
       expect(res).toMatchObject({ outcome: { result: 'refused', reason: 'asleep' } });
-      expect(asleep.stored().home).toEqual({ room: 'home', ownedDecor: [], decor: {} });
+      expect(asleep.stored().home).toEqual({ room: 'home', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
     });
 
     test('buying furniture takes the coins once', async () => {

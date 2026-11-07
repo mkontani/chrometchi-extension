@@ -51,6 +51,9 @@ export function parseHome(raw: unknown): Home {
     room: isRoomId(fields.room) ? fields.room : 'home',
     ownedDecor,
     decor: parseDecor(fields.decor, ownedDecor),
+    // Task 2 parses these; until then every save loads undressed.
+    ownedAcc: [],
+    worn: {},
   };
 }
 
