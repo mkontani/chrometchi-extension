@@ -359,7 +359,7 @@ test('the tenth clean pays the first clean reward and lights the dot', async ({
   await page
     .getByRole('button', { name: `${msg('action_zukan')} ${msg('new_rewards')}`, exact: true })
     .click();
-  await page.getByRole('tab', { name: msg('zukan_tab_missions'), exact: true }).click();
+  await page.getByRole('tab', { name: `${msg('zukan_tab_missions')} ${msg('new_rewards')}`, exact: true }).click();
   const recent = page.locator('.missions__recent .missions__row');
   await expect(recent).toHaveCount(1);
   await expect(recent.first()).toContainText('10');
