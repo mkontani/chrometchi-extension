@@ -65,6 +65,11 @@ body {
 .pet { position: absolute; left: 112px; top: 100px; width: 128px; height: 128px; image-rendering: pixelated; }
 .pet__img { display: block; }
 .pet__worn { position: absolute; image-rendering: pixelated; pointer-events: none; }
+/* The focus ring is drawn by the wrapper's last box, so it paints over worn items instead of under them. */
+.pet__img:focus-visible { outline: none; }
+.pet:has(.pet__img:focus-visible)::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; outline: auto 1px -webkit-focus-ring-color;
+}
 .decor { position: absolute; image-rendering: pixelated; pointer-events: none; }
 /* Close to the night pictures' tone (docs/art/style-guide.md, "Furniture"). */
 .decor--night { filter: invert(1) sepia(0.6) invert(1) brightness(0.6); }

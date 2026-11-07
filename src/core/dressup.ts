@@ -47,10 +47,9 @@ export function wear(input: {
   const { pet, home, place, acc } = input;
   const reason = wearRefusal(pet, home, place, acc);
   if (reason) return { home, outcome: refused('wear', reason) };
-  const worn = Object.fromEntries(
-    Object.entries(home.worn).filter(([p]) => p !== place),
-  ) as Home['worn'];
-  if (acc !== null) worn[place] = acc;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the item taken off is dropped on purpose
+  const { [place]: _off, ...others } = home.worn;
+  const worn: Home['worn'] = acc === null ? others : { ...others, [place]: acc };
   return { home: { ...home, worn }, outcome: { action: 'wear', result: 'ok' } };
 }
 

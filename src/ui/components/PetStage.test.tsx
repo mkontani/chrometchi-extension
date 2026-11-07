@@ -367,7 +367,8 @@ test('layer order is pet, neck, face, head', () => {
   );
   const srcs = Array.from((petImg().parentElement as HTMLElement).querySelectorAll('img')).map((i) => i.getAttribute('src'));
   expect(srcs).toEqual(['sprite-idle0.png', 'acc-scarf.png', 'acc-glasses.png', 'acc-crown.png']);
-  expect(wornImg(container, 'crown').style.pointerEvents).toBe('none');
+  // .pet__worn lets clicks through to the pet (style.css; the e2e tests check it in the built popup).
+  expect(wornImg(container, 'crown').classList.contains('pet__worn')).toBe(true);
 });
 
 test('the egg wears nothing', () => {

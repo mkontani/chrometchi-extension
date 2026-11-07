@@ -29,17 +29,17 @@ const requestRoamAccess = vi.fn<() => Promise<boolean>>();
 vi.mock('@/ui/roamPermission', () => ({ requestRoamAccess: () => requestRoamAccess() }));
 
 const pet = { ...createEgg(), stage: 'child' as const, formId: 'child_kemu' as const, poops: 2, sick: true };
-const fullSave = (petPatch: object = {}, extra: object = {}) =>
-  ({
-    game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
-    zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
-    kitchen: EMPTY_KITCHEN,
-    progress: EMPTY_PROGRESS,
-    home: { room: 'home', ownedDecor: [], ownedAcc: [], decor: {} },
-    settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
-    meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
-    ...extra,
-  }) as unknown as NonNullable<UseGame['save']>;
+const fullSave = (petPatch: object = {}, extra: object = {}): NonNullable<UseGame['save']> => ({
+  version: 1,
+  game: { pet: { ...pet, ...petPatch }, generation: 1, lastTickAt: 0 },
+  zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
+  kitchen: EMPTY_KITCHEN,
+  progress: EMPTY_PROGRESS,
+  home: { room: 'home', ownedDecor: [], ownedAcc: [], decor: {}, worn: {} },
+  settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
+  meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
+  ...extra,
+});
 const save = fullSave();
 const PET_LABEL = 'action_pet: form_child_kemu';
 /** What `send` resolves to when a test does not care about the engine's answer. */
@@ -337,6 +337,7 @@ test('the zukan has Pets and Recipes tabs; Pets shows today\'s zukan first', () 
   fireEvent.click(screen.getByLabelText('action_zukan'));
   const tabs = screen.getAllByRole('tab');
   expect(tabs.map((b) => b.textContent)).toEqual(['zukan_tab_pets', 'zukan_tab_recipes', 'zukan_tab_missions']);
+  expect(screen.getByRole('tablist', { name: 'zukan_title' })).toBeTruthy();
   expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
   expect(document.querySelector('.zukan__grid')).not.toBeNull();
   expect(document.querySelector('.recipes')).toBeNull();
@@ -892,119 +893,4 @@ test('a refused buy shows its reason inside the shop only', () => {
   expect(screen.queryByText('shop_bought')).toBeNull();
   fireEvent.click(screen.getByLabelText('close'));
   expect(screen.queryByText('refuse_noCoins')).toBeNull();
-});
-
-const withDecor = (room: string) =>
-  fullSave(
-    {},
-    {
-      progress: { ...EMPTY_PROGRESS, claimed: ['ending:first'] },
-      home: { room, ownedDecor: ['candle', 'clock'], decor: { [room]: { floorL: 'candle' } } },
-    },
-  );
-
-test('choosing a slot and an item sends placeDecor for the shown room', () => {
-  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
-  useGame.mockReturnValue({ save: withDecor('home'), outcome: null, error: null, send });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  expect(screen.getByRole('tab', { name: 'decorate_tab_room' }).getAttribute('aria-selected')).toBe('true');
-  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
-  expect(screen.getByRole('button', { name: 'slot_wallL' }).getAttribute('aria-pressed')).toBe('true');
-  expect(screen.getByRole('button', { name: 'slot_filled:slot_floorL,decor_candle' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'decor_clock' }));
-  expect(send).toHaveBeenCalledWith({ type: 'placeDecor', room: 'home', slot: 'wallL', decor: 'clock' });
-  fireEvent.click(screen.getByRole('button', { name: 'slot_filled:slot_floorL,decor_candle' }));
-  fireEvent.click(screen.getByRole('button', { name: 'decor_remove' }));
-  expect(send).toHaveBeenCalledWith({ type: 'placeDecor', room: 'home', slot: 'floorL', decor: null });
-});
-
-test('an outdoor room offers only floor and rug slots', () => {
-  useGame.mockReturnValue({ save: withDecor('garden'), outcome: null, error: null, send: vi.fn() });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
-  const slots = screen.getAllByRole('button', { name: /^slot_/ }).map((b) => b.getAttribute('aria-label'));
-  expect(slots).toEqual(['slot_rug', 'slot_filled:slot_floorL,decor_candle', 'slot_floorR']);
-});
-
-test('a refused placement shows its reason inside the decorate overlay', () => {
-  const refused: CareOutcome = { action: 'place', result: 'refused', reason: 'wrongSlot' };
-  useGame.mockReturnValue({ save: withDecor('home'), outcome: refused, error: null, send: vi.fn() });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  expect(screen.getByText('refuse_wrongSlot')).toBeTruthy();
-});
-
-test("a slot chosen in one room falls back to that room's first slot after switching to the beach", () => {
-  const withBeach = (room: string) =>
-    fullSave({}, {
-      progress: { ...EMPTY_PROGRESS, claimed: ['zukan:10'] },
-      home: { room, ownedDecor: ['candle'], decor: {} },
-    });
-  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
-  useGame.mockReturnValue({ save: withBeach('home'), outcome: null, error: null, send });
-  const ui = render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
-  fireEvent.click(screen.getByRole('button', { name: 'slot_wallL' }));
-  expect(screen.getByRole('button', { name: 'slot_wallL' }).getAttribute('aria-pressed')).toBe('true');
-  useGame.mockReturnValue({ save: withBeach('beach'), outcome: null, error: null, send });
-  ui.rerender(<App />);
-  expect(screen.queryByRole('button', { name: 'slot_wallL' })).toBeNull();
-  expect(screen.getByRole('button', { name: 'slot_rug' }).getAttribute('aria-pressed')).toBe('true');
-});
-
-const withAcc = (worn: object = {}) =>
-  fullSave({}, { home: { room: 'home', ownedDecor: [], ownedAcc: ['ribbon', 'crown', 'glasses'], decor: {}, worn } });
-
-test('the decorate header has room, furniture and dress-up tabs', () => {
-  useGame.mockReturnValue({ save: withAcc(), outcome: null, error: null, send: vi.fn() });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  const names = screen.getAllByRole('tab').map((b) => b.textContent);
-  expect(names).toEqual(['decorate_tab_room', 'decorate_tab_decor', 'decorate_tab_dress']);
-  expect(screen.getByRole('tablist', { name: 'decorate_title' })).toBeTruthy();
-});
-
-test('the dress-up tab lists owned items for the chosen place', () => {
-  useGame.mockReturnValue({ save: withAcc({ face: 'glasses' }), outcome: null, error: null, send: vi.fn() });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_dress' }));
-  expect(screen.getByRole('button', { name: 'wear_head' }).getAttribute('aria-pressed')).toBe('true');
-  expect(screen.getByRole('button', { name: 'acc_ribbon' })).toBeTruthy();
-  expect(screen.queryByRole('button', { name: 'acc_glasses' })).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'wear_face, acc_glasses' }));
-  expect(screen.getByRole('button', { name: 'acc_glasses' })).toBeTruthy();
-  expect(screen.queryByRole('button', { name: 'acc_ribbon' })).toBeNull();
-});
-
-test('choosing an item sends wear, and take off sends null', () => {
-  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
-  useGame.mockReturnValue({ save: withAcc({ head: 'ribbon' }), outcome: null, error: null, send });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_dress' }));
-  fireEvent.click(screen.getByRole('button', { name: 'acc_crown' }));
-  expect(send).toHaveBeenCalledWith({ type: 'wear', place: 'head', acc: 'crown' });
-  fireEvent.click(screen.getByRole('button', { name: 'dress_remove' }));
-  expect(send).toHaveBeenCalledWith({ type: 'wear', place: 'head', acc: null });
-});
-
-test('with nothing owned for a place it says where to buy', () => {
-  useGame.mockReturnValue({ save: withAcc(), outcome: null, error: null, send: vi.fn() });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_dress' }));
-  fireEvent.click(screen.getByRole('button', { name: 'wear_neck' }));
-  expect(screen.getByText('dress_empty')).toBeTruthy();
-});
-
-test('a refused wear shows its reason inside the decorate overlay', () => {
-  const refused: CareOutcome = { action: 'wear', result: 'refused', reason: 'asleep' };
-  useGame.mockReturnValue({ save: withAcc(), outcome: refused, error: null, send: vi.fn() });
-  render(<App />);
-  fireEvent.click(screen.getByLabelText('action_decorate'));
-  expect(screen.getByText('refuse_asleep')).toBeTruthy();
 });

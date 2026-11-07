@@ -196,7 +196,7 @@ function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
   }, [dot, send]);
   return (
     <>
-      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} />
+      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} label={t('zukan_title')} />
       {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : null}
       {tab === 'recipes' ? <RecipeBook recipes={save.kitchen.recipes} /> : null}
       {tab === 'missions' ? <MissionList progress={save.progress} /> : null}

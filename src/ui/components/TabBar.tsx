@@ -19,17 +19,17 @@ interface Props<Id extends string> {
 export function TabBar<Id extends string>({ tabs, active, onTab, label }: Props<Id>) {
   return (
     <div class="panel__tabs" role="tablist" aria-label={label}>
-      {tabs.map(({ id, label, badge = false }) => (
+      {tabs.map(({ id, label: tabLabel, badge = false }) => (
         <button
           key={id}
           type="button"
           role="tab"
           class="panel__tab"
           aria-selected={active === id}
-          aria-label={badge ? `${label} ${t('new_rewards')}` : undefined}
+          aria-label={badge ? `${tabLabel} ${t('new_rewards')}` : undefined}
           onClick={() => onTab(id)}
         >
-          {label}
+          {tabLabel}
           {badge ? <span class="panel__tab-dot" aria-hidden="true" /> : null}
         </button>
       ))}

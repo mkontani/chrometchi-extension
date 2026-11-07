@@ -527,6 +527,7 @@ test('buying a crown and wearing it draws it on the pet', async ({ context, exte
   const wornOnStage = page.locator('.stage img.pet__worn');
   await expect(wornOnStage).toHaveCount(1);
   await expect(wornOnStage).toHaveAttribute('data-acc', 'crown');
+  await expect(wornOnStage).toHaveCSS('pointer-events', 'none'); // clicks reach the pet
   expect((await readSave(context)).home.worn.head).toBe('crown');
 });
 
@@ -541,4 +542,19 @@ test('a new egg wears nothing', async ({ context, extensionId, msg }) => {
   const home = (await readSave(context)).home;
   expect(home.worn).toEqual({});
   expect(home.ownedAcc).toEqual(['crown']);
+});
+
+test('the focus ring on the pet is drawn over what it wears', async ({ context, extensionId, msg }) => {
+  const save = withHome(seed({}), { ownedAcc: ['tophat'], worn: { head: 'tophat' } });
+  const page = await seedAndOpen(context, extensionId, save);
+  const pet = petButton(page, msg, 'form_baby_puni');
+  await expect(page.locator('.stage img.pet__worn')).toHaveCount(1);
+  // The ring is the wrapper's last child, so it paints after the worn items instead of under them.
+  const ring = () => page.locator('.stage .pet').evaluate((el) => getComputedStyle(el, '::after').outlineStyle);
+  expect(await ring()).toBe('none');
+
+  for (let i = 0; i < 30 && !(await pet.evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press('Tab');
+  await expect(pet).toBeFocused();
+  expect(await ring()).not.toBe('none');
+  expect(await pet.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none');
 });

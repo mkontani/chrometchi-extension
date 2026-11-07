@@ -8,7 +8,7 @@ import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
-import { ACCESSORIES } from './accessories';
+import { ACCESSORIES, ACCESSORY_IDS, WEAR_PLACES } from './accessories';
 import { FORM_ANCHORS } from './anchors';
 import { DECOR, DECOR_IDS } from './decor';
 import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
@@ -211,6 +211,19 @@ describe('i18n', () => {
     for (const id of DECOR_IDS) {
       expect(ja[`decor_${id}`]?.message, `ja ${id}`).toBeTruthy();
       expect(en[`decor_${id}`]?.message, `en ${id}`).toBeTruthy();
+    }
+  });
+
+  test('every accessory and wear place has a name in both locales', () => {
+    expect(ACCESSORY_IDS).toHaveLength(25);
+    expect(WEAR_PLACES).toHaveLength(3);
+    for (const id of ACCESSORY_IDS) {
+      expect(ja[`acc_${id}`]?.message, `ja ${id}`).toBeTruthy();
+      expect(en[`acc_${id}`]?.message, `en ${id}`).toBeTruthy();
+    }
+    for (const place of WEAR_PLACES) {
+      expect(ja[`wear_${place}`]?.message, `ja ${place}`).toBeTruthy();
+      expect(en[`wear_${place}`]?.message, `en ${place}`).toBeTruthy();
     }
   });
 

@@ -263,7 +263,6 @@ export interface Rect {
   h: number;
 }
 
-/** Where the pet lives: the room the player chose, and the furniture bought and placed. */
 export type AccessoryId =
   | 'ribbon' | 'crown' | 'partyhat' | 'tophat' | 'beret' | 'strawhat' | 'flowercrown' | 'chefhat'
   | 'beanie' | 'santahat' | 'tiara' | 'cap' | 'wizardhat' | 'headphones' | 'flowerpin' | 'starclip' | 'leaf'
@@ -272,6 +271,7 @@ export type AccessoryId =
 
 export type WearPlace = 'head' | 'face' | 'neck';
 
+/** Where the pet lives: the room the player chose, the furniture bought and placed, and the accessories bought and worn. */
 export interface Home {
   room: RoomId;
   ownedDecor: DecorId[];

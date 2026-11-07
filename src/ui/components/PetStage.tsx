@@ -102,7 +102,7 @@ interface WornProps {
 
 /** One worn item at 4x; its anchor lands on the form's point (positions are relative to the pet wrapper). */
 function Worn({ formId, place, id, pose }: WornProps) {
-  const anchors = (FORM_ANCHORS as Partial<Record<string, FormAnchors>>)[formId];
+  const anchors = FORM_ANCHORS[formId];
   const url = accUrl(id);
   if (!anchors || !url) return null;
   const point = wornPoint(anchors, place, pose);
@@ -119,7 +119,6 @@ function Worn({ formId, place, id, pose }: WornProps) {
         top: `${WORN_SCALE * (point[1] - def.anchor.y)}px`,
         width: `${size}px`,
         height: `${size}px`,
-        pointerEvents: 'none',
       }}
     />
   );
