@@ -22,9 +22,9 @@ test('status bar renders 4 hearts per need with half hearts', () => {
 
 test('StatusBar shows the coins under the weight', () => {
   const { container } = render(<StatusBar pet={makePet()} coins={1234} />);
-  const coins = screen.getByLabelText('stat_coins');
+  const coins = screen.getByRole('img', { name: 'coins_aria' });
   expect(coins.textContent).toContain('1234');
-  expect(coins.querySelector('img')).not.toBeNull();
+  expect(container.querySelector('.status-coins')?.contains(coins)).toBe(true);
   expect(container.querySelector('.status-weight')).not.toBeNull();
 });
 

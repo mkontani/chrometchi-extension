@@ -24,6 +24,7 @@ function Row({ progress, kind }: { progress: Progress; kind: MissionKind }) {
         <small class="missions__detail">
           {status.tier === null ? t('mission_done') : t('mission_progress', [String(status.count), String(status.target)])}
         </small>
+        {status.tier === null ? null : <small class="missions__detail">{t('mission_tier', String(status.tier))}</small>}
       </span>
       {status.tier === null ? null : <CoinAmount amount={status.coins} />}
     </li>

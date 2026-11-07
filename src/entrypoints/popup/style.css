@@ -129,7 +129,12 @@ body {
   border: 2px solid var(--ink); background: var(--cream); color: var(--ink); font-family: inherit;
   font-size: 10px; padding: 1px 6px; cursor: pointer;
 }
+.panel__tab { position: relative; }
 .panel__tab[aria-selected='true'] { background: var(--pink); }
+.panel__tab-dot {
+  position: absolute; top: -2px; right: -2px; width: 6px; height: 6px;
+  background: var(--pink); border: 1px solid var(--ink); border-radius: 50%;
+}
 .cook__pot { display: flex; align-items: center; gap: 3px; margin-bottom: 2px; }
 .cook__slot {
   box-sizing: border-box; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center;

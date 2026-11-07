@@ -666,7 +666,7 @@ test('the status bar shows the coins and the clicking the shop sends no request'
     outcome: null, error: null, send,
   });
   render(<App />);
-  expect(screen.getByLabelText('stat_coins').textContent).toContain('321');
+  expect(screen.getByRole('img', { name: 'coins_aria:321' }).textContent).toContain('321');
   expect(screen.getByLabelText('action_zukan new_rewards')).toBeTruthy();
   fireEvent.click(screen.getByLabelText('action_shop'));
   expect(send).not.toHaveBeenCalled();
@@ -690,7 +690,7 @@ test('opening the missions tab sends seenRewards when there is a dot', () => {
   render(<App />);
   fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
   expect(send).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' }));
   expect(send).toHaveBeenCalledWith({ type: 'seenRewards' });
   expect(document.querySelector('.missions')).not.toBeNull();
 });
@@ -710,8 +710,8 @@ test('clicking the missions tab again does not send seenRewards twice', () => {
   });
   render(<App />);
   fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
-  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
-  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' }));
   expect(send).toHaveBeenCalledTimes(1);
 });
 
@@ -745,4 +745,17 @@ test('a refused sell plays no sound and shows no toast after the shop closes', (
   fireEvent.click(screen.getByLabelText('close'));
   expect(screen.queryByText('refuse_noStock')).toBeNull();
   vi.unstubAllGlobals();
+});
+
+test('the missions tab shows a dot while there are new rewards', () => {
+  const send = vi.fn(() => Promise.resolve(NOT_APPLIED));
+  useGame.mockReturnValue({
+    save: fullSave({}, { progress: { ...EMPTY_PROGRESS, unseen: true } }),
+    outcome: null, error: null, send,
+  });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_zukan new_rewards'));
+  const missions = screen.getByRole('tab', { name: 'zukan_tab_missions new_rewards' });
+  expect(missions.querySelector('.panel__tab-dot')).not.toBeNull();
+  expect(screen.getByRole('tab', { name: 'zukan_tab_pets' }).querySelector('.panel__tab-dot')).toBeNull();
 });

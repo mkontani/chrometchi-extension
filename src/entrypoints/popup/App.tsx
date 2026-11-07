@@ -18,7 +18,7 @@ import { OutingPanel } from '@/ui/components/OutingPanel';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
 import { Overlay } from '@/ui/components/Overlay';
 import { RecipeBook } from '@/ui/components/RecipeBook';
-import { TabBar } from '@/ui/components/TabBar';
+import { TabBar, type TabDef } from '@/ui/components/TabBar';
 import { PetStage } from '@/ui/components/PetStage';
 import { PlayPanel } from '@/ui/components/PlayPanel';
 import { ShopView } from '@/ui/components/ShopView';
@@ -176,10 +176,10 @@ type ZukanTab = 'pets' | 'recipes' | 'missions';
 
 function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
   const [tab, setTab] = useState<ZukanTab>('pets');
-  const tabs: readonly { id: ZukanTab; label: string }[] = [
+  const tabs: readonly TabDef<ZukanTab>[] = [
     { id: 'pets', label: t('zukan_tab_pets') },
     { id: 'recipes', label: t('zukan_tab_recipes') },
-    { id: 'missions', label: t('zukan_tab_missions') },
+    { id: 'missions', label: t('zukan_tab_missions'), badge: save.progress.unseen },
   ];
   const dot = tab === 'missions' && save.progress.unseen;
   useEffect(() => {

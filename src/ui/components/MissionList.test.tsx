@@ -71,3 +71,11 @@ test('rewardReasonText names each kind of reward', () => {
   expect(rewardReasonText('ending:departed')).toBe('A happy send-off');
   expect(rewardReasonText('ending:dead')).toBe('A farewell');
 });
+
+test('each unfinished mission shows its step', () => {
+  const p = progress({ counts: { ...EMPTY_PROGRESS.counts, clean: 12 }, claimed: ['mission:clean:1'] });
+  render(<MissionList progress={p} />);
+  const rows = screen.getAllByRole('listitem');
+  expect(within(rows[0] as HTMLElement).getByText('Step 2/3')).toBeTruthy();
+  expect(within(rows[1] as HTMLElement).getByText('Step 1/3')).toBeTruthy();
+});
