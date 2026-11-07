@@ -62,7 +62,14 @@ body {
 .stage--day { background-color: var(--cream); background-image: linear-gradient(var(--pink), var(--cream)); }
 .stage--night { background-color: var(--navy); background-image: linear-gradient(#0e1033, var(--navy)); }
 .stage[style] { background-color: transparent; }
-.pet { position: absolute; left: 112px; top: 100px; image-rendering: pixelated; }
+.pet { position: absolute; left: 112px; top: 100px; width: 128px; height: 128px; image-rendering: pixelated; }
+.pet__img { display: block; }
+.pet__worn { position: absolute; image-rendering: pixelated; pointer-events: none; }
+/* The focus ring is drawn by the wrapper's last box, so it paints over worn items instead of under them. */
+.pet__img:focus-visible { outline: none; }
+.pet:has(.pet__img:focus-visible)::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; outline: auto 1px -webkit-focus-ring-color;
+}
 .decor { position: absolute; image-rendering: pixelated; pointer-events: none; }
 /* Close to the night pictures' tone (docs/art/style-guide.md, "Furniture"). */
 .decor--night { filter: invert(1) sepia(0.6) invert(1) brightness(0.6); }
@@ -109,7 +116,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .effect--star, .pet--bounce { animation: none; }
 }
-.pet[role='button'] { cursor: pointer; }
+.pet__img[role='button'] { cursor: pointer; }
 
 .panel { padding: 4px 6px; height: 144px; }
 .panel__header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 4px; }
@@ -339,6 +346,14 @@ body {
 }
 .picker__btn img { image-rendering: pixelated; }
 .picker__btn[aria-pressed='true'] { background: var(--pink); }
+.places { display: flex; gap: 4px; padding: 0 8px; }
+.places__btn {
+  flex: 1; border: 3px solid var(--ink); background: #fff; font-family: inherit; font-size: 11px; color: var(--ink);
+  padding: 2px 0; cursor: pointer;
+}
+.places__btn[aria-pressed='true'] { background: var(--pink); }
+.overlay:has(.decorate) .panel__tabs { flex-wrap: nowrap; white-space: nowrap; }
+.overlay:has(.decorate) .panel__tab { padding: 1px 4px; font-size: 9px; }
 .picker__remove {
   border: 3px solid var(--ink); background: var(--pink); font-family: inherit; font-size: 11px; color: var(--ink);
   padding: 2px 8px; cursor: pointer;

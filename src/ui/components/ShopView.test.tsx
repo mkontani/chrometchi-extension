@@ -1,13 +1,14 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, expect, test, vi } from 'vitest';
 import en from '../../../public/_locales/en/messages.json';
+import { ACCESSORIES } from '@/data/accessories';
 import { INGREDIENT_IDS } from '@/data/foods';
 import { ShopView } from './ShopView';
 
 const noop = () => undefined;
 const noBuy = () => Promise.resolve(false);
 const view = (props: Partial<Parameters<typeof ShopView>[0]> = {}) =>
-  render(<ShopView pantry={{}} coins={0} ownedDecor={[]} onSell={noop} onBuy={noBuy} {...props} />);
+  render(<ShopView pantry={{}} coins={0} ownedDecor={[]} ownedAcc={[]} onSell={noop} onBuy={noBuy} onBuyAcc={noBuy} {...props} />);
 const sellTab = () => fireEvent.click(screen.getByRole('tab', { name: 'Sell' }));
 
 type Entry = { message: string; placeholders?: Record<string, { content: string }> };
@@ -24,7 +25,7 @@ vi.mock('@/i18n/t', () => ({
     });
   },
 }));
-vi.mock('@/ui/assets', () => ({ iconUrl: (id: string) => `${id}.png`, decorUrl: (id: string) => `decor-${id}.png` }));
+vi.mock('@/ui/assets', () => ({ iconUrl: (id: string) => `${id}.png`, decorUrl: (id: string) => `decor-${id}.png`, accUrl: (id: string) => `acc-${id}.png` }));
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
@@ -120,7 +121,7 @@ test('a refused buy shows no hint', async () => {
 
 test('the bought hint hides after its time even if a sync arrives meanwhile', async () => {
   vi.useFakeTimers();
-  const props = { pantry: {}, coins: 500, ownedDecor: [], onSell: noop, onBuy: () => Promise.resolve(true) };
+  const props = { pantry: {}, coins: 500, ownedDecor: [], ownedAcc: [], onSell: noop, onBuy: () => Promise.resolve(true), onBuyAcc: noBuy };
   const ui = render(<ShopView {...props} />);
   await buyCandle();
   act(() => void vi.advanceTimersByTime(1000));
@@ -147,4 +148,62 @@ test('a second buy shows the hint again', async () => {
   expect(screen.queryByText(HINT)).toBeNull();
   await buyCandle();
   expect(screen.getByText(HINT)).toBeTruthy();
+});
+
+const accTab = () => fireEvent.click(screen.getByRole('tab', { name: 'Accessories' }));
+
+test('the shop has furniture, accessories and sell tabs', () => {
+  view();
+  expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Furniture', 'Accessories', 'Sell']);
+  expect(screen.getByRole('tablist', { name: 'Shop' })).toBeTruthy();
+  accTab();
+  expect(screen.getByRole('tab', { name: 'Accessories' }).getAttribute('aria-selected')).toBe('true');
+  expect(screen.getAllByRole('listitem')).toHaveLength(25);
+  sellTab();
+  expect(screen.getAllByRole('listitem')).toHaveLength(8);
+});
+
+test('accessory rows show price or owned, and buying asks first', () => {
+  const onBuyAcc = vi.fn().mockResolvedValue(false);
+  view({ coins: 100, ownedAcc: ['crown'], onBuyAcc });
+  accTab();
+  const items = rows();
+  expect(items.map((r) => r.querySelector('img')?.getAttribute('src'))).toEqual(
+    ACCESSORIES.map((a) => `acc-${a.id}.png`),
+  );
+  expect(items[0]?.querySelector('img')?.getAttribute('width')).toBe('32');
+  const ribbon = items[0] as HTMLElement;
+  expect(within(ribbon).getByText('Ribbon')).toBeTruthy();
+  expect(within(ribbon).getByRole('img', { name: 'Coins: 70' })).toBeTruthy();
+  const crown = items[1] as HTMLElement;
+  expect(within(crown).getByText('Owned')).toBeTruthy();
+  expect(within(crown).queryByRole('button')).toBeNull();
+  expect((screen.getByRole('button', { name: 'Buy Tiara' }) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Buy Ribbon' }));
+  expect(onBuyAcc).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Buy' }));
+  expect(onBuyAcc).toHaveBeenCalledWith('ribbon');
+});
+
+test('the bought hint says where an accessory goes', async () => {
+  vi.useFakeTimers();
+  view({ coins: 500, onBuyAcc: () => Promise.resolve(true) });
+  accTab();
+  fireEvent.click(screen.getByRole('button', { name: 'Buy Ribbon' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Buy' }));
+  await act(async () => undefined);
+  expect(screen.getByText('Put it on from Decorate')).toBeTruthy();
+  expect(screen.queryByText(HINT)).toBeNull();
+});
+
+test('flash after unmount starts no timer', async () => {
+  vi.useFakeTimers();
+  let resolve: (ok: boolean) => void = noop;
+  const onBuy = () => new Promise<boolean>((r) => (resolve = r));
+  const ui = view({ coins: 500, onBuy });
+  fireEvent.click(screen.getByRole('button', { name: 'Buy Candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Buy' }));
+  ui.unmount();
+  await act(async () => resolve(true));
+  expect(vi.getTimerCount()).toBe(0);
 });

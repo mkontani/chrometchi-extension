@@ -5,6 +5,7 @@ import { feedFromPantry } from '@/core/pantry';
 import { cook, type Cooked } from '@/core/cooking';
 import { farmAction, growFarm } from '@/core/farm';
 import { buyDecor, placeDecor } from '@/core/decor';
+import { buyAccessory, takeOffAll, wear } from '@/core/dressup';
 import { markSeen } from '@/core/progress';
 import { sellFood } from '@/core/shop';
 import { forage } from '@/core/outings';
@@ -159,6 +160,27 @@ function placeMutator(req: Extract<EngineRequest, { type: 'placeDecor' }>): Muta
   };
 }
 
+function buyAccMutator(req: Extract<EngineRequest, { type: 'buyAccessory' }>): Mutator {
+  return (save) => {
+    const r = buyAccessory({ progress: save.progress, home: save.home, acc: req.acc });
+    return { save: { ...save, progress: r.progress, home: r.home }, events: [], outcome: r.outcome };
+  };
+}
+
+function wearMutator(req: Extract<EngineRequest, { type: 'wear' }>): Mutator {
+  return (save) => {
+    const r = wear({ pet: save.game.pet, home: save.home, place: req.place, acc: req.acc });
+    return { save: { ...save, home: r.home }, events: [], outcome: r.outcome };
+  };
+}
+
+/** A new egg: the next generation starts undressed, the items stay owned. */
+const newEgg = (save: SaveV1, now: number): SaveV1 => ({
+  ...save,
+  game: startNextGeneration(save.game, now),
+  home: takeOffAll(save.home),
+});
+
 function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
   switch (req.type) {
     case 'sync':
@@ -179,6 +201,10 @@ function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
       return buyMutator(req);
     case 'placeDecor':
       return placeMutator(req);
+    case 'buyAccessory':
+      return buyAccMutator(req);
+    case 'wear':
+      return wearMutator(req);
     case 'seenRewards':
       return (save) => ({ save, events: [], seen: true });
     case 'ackCritical':
@@ -190,14 +216,11 @@ function mutatorFor(req: EngineRequest, rng: Rng): Mutator {
         return { save: { ...save, settings: parsed.data }, events: [] };
       };
     case 'restart':
-      return (save, now) => ({
-        save: { ...save, game: startNextGeneration(save.game, now) },
-        events: [],
-      });
+      return (save, now) => ({ save: newEgg(save, now), events: [] });
     case 'startNewEgg':
       return (save, now) => {
         if (save.game.pet.lifecycle === 'alive') throw new Error('pet is alive');
-        return { save: { ...save, game: startNextGeneration(save.game, now) }, events: [] };
+        return { save: newEgg(save, now), events: [] };
       };
     case 'dismissNotice':
       return (save) => {

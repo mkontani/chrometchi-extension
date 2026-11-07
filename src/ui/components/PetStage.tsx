@@ -1,11 +1,13 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import type { DecorId, PetState, Pose, RoomId, SlotId } from '@/core/types';
+import type { AccessoryId, DecorId, PetState, Pose, RoomId, SlotId, WearPlace } from '@/core/types';
+import { accessoryDef } from '@/data/accessories';
+import { FORM_ANCHORS, type FormAnchors } from '@/data/anchors';
 import { decorDef } from '@/data/decor';
 import { ROOM_SLOTS, SLOT_KIND } from '@/data/slots';
 import { deriveWarning } from '@/core/warnings';
 import { t } from '@/i18n/t';
-import { backgroundUrl, decorUrl, effectUrl, spriteUrl, type EffectId } from '@/ui/assets';
+import { accUrl, backgroundUrl, decorUrl, effectUrl, spriteUrl, type EffectId } from '@/ui/assets';
 import { PET } from '@/ui/effects/layout';
 import type { EffectFrame, PoopView } from '@/ui/effects/types';
 import { EffectLayer } from './EffectLayer';
@@ -27,6 +29,8 @@ interface Props {
   reaction: Reaction;
   /** the furniture placed in this room, drawn in its slots */
   decor?: readonly PlacedDecor[];
+  /** what the pet wears, drawn on the form's head, face and neck points */
+  worn?: Partial<Record<WearPlace, AccessoryId>>;
   /** true when the happy reaction comes from playing (shows notes) */
   fromPlay?: boolean;
   /** The running care effect's frame, drawn over the usual picture. */
@@ -71,6 +75,52 @@ function Decor({ room, item, night }: { room: RoomId; item: PlacedDecor; night: 
       src={url}
       alt=""
       style={{ left: `${left}px`, top: `${top}px`, width: `${size}px`, height: `${size}px` }}
+    />
+  );
+}
+
+const WORN_SCALE = 4;
+/** Drawn after the pet, so neck sits under face, and face under head. */
+const WORN_ORDER: readonly WearPlace[] = ['neck', 'face', 'head'];
+
+/**
+ * The form's point for a place in this pose. idle1 is idle0 with row squashRow removed, so the rows
+ * above it sink 1 px. Points are pixel edges: edge squashRow is the bottom of row squashRow - 1, so it
+ * sinks too, and only the edges below it stay. Every other pose is its own picture and keeps idle0's points.
+ */
+function wornPoint(anchors: FormAnchors, place: WearPlace, pose: Pose): [number, number] {
+  const [x, y] = anchors[place];
+  return pose === 'idle1' && y <= anchors.squashRow ? [x, y + 1] : [x, y];
+}
+
+interface WornProps {
+  formId: PetState['formId'];
+  place: WearPlace;
+  id: AccessoryId;
+  /** the pose the pet is drawn in, so the item follows the idle bounce frame */
+  pose: Pose;
+}
+
+/** One worn item at 4x; its anchor lands on the form's point (positions are relative to the pet wrapper). */
+function Worn({ formId, place, id, pose }: WornProps) {
+  const anchors = FORM_ANCHORS[formId];
+  const url = accUrl(id);
+  if (!anchors || !url) return null;
+  const point = wornPoint(anchors, place, pose);
+  const def = accessoryDef(id);
+  const size = def.size * WORN_SCALE;
+  return (
+    <img
+      class="pet__worn"
+      src={url}
+      alt=""
+      data-acc={id}
+      style={{
+        left: `${WORN_SCALE * (point[0] - def.anchor.x)}px`,
+        top: `${WORN_SCALE * (point[1] - def.anchor.y)}px`,
+        width: `${size}px`,
+        height: `${size}px`,
+      }}
     />
   );
 }
@@ -123,7 +173,7 @@ function Darkness({ level }: { level: number }) {
   );
 }
 
-export function PetStage({ pet, generation, room, reaction, decor = [], fromPlay = false, effect = null, onPetClick, children }: Props) {
+export function PetStage({ pet, generation, room, reaction, decor = [], worn = {}, fromPlay = false, effect = null, onPetClick, children }: Props) {
   const frame = useIdleFrame();
   const bg = backgroundUrl(`${room}_${pet.asleep ? 'night' : 'day'}`);
   const bgClass = pet.asleep ? 'stage--night' : 'stage--day';
@@ -145,17 +195,25 @@ export function PetStage({ pet, generation, room, reaction, decor = [], fromPlay
   return (
     <section class={`stage ${bgClass}${darkness >= 1 ? ' stage--dark' : ''}`} style={style}>
       {drawn(false)}
-      <img
+      <div
         class={`pet ${pose.startsWith('idle') ? 'pet--bounce' : ''}`}
-        src={spriteUrl(pet.formId, pose, generation)}
-        width={128}
-        height={128}
-        alt={formName}
-        {...(onPetClick ? { role: 'button', tabIndex: 0, 'aria-label': `${t('action_pet')}: ${formName}` } : {})}
         style={effect?.petDx ? `left: ${PET.x + effect.petDx}px` : undefined}
-        onClick={onPetClick}
-        onKeyDown={onKeyDown}
-      />
+      >
+        <img
+          class="pet__img"
+          src={spriteUrl(pet.formId, pose, generation)}
+          width={128}
+          height={128}
+          alt={formName}
+          {...(onPetClick ? { role: 'button', tabIndex: 0, 'aria-label': `${t('action_pet')}: ${formName}` } : {})}
+          onClick={onPetClick}
+          onKeyDown={onKeyDown}
+        />
+        {WORN_ORDER.map((place) => {
+          const id = worn[place];
+          return id ? <Worn key={place} formId={pet.formId} place={place} id={id} pose={pose} /> : null;
+        })}
+      </div>
       {drawn(true)}
       <Poops count={pet.poops} views={effect?.poops ?? null} />
       {pet.asleep && <Effect id="zzz" cls="effect--zzz" />}

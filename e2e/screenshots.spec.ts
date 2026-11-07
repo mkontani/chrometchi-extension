@@ -49,6 +49,8 @@ const STATIC: Record<string, string> = {
 const COZY_HOME: SaveV1['home'] = {
   room: 'home',
   ownedDecor: ['rug', 'plant', 'armchair', 'picture', 'clock', 'bunting'],
+  ownedAcc: [],
+  worn: {},
   decor: {
     home: { rug: 'rug', floorL: 'plant', floorR: 'armchair', wallL: 'picture', wallR: 'clock', ceiling: 'bunting' },
   },

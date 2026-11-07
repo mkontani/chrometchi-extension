@@ -344,6 +344,9 @@
   "refuse_wrongSlot": {
     "message": "It can't go there"
   },
+  "refuse_wrongPlace": {
+    "message": "It doesn't go there"
+  },
   "refuse_farmNotReady": {
     "message": "Not now."
   },
@@ -975,6 +978,9 @@
   "shop_tab_decor": {
     "message": "Furniture"
   },
+  "shop_tab_acc": {
+    "message": "Accessories"
+  },
   "shop_tab_sell": {
     "message": "Sell"
   },
@@ -1005,6 +1011,84 @@
   },
   "shop_bought": {
     "message": "Place it from Decorate"
+  },
+  "shop_bought_acc": {
+    "message": "Put it on from Decorate"
+  },
+  "acc_ribbon": {
+    "message": "Ribbon"
+  },
+  "acc_crown": {
+    "message": "Crown"
+  },
+  "acc_partyhat": {
+    "message": "Party hat"
+  },
+  "acc_tophat": {
+    "message": "Top hat"
+  },
+  "acc_beret": {
+    "message": "Beret"
+  },
+  "acc_strawhat": {
+    "message": "Straw hat"
+  },
+  "acc_flowercrown": {
+    "message": "Flower crown"
+  },
+  "acc_chefhat": {
+    "message": "Chef hat"
+  },
+  "acc_beanie": {
+    "message": "Beanie"
+  },
+  "acc_santahat": {
+    "message": "Santa hat"
+  },
+  "acc_tiara": {
+    "message": "Tiara"
+  },
+  "acc_cap": {
+    "message": "Cap"
+  },
+  "acc_wizardhat": {
+    "message": "Wizard hat"
+  },
+  "acc_headphones": {
+    "message": "Headphones"
+  },
+  "acc_flowerpin": {
+    "message": "Flower pin"
+  },
+  "acc_starclip": {
+    "message": "Star clip"
+  },
+  "acc_leaf": {
+    "message": "Leaf"
+  },
+  "acc_glasses": {
+    "message": "Round glasses"
+  },
+  "acc_sunglasses": {
+    "message": "Sunglasses"
+  },
+  "acc_heartglasses": {
+    "message": "Heart glasses"
+  },
+  "acc_bowtie": {
+    "message": "Bow tie"
+  },
+  "acc_scarf": {
+    "message": "Scarf"
+  },
+  "acc_bell": {
+    "message": "Bell"
+  },
+  "acc_medal": {
+    "message": "Medal"
+  },
+  "acc_necklace": {
+    "message": "Necklace"
   },
   "decor_candle": {
     "message": "Candle"
@@ -1095,6 +1179,24 @@
   },
   "decorate_tab_decor": {
     "message": "Furniture"
+  },
+  "decorate_tab_dress": {
+    "message": "Dress up"
+  },
+  "wear_head": {
+    "message": "Head"
+  },
+  "wear_face": {
+    "message": "Face"
+  },
+  "wear_neck": {
+    "message": "Neck"
+  },
+  "dress_remove": {
+    "message": "Take off"
+  },
+  "dress_empty": {
+    "message": "Buy some in the shop"
   },
   "slot_wallL": {
     "message": "Left wall"

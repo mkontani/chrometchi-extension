@@ -344,6 +344,9 @@
   "refuse_wrongSlot": {
     "message": "そこには おけないよ"
   },
+  "refuse_wrongPlace": {
+    "message": "そこには つけられないよ"
+  },
   "refuse_farmNotReady": {
     "message": "いまはできないよ"
   },
@@ -975,6 +978,9 @@
   "shop_tab_decor": {
     "message": "かぐ"
   },
+  "shop_tab_acc": {
+    "message": "アクセサリー"
+  },
   "shop_tab_sell": {
     "message": "うる"
   },
@@ -1005,6 +1011,84 @@
   },
   "shop_bought": {
     "message": "もようがえで おけるよ"
+  },
+  "shop_bought_acc": {
+    "message": "もようがえで つけられるよ"
+  },
+  "acc_ribbon": {
+    "message": "リボン"
+  },
+  "acc_crown": {
+    "message": "おうかん"
+  },
+  "acc_partyhat": {
+    "message": "パーティーぼうし"
+  },
+  "acc_tophat": {
+    "message": "シルクハット"
+  },
+  "acc_beret": {
+    "message": "ベレーぼう"
+  },
+  "acc_strawhat": {
+    "message": "むぎわらぼうし"
+  },
+  "acc_flowercrown": {
+    "message": "はなかんむり"
+  },
+  "acc_chefhat": {
+    "message": "コックぼうし"
+  },
+  "acc_beanie": {
+    "message": "ニットぼう"
+  },
+  "acc_santahat": {
+    "message": "サンタぼうし"
+  },
+  "acc_tiara": {
+    "message": "ティアラ"
+  },
+  "acc_cap": {
+    "message": "キャップ"
+  },
+  "acc_wizardhat": {
+    "message": "まほうつかいのぼうし"
+  },
+  "acc_headphones": {
+    "message": "ヘッドホン"
+  },
+  "acc_flowerpin": {
+    "message": "はなのヘアピン"
+  },
+  "acc_starclip": {
+    "message": "ほしのヘアピン"
+  },
+  "acc_leaf": {
+    "message": "はっぱ"
+  },
+  "acc_glasses": {
+    "message": "まるめがね"
+  },
+  "acc_sunglasses": {
+    "message": "サングラス"
+  },
+  "acc_heartglasses": {
+    "message": "ハートのサングラス"
+  },
+  "acc_bowtie": {
+    "message": "ちょうネクタイ"
+  },
+  "acc_scarf": {
+    "message": "マフラー"
+  },
+  "acc_bell": {
+    "message": "すず"
+  },
+  "acc_medal": {
+    "message": "メダル"
+  },
+  "acc_necklace": {
+    "message": "ネックレス"
   },
   "decor_candle": {
     "message": "ろうそく"
@@ -1095,6 +1179,24 @@
   },
   "decorate_tab_decor": {
     "message": "かぐ"
+  },
+  "decorate_tab_dress": {
+    "message": "きせかえ"
+  },
+  "wear_head": {
+    "message": "あたま"
+  },
+  "wear_face": {
+    "message": "かお"
+  },
+  "wear_neck": {
+    "message": "くび"
+  },
+  "dress_remove": {
+    "message": "はずす"
+  },
+  "dress_empty": {
+    "message": "おみせで かえるよ"
   },
   "slot_wallL": {
     "message": "かべ・ひだり"

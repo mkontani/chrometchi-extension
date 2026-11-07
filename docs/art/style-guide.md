@@ -239,6 +239,173 @@ The tuning also follows these:
 | forest | – | – | (48, 156, 64×76) | (240, 156, 64×76) | The roots reach row 49 at room x 0–14 and row 48 at x 73–86. The floor items move in beside the pet, onto open grass. Full-width items touch the root tips by 1–3 px. |
 | snowfield | – | – | start | start | Open snow. |
 
+## Accessories
+
+The 25 items are in `src/assets/ui/acc/<id>.png`. They are on the palette, with a transparent background. The owner reviews them at Gate P, together with the forms' points.
+
+- **Sizes** (as `ACCESSORIES` says):
+  - 20x20: strawhat, wizardhat, headphones and scarf;
+  - 24x24: flowercrown;
+  - 16x16: the other 20.
+- **Source:** the 2026-11-06 art batch, already snapped to the palette. Five items were redrawn: the heart glasses and the necklace in Task 3, then the scarf, necklace and flower crown again at Gate P (below). `npx tsx scripts/art/check.ts --palette --size <N>x<N>` passes for each size group.
+- **No faces.** All 25 were checked at 4x. The tiara's centre is a heart gem, not a face.
+- **Scale:** 4x, the pet's pixel size, so an item's pixels match the pet's.
+
+### The two redraws
+
+Two items from the batch did not read at 16 px. The heart glasses did not look like hearts, and the necklace was a plain ring.
+
+- **Settings:** `edit_image_pixen` on the old 16x16 art, seeds 1 to 3. All six were snapped in one `reduce_colors(palette_image=docs/art/palette.png)` call, then checked with `check.ts --palette --size 16x16`.
+- **`heartglasses`:**
+  - Prompt: `a pair of pink heart-shaped sunglasses, the two lenses clearly heart shaped, cute pixel icon, thick black outline, item only, front view, no face`.
+  - Pick: seed 3. Its two pink lenses have a notched top and a pointed bottom, joined by a red bridge.
+  - The other seeds: seed 1 was nearly the old art, with flat-bottomed lenses. Seed 2 had heart shapes, but they were red, with purple pixels left in one lens.
+  - Hand fix: the `#c7405d` shade pixels are made the same on both hearts: the tip, plus the pixel above it and to the right. The outline was already closed.
+- **`necklace`:**
+  - Prompt: `a small pearl necklace with a pink heart pendant hanging at the bottom, cute pixel icon, thick black outline, item only, front view, no face`.
+  - Pick: seed 1, the cleanest pearl chain. Each seed added a pendant, but none was heart-shaped:
+    - seed 1: a rounded drop;
+    - seed 2: a mottled gem;
+    - seed 3: a soft drop, on a chain with several open outline pixels.
+  - Hand fix: rows 10–15 are repainted as an 8-px heart, hung from the chain's black bottom line:
+    - `#f58fb0` body;
+    - one `#ffffff` highlight on the left lobe;
+    - `#c7405d` shade down the lower right.
+  - Hand fix: one chain pixel on the right at row 8 had no outline. It is moved in by 1 px and outlined in `#000000`, mirroring the left side.
+  - This necklace was replaced at Gate P (below).
+
+### The Gate P redraws (shorter)
+
+At Gate P (2026-11-07) the owner approved the other 22 items and asked for three of them to be shorter:
+- the scarf (16 px) and the necklace (15 px) hung their loops down the body and past the feet;
+- the flower crown was a ring that stood above the head.
+
+Each item is now 8 px tall. The replaced art is kept in `.superpowers/sdd/2026-11-07-dressup/art/` as `scarf_old.png`, `necklace_old2.png` and `flowercrown_old.png`.
+
+- **Settings:**
+  - `create_image_pixen` for the scarf (20x20) and the flower crown (24x24), with `no_background true`, `outline 'single color black outline'` and `detail 'low detail'`;
+  - `edit_image_pixen` for the necklace, on its Task 3 art (16x16);
+  - seeds 1 to 3 each;
+  - each size group snapped in one `reduce_colors(palette_image=docs/art/palette.png)` call.
+- **No seed came out short enough.** At 20 and 24 px, Pixen fills the canvas: all three scarves were 16–18 px tall, all three flower crowns were full rings 20–22 px tall, and two of the three necklaces kept the long loop (13 and 15 px). So each pick is cut down by hand on the palette:
+  - the cut is drawn as fill pixels;
+  - a 1 px `#000000` outline is added around every fill pixel's sides;
+  - the result is checked for one piece, a closed black edge, and `check.ts --palette --size <N>x<N>`.
+- **`scarf`** (20x20, now 18x8):
+  - Prompt: `a short red and white striped knit scarf wrapped once around a neck, seen from the front, only a small knot and a very short tail, cute pixel icon, thick black outline, item only, no face`. This is the owner's prompt, with "red and white" added to keep the old stripes.
+  - Pick: seed 3, the cleanest red and white knit.
+  - Hand cut: a 3-row band round the neck, a knot right of centre, and a 2-row tail. It uses seed 3's colours with diagonal knit stripes: `#e53b44` and `#ffffff`, with `#c7405d` and `#e6e0dc` on the shaded underside.
+  - Why diagonal: a first cut with straight 2-px stripes put a white block at each raised end, and the two blocks read like eyes.
+- **`necklace`** (16x16, now 14x8):
+  - Edit: `make this necklace short like a choker that sits at the neck: one gently curved row of small pearls across the top, with a small pink heart pendant hanging just under the middle of the chain, total height about 7 pixels, wider than tall, item only, thick black outline, no face`.
+  - Pick: seed 2, the only short choker. It has a U-shaped chain and a small heart, but is still 11 px tall.
+  - Hand cut: the chain's raised arms are dropped. A gently curved pearl choker (`#e6e0dc` and `#ffffff`) now carries seed 2's heart unchanged: `#f58fb0`, a `#ffffff` highlight and `#c7405d` shade.
+  - Seed 1 kept the old loop. Seed 3 kept a long loop with a smaller heart.
+- **`flowercrown`** (24x24, now 20x8):
+  - Prompt: `a flower crown band seen straight from the front, a row of small pink and yellow flowers with green leaves, wide and short, cute pixel icon, thick black outline, item only, no face`.
+  - All 3 seeds were rings: round wreaths, the third with an oval hole.
+  - Hand cut: the band is the flower row of the old crown (rows 2–9), a pink flower in the middle with yellow flowers and green leaves at each side. Row 9's fill is turned into the closing black line, so the band ends just under the flowers.
+  - Why the old row: it is already pink and yellow flowers with green leaves, in the approved style. Seed 3's flower row is muddier and uneven.
+- **No faces:** all three were checked at 12x.
+
+### Anchors
+
+Each item's `anchor` in `ACCESSORIES` (`src/data/accessories.ts`) is the point of its art that lands on the form's point for its place.
+
+- **Measuring:** take the box around the item's opaque pixels, in pixel-edge coordinates, so that a full 16 px item spans 0–16. Then:
+  - head items: the bottom-centre of the box;
+  - face items: the centre;
+  - neck items: the top-centre.
+- **Set by hand:**
+  - `headphones` (10,14), was (10,17): low on the ear cups. A bottom-centre anchor stood the headphones on top of the head. Now the band arches over the head and the cups' last 3 rows rest on its top. The cups are only 14 px across, so they can't reach the sides of a face. With 4 or 5 rows (anchor 13 or 12), the cups covered the top of the eyes on the forms with the shortest foreheads (young_fuwari, young_mebuki, adult_bear, adult_hippo).
+  - `flowercrown` (12,15), 1 px above its bottom-centre (12,16), so the band's bottom row rests on the head instead of on its top line. At (12,14) it came close to adult_bear's eyes. The old ring was (12,19), set by hand from (12,22).
+- **The Gate P redraws** are measured by the rule: `scarf` (10,5), was (10,2), and `necklace` (8,4), was (8,1).
+- **Whole pixels:** a half pixel rounds up (flowerpin x 7.5 → 8, bell x 7.5 → 8, heartglasses y 8.5 → 9). This keeps the item on the pet's 4x pixel grid.
+- **Where they are written:** the values are literals in the table. `src/data/data.test.ts` checks that each anchor is a whole pixel inside its item's opaque box.
+- **On the stage:** the item's top-left is at `stage x = 112 + 4·ax − 4·ox` and `stage y = 100 + 4·ay − 4·oy`, where `(ax, ay)` is the form's point and `(ox, oy)` the item's anchor. This puts the item's anchor exactly on the form's point.
+
+### Form points
+
+Every form except the egg has a head, a face and a neck point in `FORM_ANCHORS` (`src/data/anchors.ts`). Each point is `[x, y]` in the form's 32 px art, in pixel-edge coordinates like the item anchors. A worn item's anchor lands on the point for its place.
+
+- **One set of points for every pose, and idle1 sinks.** The happy, eat and sleep poses keep idle0's silhouette: they move 2 px at most, and that is mostly sparkles. No pose needed its own points.
+- **The idle1 rule** (spec 8.2: worn items bounce with the pet):
+  - `scripts/art/idle1.ts squash` makes idle1 from idle0 by removing one row low in the body. Every row above it sinks 1 px, and the feet stay put.
+  - `FORM_ANCHORS` records that row as `squashRow`. The values were read from the sprites, by comparing each idle0 with its idle1, and are written as literals.
+  - In idle1, a point with `y <= squashRow` is drawn 1 art px (4 stage px) lower, so the hat and glasses sink with the head and face. Points are pixel edges: edges 0 to `squashRow` move down one, and the edges below stay put. With today's points, the head point sinks on all 41 forms, the face point on 38 and the neck point on 17.
+  - A point on the edge `y = squashRow` sinks too. That edge is the bottom of row `squashRow` − 1, which sinks; the removed row was below it. On baby_puni, young_poyo and young_hinoko the neck point is on that edge. If the neck item stayed put there, it would cover the gap row under the mouth in idle1 and touch the mouth every other frame.
+  - The face points of child_mochi, adult_ufo, adult_salamander, adult_nexus and adult_grandpudding are on that edge as well, so their glasses sink with the upper half of the eyes.
+  - Every other pose (happy, eat, sick, sleep and sad) is its own picture, approved at Gate P, and uses idle0's points.
+  - A new or redrawn idle1 must still be idle0 with one row removed. Otherwise the data test fails, and the form needs its own idle1 points.
+  - The check still is `.superpowers/sdd/2026-11-07-dressup/art/idle1-check.png`: child_kemu, adult_kraken and baby_puni in idle0 and idle1, wearing tophat + glasses + bowtie.
+- **First values** came from a throwaway script on each `idle0`:
+  - head: the topmost opaque row, 3 px down. Its x is the centre of the opaque columns in the top 3 rows.
+  - face: the eyes are two clusters of near-black pixels inside the silhouette (no neighbour is transparent, so the outline doesn't count). They lie on about the same row, either side of the middle, in the top 65% of the body. The point is the centre of the box around both eyes.
+  - neck: 3 px below the lowest eye or mouth pixel, at the face's x. A mouth is a small dark cluster within 5 rows under the eyes.
+- **Hand check:** each form was drawn by the stage rule (4x, pet → neck → face → head) in idle0, happy, eat and sleep, wearing three sets:
+  - tophat + glasses + bowtie;
+  - crown + sunglasses + scarf;
+  - flowercrown + heartglasses + necklace.
+
+  Hats should sit on the head, glasses on the eyes, and neck items under the face.
+- **Rules the check added:**
+  - The head point goes on the head itself, not on what sticks out of it: antennae, sprouts, fins, crests, halos, ear tips or floating gems. The hat then covers them.
+  - Between ears, the head point is 2–3 px below the top of the skull, not the ear tips.
+  - When a face is turned to one side, its points follow its own eyes and head, not the middle of the art.
+  - The neck point sits under the mouth, with a gap of 0–2 px, and a bow tie hangs at most 1 px below the feet.
+  - Where the mouth is low (adult_tree, adult_griffin), the bow tie's wings come up beside the mouth, so the tie ends at the feet (Gate P).
+- **Set by hand:** 33 of the 41 forms. The 8 forms the script got right are child_dango, child_hoshi, adult_turtle, adult_golem, adult_mole, adult_cyborg, adult_vampire and adult_pudding. `x,y` means generated → set:
+
+| form | changed | why |
+|---|---|---|
+| baby_puni | neck 16,18 → 16,22 | the mouth is pink, so the script missed it |
+| child_kemu | head 17,3 → 16,4 | a small tuft set the top row |
+| child_mochi | head 16,5 → 16,7 | the ears set the top row; the hat now sits between them |
+| young_kirari | head 16,4 → 16,10 | the crown spikes are above the head |
+| young_kage | head 15,5 → 16,11; face 15,13 → 16,17; neck 15,16 → 16,22 | the fuse ring is above the body, and the glowing eyes aren't dark, so no eyes were found |
+| young_poyo | neck 16,17 → 16,22 | the open mouth was too big for the mouth filter |
+| young_hinoko | head 18,6 → 14,8; face 16,16 → 13,15; neck 16,26 → 13,21 | the face is left of centre; the ears and tail flame pulled the head right, and the tail's outline was taken for an eye |
+| young_shizuku | head 17,3 → 16,8 | the fin tip |
+| young_mebuki | head 16,4 → 16,10 | the sprout; 2 px below the top of the skull, so the headphones clear the eyes |
+| young_fuwari | head 16,6 → 16,8; face 16,15 → 16,13 | the tuft; the wing lines were taken for eyes. The head point is 2 px below the top of the skull, so the headphones clear the eyes |
+| young_gear | head 16,3 → 16,10 | the antenna |
+| adult_dragon | head 16,4 → 16,6 | the crest between the horns |
+| adult_beast | head 16,3 → 15,5 | the mane spikes; centred over the face |
+| adult_salamander | head 16,5 → 13,10; face 16,14 → 11,17; neck 16,17 → 11,22 | turned left, with a flame crest; no eyes were found |
+| adult_phoenix | head 17,3 → 11,5; face 17,13 → 10,15; neck 17,16 → 10,20 | turned left, with a flame wing on the right; no eyes were found |
+| adult_serpent | head 16,3 → 15,4; neck 15,17 → 15,18 | centred over the face; under the head |
+| adult_kraken | neck 16,20 → 16,22 | the dark red mouth was missed |
+| adult_tree | head 16,3 → 16,5 | the canopy's top is uneven. The neck is back at the generated 16,23 after Gate P, so the bow tie ends at the feet |
+| adult_griffin | neck 16,23 → 16,22 | the beak was missed; at Gate P the point moved up so the bow tie ends at the feet, with its wings beside the beak |
+| adult_owl | head 16,3 → 16,5 | the ear tufts |
+| adult_pegasus | head 16,3 → 16,4; face 16,13 → 16,14; neck 16,16 → 16,20 | the mane top; no eyes were found |
+| adult_robot | face 16,13 → 16,12; neck 16,16 → 16,18 | no eyes were found; the neck is the seam under the head |
+| adult_ufo | head 16,5 → 16,8 | the antenna light |
+| adult_ghost | neck 16,17 → 16,20 | the blue mouth was missed |
+| adult_alien | neck 16,17 → 16,23 | the beak-like mouth runs down to row 21 |
+| adult_bat | head 16,4 → 16,7 | the ears |
+| adult_unicorn | head 16,3 → 16,4; face 16,13 → 16,16; neck 16,16 → 16,22 | the horn; no eyes were found |
+| adult_comet | head 17,5 → 15,5 | the starry tail pulled it right |
+| adult_nexus | head 17,4 → 16,9 | the floating gems above the orb |
+| adult_astra | head 16,3 → 16,7; neck 16,18 → 16,19 | the halo; the red pupils reach row 16 |
+| adult_bear | head 16,3 → 16,4 | the ears set the top row |
+| adult_hippo | neck 16,16 → 16,23 | under the open mouth |
+| adult_grandpudding | head 17,4 → 16,7 | the crown on top |
+
+- **Neck items and the feet** (idle0, final points):
+  - The bow tie, the scarf and the necklace hang 8 px below the neck point. They reach at most 1 px below the feet, on 7 forms: child_hoshi, child_mochi, young_kage, young_gear, adult_ufo, adult_vampire and adult_comet.
+  - The bell hangs 9 px, reaching up to 2 px below the feet on 17 forms.
+  - The medal hangs 12 px, reaching 1–5 px below the feet on 34 forms.
+  - The owner approved the bell and the medal as they are at Gate P.
+  - Before Gate P, the scarf (16 px) and the necklace (15 px) hung up to 10 px below the feet; see the Gate P redraws.
+- **Tests:** `src/data/data.test.ts` checks:
+  - every form but the egg has points;
+  - every point is a whole pixel inside the 32 px art;
+  - for each form, the head point is above the face point, which is above the neck point;
+  - a bow tie hangs at most 1 px below the feet of any form;
+  - each idle1 is its idle0 with the rows above `squashRow` moved down one;
+  - the scarf, necklace and flower crown are at most 8 px tall.
+
 ## Eggs
 
 - **Eggs never have a face** (no eyes, mouth or cheeks). This is owner feedback from Gate A.

@@ -2,6 +2,8 @@ import { act, cleanup, render, screen } from '@testing-library/preact';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { makePet } from './__fixtures__/pet';
 import { BASE_FRAME, type EffectFrame } from '@/ui/effects/types';
+import { FORM_ANCHORS } from '@/data/anchors';
+import { accessoryDef } from '@/data/accessories';
 import { PetStage } from './PetStage';
 
 const urls = vi.hoisted(() => ({ on: false }));
@@ -15,6 +17,7 @@ vi.mock('@/ui/assets', () => ({
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
   iconUrl: (id: string) => `icon-${id}.png`,
   decorUrl: (id: string) => `decor-${id}.png`,
+  accUrl: (id: string) => `acc-${id}.png`,
 }));
 
 beforeEach(() => {
@@ -157,10 +160,10 @@ test('an effect without a pose keeps the usual pose', () => {
 
 test('the pet shakes by petDx', () => {
   render(<PetStage generation={1} room="home" pet={makePet({ asleep: true })} reaction={null} effect={withFrame({ petDx: 4 })} />);
-  expect(petImg().style.left).toBe('116px');
+  expect((petImg().parentElement as HTMLElement).style.left).toBe('116px');
   cleanup();
   render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} effect={withFrame({ petDx: 0 })} />);
-  expect(petImg().style.left).toBe('');
+  expect((petImg().parentElement as HTMLElement).style.left).toBe('');
 });
 
 test('effect props are drawn on the stage', () => {
@@ -295,4 +298,96 @@ test('the lights-off darkness covers placed items', () => {
 test('no items are drawn by default', () => {
   const { container } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} />);
   expect(container.querySelectorAll('img.decor')).toHaveLength(0);
+});
+
+const wornImg = (c: Element, id: string) => c.querySelector(`img[src="acc-${id}.png"]`) as HTMLImageElement;
+
+test('the stage draws worn items at the current form points', () => {
+  const worn = { head: 'crown', face: 'glasses', neck: 'scarf' } as const;
+  const items = [['crown', 'head'], ['glasses', 'face'], ['scarf', 'neck']] as const;
+  const stage = (stageName: 'child' | 'adult', formId: string) => (
+    <PetStage generation={1} room="home" pet={makePet({ stage: stageName, formId })} reaction={null} worn={worn} />
+  );
+  const { container, rerender } = render(stage('adult', 'adult_phoenix'));
+  const boxes = () =>
+    items.map(([id]) => {
+      const img = wornImg(container, id);
+      expect(img.getAttribute('alt')).toBe('');
+      // The built extension inlines small art as data URLs, so the item is named here too.
+      expect(img.dataset.acc).toBe(id);
+      return [img.style.left, img.style.top, img.style.width, img.style.height];
+    });
+  const expected = (formId: string) =>
+    items.map(([id, place]) => {
+      const [x, y] = FORM_ANCHORS[formId]![place];
+      const def = accessoryDef(id);
+      return [`${4 * (x - def.anchor.x)}px`, `${4 * (y - def.anchor.y)}px`, `${4 * def.size}px`, `${4 * def.size}px`];
+    });
+  expect(boxes()).toEqual(expected('adult_phoenix'));
+  const phoenix = boxes();
+  rerender(stage('child', 'child_kemu'));
+  expect(boxes()).toEqual(expected('child_kemu'));
+  // adult_phoenix faces left, so each of its points sits elsewhere than child_kemu's.
+  boxes().forEach(([left, top], i) => expect([left, top]).not.toEqual(phoenix[i]!.slice(0, 2)));
+});
+
+test('worn items move with the pet slide and bounce', () => {
+  const { container } = render(
+    <PetStage generation={1} room="home" pet={makePet()} reaction={null} worn={{ head: 'crown' }} effect={withFrame({ petDx: 4 })} />,
+  );
+  const wrapper = wornImg(container, 'crown').parentElement as HTMLElement;
+  expect(wrapper).toBe(petImg().parentElement);
+  expect(wrapper.classList.contains('pet--bounce')).toBe(true);
+  expect(wrapper.style.left).toBe('116px');
+  expect(petImg().classList.contains('pet--bounce')).toBe(false);
+});
+
+test('worn items sink with the face in idle1', () => {
+  vi.useFakeTimers();
+  // adult_kraken's idle1 drops art row 16: its head and face points are above it, its neck point below.
+  const pts = FORM_ANCHORS.adult_kraken!;
+  expect(pts.face[1]).toBeLessThan(pts.squashRow);
+  expect(pts.neck[1]).toBeGreaterThan(pts.squashRow);
+  const kraken = makePet({ stage: 'adult', formId: 'adult_kraken' });
+  const worn = { head: 'tophat', face: 'glasses', neck: 'bowtie' } as const;
+  const { container, rerender } = render(<PetStage generation={1} room="home" pet={kraken} reaction={null} worn={worn} />);
+  const tops = () => (['tophat', 'glasses', 'bowtie'] as const).map((id) => Number.parseInt(wornImg(container, id).style.top, 10));
+  const [hat0, glasses0, tie0] = tops();
+  act(() => void vi.advanceTimersByTime(500));
+  expect(screen.getByAltText('form_adult_kraken').getAttribute('src')).toBe('sprite-idle1.png');
+  expect(tops()).toEqual([hat0! + 4, glasses0! + 4, tie0]);
+  // Every other pose is its own still picture and keeps the idle0 points.
+  rerender(<PetStage generation={1} room="home" pet={kraken} reaction="happy" worn={worn} />);
+  expect(tops()).toEqual([hat0, glasses0, tie0]);
+});
+
+test('a point on the removed row sinks in idle1', () => {
+  vi.useFakeTimers();
+  // baby_puni's neck point is the edge at y 22, its squashRow: the bottom of row 21, which sinks.
+  const pts = FORM_ANCHORS.baby_puni!;
+  expect(pts.neck[1]).toBe(pts.squashRow);
+  const puni = makePet({ stage: 'baby', formId: 'baby_puni' });
+  const { container } = render(<PetStage generation={1} room="home" pet={puni} reaction={null} worn={{ neck: 'bowtie' }} />);
+  const top = () => Number.parseInt(wornImg(container, 'bowtie').style.top, 10);
+  const idle0 = top();
+  act(() => void vi.advanceTimersByTime(500));
+  expect(screen.getByAltText('form_baby_puni').getAttribute('src')).toBe('sprite-idle1.png');
+  expect(top()).toBe(idle0 + 4);
+});
+
+test('layer order is pet, neck, face, head', () => {
+  const { container } = render(
+    <PetStage generation={1} room="home" pet={makePet()} reaction={null} worn={{ head: 'crown', face: 'glasses', neck: 'scarf' }} />,
+  );
+  const srcs = Array.from((petImg().parentElement as HTMLElement).querySelectorAll('img')).map((i) => i.getAttribute('src'));
+  expect(srcs).toEqual(['sprite-idle0.png', 'acc-scarf.png', 'acc-glasses.png', 'acc-crown.png']);
+  // .pet__worn lets clicks through to the pet (style.css; the e2e tests check it in the built popup).
+  expect(wornImg(container, 'crown').classList.contains('pet__worn')).toBe(true);
+});
+
+test('the egg wears nothing', () => {
+  const { container } = render(
+    <PetStage generation={1} room="home" pet={makePet({ formId: 'egg' })} reaction={null} worn={{ head: 'crown' }} />,
+  );
+  expect(wornImg(container, 'crown')).toBeNull();
 });

@@ -127,6 +127,21 @@ describe('farm request', () => {
     expect(parseEngineRequest({ type: 'placeDecor', room: 'home', slot: 'floorL' })).toBeNull();
   });
 
+  test('wear requests that are not known ids are rejected', () => {
+    const ok = { type: 'wear', place: 'head', acc: 'ribbon' };
+    expect(parseEngineRequest(ok)).toEqual(ok);
+    expect(parseEngineRequest({ ...ok, acc: null })).toEqual({ ...ok, acc: null });
+    expect(parseEngineRequest({ ...ok, place: 'feet' })).toBeNull();
+    expect(parseEngineRequest({ ...ok, acc: 'ghost' })).toBeNull();
+    expect(parseEngineRequest({ type: 'wear', place: 'head' })).toBeNull();
+  });
+
+  test('buyAccessory requests that are not a known item are rejected', () => {
+    expect(parseEngineRequest({ type: 'buyAccessory', acc: 'crown' })).toEqual({ type: 'buyAccessory', acc: 'crown' });
+    expect(parseEngineRequest({ type: 'buyAccessory', acc: 'ghost' })).toBeNull();
+    expect(parseEngineRequest({ type: 'buyAccessory' })).toBeNull();
+  });
+
   test('buyDecor requests that are not a known item are rejected', () => {
     expect(parseEngineRequest({ type: 'buyDecor', decor: 'lamp' })).toEqual({ type: 'buyDecor', decor: 'lamp' });
     expect(parseEngineRequest({ type: 'buyDecor', decor: 'ghost' })).toBeNull();

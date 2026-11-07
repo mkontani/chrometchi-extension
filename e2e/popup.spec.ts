@@ -445,16 +445,20 @@ function withHome(save: SaveV1, home: Partial<SaveV1['home']>): SaveV1 {
   return { ...save, home: { ...save.home, ...home } };
 }
 
+/** A shop row by its item's exact name: "Crown" must not also match "Flower crown". */
+const shopRow = (page: Page, name: string) =>
+  page.locator('.shop__row').filter({ has: page.locator('.shop__name').getByText(name, { exact: true }) });
+
 test('buying a plant takes its coins and shows it as owned', async ({ context, extensionId, msg }) => {
   const page = await seedAndOpen(context, extensionId, withProgress(seed({}), { coins: 100 }));
   await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
-  const row = page.locator('.shop__row').filter({ hasText: msg('decor_plant') });
+  const row = shopRow(page, msg('decor_plant'));
   await row.locator('.shop__btn').click(); // named by shop_buy_aria, which the fixture cannot fill in
   await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
   await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
-  await expect(page.locator('.shop__coins')).toContainText('40');
+  await expect(page.locator('.shop__coins')).toContainText('20');
   const save = await readSave(context);
-  expect(save.progress.coins).toBe(40);
+  expect(save.progress.coins).toBe(20);
   expect(save.home.ownedDecor).toEqual(['plant']);
 
   // The where-to-place hint belongs to the buy, not to the shop: reopening it must not repeat it.
@@ -499,4 +503,62 @@ test('the beach offers no wall slots', async ({ context, extensionId, msg }) => 
   await expect(page.locator('.slot')).toHaveCount(3);
   for (const slot of ['floorL', 'floorR', 'rug']) await expect(slotButton(page, msg, slot)).toBeVisible();
   for (const slot of ['wallL', 'wallR', 'ceiling']) await expect(slotButton(page, msg, slot)).toHaveCount(0);
+});
+
+test('buying a crown and wearing it draws it on the pet', async ({ context, extensionId, msg }) => {
+  const page = await seedAndOpen(context, extensionId, withProgress(seed({}), { coins: 300 }));
+  await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
+  await page.getByRole('tab', { name: msg('shop_tab_acc') }).click();
+  const row = shopRow(page, msg('acc_crown'));
+  await row.locator('.shop__btn').click(); // named by shop_buy_aria, which the fixture cannot fill in
+  await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
+  await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
+  await expect(page.getByText(msg('shop_bought_acc'))).toBeVisible();
+  await expect(page.locator('.shop__coins')).toContainText('40'); // 300 - 260
+  const bought = await readSave(context);
+  expect(bought.progress.coins).toBe(40);
+  expect(bought.home.ownedAcc).toEqual(['crown']);
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+
+  await decorateButton(page, msg).click();
+  await page.getByRole('tab', { name: msg('decorate_tab_dress') }).click();
+  await page.getByRole('button', { name: msg('acc_crown'), exact: true }).click();
+  const wornOnDecorate = page.locator('.decorate .stage img.pet__worn');
+  await expect(wornOnDecorate).toHaveCount(1);
+  await expect(wornOnDecorate).toHaveAttribute('data-acc', 'crown');
+
+  await page.getByRole('button', { name: msg('close'), exact: true }).click();
+  const wornOnStage = page.locator('.stage img.pet__worn');
+  await expect(wornOnStage).toHaveCount(1);
+  await expect(wornOnStage).toHaveAttribute('data-acc', 'crown');
+  await expect(wornOnStage).toHaveCSS('pointer-events', 'none'); // clicks reach the pet
+  expect((await readSave(context)).home.worn.head).toBe('crown');
+});
+
+test('a new egg wears nothing', async ({ context, extensionId, msg }) => {
+  const base = seed({ lifecycle: 'dead' });
+  const save = withHome(base, { ownedAcc: ['crown'], worn: { head: 'crown' } });
+  const page = await seedAndOpen(context, extensionId, save);
+
+  await page.getByRole('button', { name: msg('new_egg'), exact: true }).click();
+  await expect(petButton(page, msg, 'form_egg')).toBeVisible();
+  await expect(page.locator('.stage img.pet__worn')).toHaveCount(0);
+  const home = (await readSave(context)).home;
+  expect(home.worn).toEqual({});
+  expect(home.ownedAcc).toEqual(['crown']);
+});
+
+test('the focus ring on the pet is drawn over what it wears', async ({ context, extensionId, msg }) => {
+  const save = withHome(seed({}), { ownedAcc: ['tophat'], worn: { head: 'tophat' } });
+  const page = await seedAndOpen(context, extensionId, save);
+  const pet = petButton(page, msg, 'form_baby_puni');
+  await expect(page.locator('.stage img.pet__worn')).toHaveCount(1);
+  // The ring is the wrapper's last child, so it paints after the worn items instead of under them.
+  const ring = () => page.locator('.stage .pet').evaluate((el) => getComputedStyle(el, '::after').outlineStyle);
+  expect(await ring()).toBe('none');
+
+  for (let i = 0; i < 30 && !(await pet.evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press('Tab');
+  await expect(pet).toBeFocused();
+  expect(await ring()).not.toBe('none');
+  expect(await pet.evaluate((el) => getComputedStyle(el).outlineStyle)).toBe('none');
 });

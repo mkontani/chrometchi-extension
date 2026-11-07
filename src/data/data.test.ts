@@ -1,12 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
+import { type PngData, readPng } from '../../scripts/art/lib';
 import type { RefuseReason, Stage } from '@/core/types';
 import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
 import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
+import { ACCESSORIES, ACCESSORY_IDS, WEAR_PLACES } from './accessories';
+import { FORM_ANCHORS } from './anchors';
 import { DECOR, DECOR_IDS } from './decor';
 import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
 import {
@@ -30,6 +33,8 @@ const en = load('en');
 
 const ORDER: Stage[] = ['egg', 'baby', 'child', 'young', 'adult'];
 const isFallback = (when: object) => Object.keys(when).length === 0;
+/** Spec 7.3: a new player can afford one item of every kind. */
+const AFFORDABLE = 100;
 
 describe('form data', () => {
   test('form ids are unique and there are 42 forms', () => {
@@ -209,6 +214,19 @@ describe('i18n', () => {
     }
   });
 
+  test('every accessory and wear place has a name in both locales', () => {
+    expect(ACCESSORY_IDS).toHaveLength(25);
+    expect(WEAR_PLACES).toHaveLength(3);
+    for (const id of ACCESSORY_IDS) {
+      expect(ja[`acc_${id}`]?.message, `ja ${id}`).toBeTruthy();
+      expect(en[`acc_${id}`]?.message, `en ${id}`).toBeTruthy();
+    }
+    for (const place of WEAR_PLACES) {
+      expect(ja[`wear_${place}`]?.message, `ja ${place}`).toBeTruthy();
+      expect(en[`wear_${place}`]?.message, `en ${place}`).toBeTruthy();
+    }
+  });
+
   test('every form except egg and baby has a hint in both locales', () => {
     const hinted = FORMS.filter((f) => f.stage !== 'egg' && f.stage !== 'baby');
     expect(hinted).toHaveLength(40);
@@ -223,7 +241,7 @@ describe('i18n', () => {
       full: true, notSick: true, asleep: true, awake: true,
       notAlive: true, egg: true, cooldown: true, noPoop: true, noStock: true, outingLimit: true,
       farmNotReady: true, pantryFull: true, locked: true,
-      owned: true, noCoins: true, noSlot: true, notOwned: true, wrongSlot: true,
+      owned: true, noCoins: true, noSlot: true, notOwned: true, wrongSlot: true, wrongPlace: true,
     };
     for (const reason of Object.keys(reasons)) {
       expect(ja[`refuse_${reason}`]?.message, `ja ${reason}`).toBeTruthy();
@@ -332,17 +350,17 @@ describe('furniture data', () => {
   test('the furniture matches the spec table', () => {
     const row = (d: (typeof DECOR)[number]) => [d.id, d.slot, String(d.kind), d.price, d.size].join(' ');
     expect(DECOR.map(row)).toEqual([
-      'candle floor light 50 24', 'lamp floor light 100 32',
-      'fishbowl floor water 120 32', 'vase floor water 60 32',
-      'plant floor plant 60 32', 'cactus floor plant 60 24', 'bonsai floor plant 150 32',
-      'bunting ceiling sky 60 32', 'telescope floor sky 250 32',
-      'clock wall gadget 100 24', 'musicbox floor gadget 150 24', 'toypiano floor gadget 200 32',
-      'lantern ceiling night 100 24', 'petbed floor night 100 32',
-      'trophy floor sparkle 250 24', 'globe floor sparkle 100 24', 'xmastree floor sparkle 300 32',
-      'armchair floor cozy 200 32', 'cushion rug cozy 50 32', 'table floor cozy 120 32',
-      'stool floor cozy 60 24', 'rug rug cozy 80 32',
-      'ball floor null 50 24', 'blocks floor null 50 24', 'drum floor null 120 24',
-      'shelf floor null 150 32', 'picture wall null 100 24', 'chest floor null 200 32',
+      'candle floor light 70 24', 'lamp floor light 130 32',
+      'fishbowl floor water 160 32', 'vase floor water 80 32',
+      'plant floor plant 80 32', 'cactus floor plant 80 24', 'bonsai floor plant 200 32',
+      'bunting ceiling sky 80 32', 'telescope floor sky 330 32',
+      'clock wall gadget 100 24', 'musicbox floor gadget 200 24', 'toypiano floor gadget 260 32',
+      'lantern ceiling night 100 24', 'petbed floor night 130 32',
+      'trophy floor sparkle 330 24', 'globe floor sparkle 100 24', 'xmastree floor sparkle 390 32',
+      'armchair floor cozy 260 32', 'cushion rug cozy 70 32', 'table floor cozy 160 32',
+      'stool floor cozy 80 24', 'rug rug cozy 100 32',
+      'ball floor null 70 24', 'blocks floor null 70 24', 'drum floor null 160 24',
+      'shelf floor null 200 32', 'picture wall null 130 24', 'chest floor null 260 32',
     ]);
   });
 
@@ -350,7 +368,7 @@ describe('furniture data', () => {
     const kinds = new Set(DECOR.flatMap((d) => (d.kind ? [d.kind] : [])));
     expect(kinds.size).toBe(8);
     for (const kind of kinds) {
-      expect(DECOR.some((d) => d.kind === kind && d.price <= 100), kind).toBe(true);
+      expect(DECOR.some((d) => d.kind === kind && d.price <= AFFORDABLE), kind).toBe(true);
     }
   });
 
@@ -397,3 +415,120 @@ describe('furniture data', () => {
     }
   });
 });
+
+describe('accessory data', () => {
+  test('the accessories match the spec table', () => {
+    const row = (a: (typeof ACCESSORIES)[number]) => [a.id, a.place, a.price, a.size].join(' ');
+    expect(ACCESSORIES.map(row)).toEqual([
+      'ribbon head 70 16', 'crown head 260 16', 'partyhat head 80 16', 'tophat head 160 16',
+      'beret head 100 16', 'strawhat head 100 20', 'flowercrown head 200 24', 'chefhat head 130 16',
+      'beanie head 100 16', 'santahat head 160 16', 'tiara head 260 16', 'cap head 80 16',
+      'wizardhat head 200 20', 'headphones head 200 20', 'flowerpin head 70 16',
+      'starclip head 70 16', 'leaf head 70 16',
+      'glasses face 100 16', 'sunglasses face 130 16', 'heartglasses face 160 16',
+      'bowtie neck 80 16', 'scarf neck 130 20', 'bell neck 80 16', 'medal neck 260 16',
+      'necklace neck 200 16',
+    ]);
+  });
+
+  test('every accessory anchor lies inside its art', () => {
+    for (const a of ACCESSORIES) {
+      const png = readPng(resolve(__dirname, `../assets/ui/acc/${a.id}.png`));
+      expect(png, a.id).not.toBeNull();
+      if (!png) continue;
+      const box = opaqueBox(png);
+      // Whole art pixels keep the item on the pet's 4x pixel grid.
+      expect(Number.isInteger(a.anchor.x) && Number.isInteger(a.anchor.y), a.id).toBe(true);
+      expect(a.anchor.x, a.id).toBeGreaterThanOrEqual(box.left);
+      expect(a.anchor.x, a.id).toBeLessThanOrEqual(box.right);
+      expect(a.anchor.y, a.id).toBeGreaterThanOrEqual(box.top);
+      expect(a.anchor.y, a.id).toBeLessThanOrEqual(box.bottom);
+    }
+  });
+
+  test('the scarf, necklace and flower crown are short, at most 8 px tall (Gate P)', () => {
+    for (const id of ['scarf', 'necklace', 'flowercrown']) {
+      const png = readPng(resolve(__dirname, `../assets/ui/acc/${id}.png`));
+      expect(png, id).not.toBeNull();
+      if (!png) continue;
+      const box = opaqueBox(png);
+      expect(box.bottom - box.top, id).toBeLessThanOrEqual(8);
+    }
+  });
+});
+
+describe('form anchors', () => {
+  const wearers = FORMS.filter((f) => f.stage !== 'egg').map((f) => f.id);
+  const points = (id: string) => {
+    const a = FORM_ANCHORS[id];
+    return a ? [a.head, a.face, a.neck] : [];
+  };
+
+  test('every form but the egg has anchors', () => {
+    expect(wearers).toHaveLength(41);
+    expect(Object.keys(FORM_ANCHORS).sort()).toEqual([...wearers].sort());
+    expect(FORM_ANCHORS.egg).toBeUndefined();
+  });
+
+  test('every anchor lies inside the 32 px art', () => {
+    for (const id of wearers) {
+      expect(points(id), id).toHaveLength(3);
+      for (const [x, y] of points(id)) {
+        // Whole art pixels keep the item on the pet's 4x pixel grid.
+        expect(Number.isInteger(x) && Number.isInteger(y), id).toBe(true);
+        expect(x >= 0 && x <= 32 && y >= 0 && y <= 32, `${id} (${x},${y})`).toBe(true);
+      }
+    }
+  });
+
+  test.each(wearers)('%s: the head point is above the face point and the face point is above the neck point', (id) => {
+    const [head, face, neck] = points(id);
+    expect(head?.[1]).toBeLessThan(face?.[1] ?? -1);
+    expect(face?.[1]).toBeLessThan(neck?.[1] ?? -1);
+  });
+
+  test('idle1 equals idle0 with the rows above squashRow moved down one', () => {
+    for (const id of wearers) {
+      const idle0 = readPng(resolve(__dirname, `../assets/sprites/${id}/idle0.png`));
+      const idle1 = readPng(resolve(__dirname, `../assets/sprites/${id}/idle1.png`));
+      const cut = FORM_ANCHORS[id]?.squashRow;
+      expect(idle0 && idle1 && cut !== undefined, id).toBeTruthy();
+      if (!idle0 || !idle1 || cut === undefined) continue;
+      expect(Number.isInteger(cut) && cut > 0 && cut < idle0.height, `${id} squashRow ${cut}`).toBe(true);
+      expect(sameRows(idle1, 1, idle0, 0, cut), `${id}: rows 0-${cut - 1} sink 1 px`).toBe(true);
+      expect(sameRows(idle1, cut + 1, idle0, cut + 1, idle0.height - cut - 1), `${id}: rows below ${cut} stay`).toBe(true);
+      expect(idle1.data.subarray(0, idle1.width * 4).every((v) => v === 0), `${id}: idle1 row 0 is empty`).toBe(true);
+    }
+  });
+
+  test('a bow tie hangs at most 1 px below the feet (Gate P)', () => {
+    const bowtie = ACCESSORIES.find((a) => a.id === 'bowtie');
+    const tie = readPng(resolve(__dirname, '../assets/ui/acc/bowtie.png'));
+    expect(bowtie && tie).toBeTruthy();
+    if (!bowtie || !tie) return;
+    const below = opaqueBox(tie).bottom - bowtie.anchor.y;
+    for (const id of wearers) {
+      const pet = readPng(resolve(__dirname, `../assets/sprites/${id}/idle0.png`));
+      const neck = FORM_ANCHORS[id]?.neck;
+      expect(pet && neck, id).toBeTruthy();
+      if (!pet || !neck) continue;
+      expect(neck[1] + below - opaqueBox(pet).bottom, id).toBeLessThanOrEqual(1);
+    }
+  });
+});
+
+/** Whether `count` rows of `a` from row `aFrom` are byte for byte the rows of `b` from row `bFrom`. */
+function sameRows(a: PngData, aFrom: number, b: PngData, bFrom: number, count: number): boolean {
+  const row = a.width * 4;
+  const left = a.data.subarray(aFrom * row, (aFrom + count) * row);
+  const right = b.data.subarray(bFrom * row, (bFrom + count) * row);
+  return left.length === right.length && left.every((v, i) => v === right[i]);
+}
+
+/** The box around a picture's opaque pixels, in pixel-edge coordinates (right and bottom are exclusive). */
+function opaqueBox(png: PngData): { left: number; top: number; right: number; bottom: number } {
+  const opaque = Array.from({ length: png.width * png.height }, (_, i) => i).filter((i) => png.data[i * 4 + 3] !== 0);
+  const xs = opaque.map((i) => i % png.width);
+  const ys = opaque.map((i) => Math.floor(i / png.width));
+  return { left: Math.min(...xs), top: Math.min(...ys), right: Math.max(...xs) + 1, bottom: Math.max(...ys) + 1 };
+}

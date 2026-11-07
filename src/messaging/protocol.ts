@@ -3,6 +3,7 @@ import { POT_MAX, type Cooked } from '@/core/cooking';
 import { PANTRY_MAX } from '@/core/constants';
 import type { FarmOp } from '@/core/farm';
 import type {
+  AccessoryId,
   CareAction,
   CareOutcome,
   DecorId,
@@ -12,7 +13,9 @@ import type {
   RoomId,
   Settings,
   SlotId,
+  WearPlace,
 } from '@/core/types';
+import { ACCESSORY_IDS, WEAR_PLACES } from '@/data/accessories';
 import { DECOR_IDS } from '@/data/decor';
 import { FOOD_IDS, INGREDIENT_IDS } from '@/data/foods';
 import { OUTING_KINDS } from '@/data/outings';
@@ -32,6 +35,8 @@ export type EngineRequest =
   | { type: 'setRoom'; room: RoomId }
   | { type: 'buyDecor'; decor: DecorId }
   | { type: 'placeDecor'; room: RoomId; slot: SlotId; decor: DecorId | null }
+  | { type: 'buyAccessory'; acc: AccessoryId }
+  | { type: 'wear'; place: WearPlace; acc: AccessoryId | null }
   | { type: 'seenRewards' }
   | { type: 'ackCritical' }
   | { type: 'updateSettings'; patch: Partial<Settings> }
@@ -94,6 +99,12 @@ const requestSchema = z.discriminatedUnion('type', [
     room: z.enum(ROOM_IDS),
     slot: z.enum(SLOT_IDS as [SlotId, ...SlotId[]]),
     decor: z.enum(DECOR_IDS as [DecorId, ...DecorId[]]).nullable(),
+  }),
+  z.object({ type: z.literal('buyAccessory'), acc: z.enum(ACCESSORY_IDS as [AccessoryId, ...AccessoryId[]]) }),
+  z.object({
+    type: z.literal('wear'),
+    place: z.enum(WEAR_PLACES as [WearPlace, ...WearPlace[]]),
+    acc: z.enum(ACCESSORY_IDS as [AccessoryId, ...AccessoryId[]]).nullable(),
   }),
   z.object({ type: z.literal('seenRewards') }),
   z.object({ type: z.literal('ackCritical') }),

@@ -41,7 +41,7 @@ import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
-const OVERLAY_ACTIONS: readonly CareOutcome['action'][] = ['sell', 'setRoom', 'buy', 'place'];
+const OVERLAY_ACTIONS: readonly CareOutcome['action'][] = ['sell', 'setRoom', 'buy', 'place', 'wear'];
 
 /** Selling, room switches, buying and placing are answered inside their own overlay, so they never sound or show on the home screen. */
 const isHomeOutcome = (outcome: CareOutcome | null): outcome is CareOutcome =>
@@ -154,6 +154,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
           generation={save.game.generation}
           room={stageRoom}
           decor={placedIn(save.home, stageRoom)}
+          worn={save.home.worn}
           reaction={reaction}
           fromPlay={fromPlay}
           effect={effects.frame}
@@ -195,7 +196,7 @@ function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
   }, [dot, send]);
   return (
     <>
-      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} />
+      <TabBar<ZukanTab> tabs={tabs} active={tab} onTab={setTab} label={t('zukan_title')} />
       {tab === 'pets' ? <ZukanView zukan={save.zukan} /> : null}
       {tab === 'recipes' ? <RecipeBook recipes={save.kitchen.recipes} /> : null}
       {tab === 'missions' ? <MissionList progress={save.progress} /> : null}
@@ -227,9 +228,14 @@ function InfoOverlay(props: InfoProps) {
           pantry={save.kitchen.pantry}
           coins={save.progress.coins}
           ownedDecor={save.home.ownedDecor}
+          ownedAcc={save.home.ownedAcc}
           onSell={(food, amount) => void send({ type: 'sell', food, amount })}
           onBuy={async (decor) => {
             const r = await send({ type: 'buyDecor', decor });
+            return r.ok && r.outcome?.action === 'buy' && r.outcome.result === 'ok';
+          }}
+          onBuyAcc={async (acc) => {
+            const r = await send({ type: 'buyAccessory', acc });
             return r.ok && r.outcome?.action === 'buy' && r.outcome.result === 'ok';
           }}
         />

@@ -23,7 +23,7 @@ export function createFreshSave(now: number, flags: Partial<SaveMeta> = {}): Sav
     zukan: createZukan(),
     kitchen: EMPTY_KITCHEN,
     progress: EMPTY_PROGRESS,
-    home: { room: 'home', ownedDecor: [], decor: {} },
+    home: { room: 'home', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} },
     settings: { ...DEFAULT_SETTINGS },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false, ...flags },
   };
