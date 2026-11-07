@@ -6,8 +6,8 @@ import { cook, type Cooked } from '@/core/cooking';
 import { farmAction, growFarm } from '@/core/farm';
 import { markSeen } from '@/core/progress';
 import { sellFood } from '@/core/shop';
-import { forage, outingRefusal } from '@/core/outings';
-import { ownedRooms } from '@/core/rooms';
+import { forage } from '@/core/outings';
+import { roomRefusal } from '@/core/rooms';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
@@ -137,9 +137,9 @@ function sellMutator(req: Extract<EngineRequest, { type: 'sell' }>): Mutator {
 
 function setRoomMutator(req: Extract<EngineRequest, { type: 'setRoom' }>): Mutator {
   return (save) => {
-    const reason = outingRefusal(save.game.pet) ?? (ownedRooms(save.progress.claimed).includes(req.room) ? null : 'locked');
+    const reason = roomRefusal(save.game.pet, save.progress.claimed, req.room);
     if (reason !== null) return { save, events: [], outcome: { action: 'setRoom', result: 'refused', reason } };
-    return { save: { ...save, home: { room: req.room } }, events: [], outcome: { action: 'setRoom', result: 'ok' } };
+    return { save: { ...save, home: { ...save.home, room: req.room } }, events: [], outcome: { action: 'setRoom', result: 'ok' } };
   };
 }
 

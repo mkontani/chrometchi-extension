@@ -495,6 +495,14 @@ describe('engine', () => {
       expect(stored().home).toEqual({ room: 'beach' });
     });
 
+    test('setRoom keeps the other home fields', async () => {
+      const { engine, stored, area } = setup();
+      const home = { room: 'home', decor: ['lamp'] } as unknown as ReturnType<typeof stored>['home'];
+      seed(area, stored, { home, progress: { ...stored().progress, claimed: ['zukan:10'] } });
+      await engine.handle({ type: 'setRoom', room: 'beach' });
+      expect(stored().home).toEqual({ room: 'beach', decor: ['lamp'] });
+    });
+
     test('setRoom refuses a locked room and a sleeping pet', async () => {
       const { engine, stored } = setup();
       const locked = await engine.handle({ type: 'setRoom', room: 'beach' });

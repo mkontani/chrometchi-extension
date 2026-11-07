@@ -1,5 +1,6 @@
 import { ROOMS } from '@/data/rooms';
-import type { RewardId, RoomId } from './types';
+import { outingRefusal } from './outings';
+import type { PetState, RefuseReason, RewardId, RoomId } from './types';
 
 /** The rooms the player owns, in table order. Home is always owned. */
 export function ownedRooms(claimed: readonly RewardId[]): RoomId[] {
@@ -14,4 +15,9 @@ export function shownRoom(room: RoomId, claimed: readonly RewardId[]): RoomId {
 /** The room a reward unlocks, if any. */
 export function roomUnlockedBy(id: RewardId): RoomId | null {
   return ROOMS.find((r) => r.unlock === id)?.id ?? null;
+}
+
+/** Why the room cannot be switched now: the pet's state first, then the lock. */
+export function roomRefusal(pet: PetState, claimed: readonly RewardId[], room: RoomId): RefuseReason | null {
+  return outingRefusal(pet) ?? (ownedRooms(claimed).includes(room) ? null : 'locked');
 }

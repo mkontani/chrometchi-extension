@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { ownedRooms, roomUnlockedBy, shownRoom } from './rooms';
+import { makePet } from './__fixtures__/pet';
+import { ownedRooms, roomRefusal, roomUnlockedBy, shownRoom } from './rooms';
 import type { RewardId } from './types';
 
 describe('rooms', () => {
@@ -22,5 +23,14 @@ describe('rooms', () => {
     expect(roomUnlockedBy('zukan:30')).toBe('sweets');
     expect(roomUnlockedBy('zukan:60')).toBeNull();
     expect(roomUnlockedBy('ending:first')).toBe('garden');
+  });
+
+  test('roomRefusal checks the pet before the lock', () => {
+    const none: RewardId[] = [];
+    expect(roomRefusal(makePet({ stage: 'egg' }), none, 'beach')).toBe('egg');
+    expect(roomRefusal(makePet({ lifecycle: 'dead' }), none, 'beach')).toBe('notAlive');
+    expect(roomRefusal(makePet({ asleep: true }), none, 'beach')).toBe('asleep');
+    expect(roomRefusal(makePet(), none, 'beach')).toBe('locked');
+    expect(roomRefusal(makePet(), ['zukan:10'], 'beach')).toBeNull();
   });
 });
