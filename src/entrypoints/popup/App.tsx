@@ -228,9 +228,14 @@ function InfoOverlay(props: InfoProps) {
           pantry={save.kitchen.pantry}
           coins={save.progress.coins}
           ownedDecor={save.home.ownedDecor}
+          ownedAcc={save.home.ownedAcc}
           onSell={(food, amount) => void send({ type: 'sell', food, amount })}
           onBuy={async (decor) => {
             const r = await send({ type: 'buyDecor', decor });
+            return r.ok && r.outcome?.action === 'buy' && r.outcome.result === 'ok';
+          }}
+          onBuyAcc={async (acc) => {
+            const r = await send({ type: 'buyAccessory', acc });
             return r.ok && r.outcome?.action === 'buy' && r.outcome.result === 'ok';
           }}
         />

@@ -17,6 +17,7 @@ vi.mock('@/ui/assets', () => ({
   backgroundUrl: (id: string) => backgroundUrl(id),
   iconUrl: () => null,
   decorUrl: () => null,
+  accUrl: () => null,
   assetUrl: () => null,
   gameArtUrl: () => null,
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
@@ -34,7 +35,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
     kitchen: EMPTY_KITCHEN,
     progress: EMPTY_PROGRESS,
-    home: { room: 'home', ownedDecor: [], decor: {} },
+    home: { room: 'home', ownedDecor: [], ownedAcc: [], decor: {} },
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -824,22 +825,58 @@ test('the shop opens on the furniture tab and the sell list is one tab away', ()
 
 const BOUGHT = { ok: true, save, outcome: { action: 'buy', result: 'ok' } } as const;
 
-test('a bought item shows its hint even if a sync clears the outcome, and hides it on its own', async () => {
-  vi.useFakeTimers();
-  const send = vi.fn().mockResolvedValue(BOUGHT);
-  const progress = { ...EMPTY_PROGRESS, coins: 500 };
-  const rich = fullSave({}, { progress });
-  useGame.mockReturnValue({ save: rich, outcome: null, error: null, send });
-  const ui = render(<App />);
-  fireEvent.click(screen.getByLabelText('action_shop'));
-  fireEvent.click(screen.getByRole('button', { name: 'shop_buy_aria:decor_candle' }));
+/**
+ * A stand-in for useGame that, like the real one, sets the last outcome from every response.
+ * A sync response carries none, so it sets the outcome back to null.
+ */
+function liveGame(buyAnswer: typeof BOUGHT) {
+  const rich = fullSave({}, { progress: { ...EMPTY_PROGRESS, coins: 500 } });
+  let state: UseGame;
+  const send = vi.fn(async (req: { type: string }) => {
+    const r = req.type === 'sync' ? ({ ok: true, save: rich } as const) : buyAnswer;
+    state = { ...state, outcome: 'outcome' in r ? (r.outcome as CareOutcome) : null };
+    return r;
+  });
+  state = { save: rich, outcome: null, error: null, send } as unknown as UseGame;
+  useGame.mockImplementation(() => state);
+  return send;
+}
+
+const buyIn = async (label: string) => {
+  fireEvent.click(screen.getByRole('button', { name: label }));
   fireEvent.click(screen.getByRole('button', { name: 'shop_buy' }));
   await act(async () => undefined);
   await act(async () => undefined);
-  expect(send).toHaveBeenCalled();
-  expect(screen.getByText('shop_bought')).toBeTruthy();
+};
+
+test('the bought hint hides on time even when a sync clears the outcome', async () => {
+  vi.useFakeTimers();
+  const send = liveGame(BOUGHT);
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  await buyIn('shop_buy_aria:decor_candle');
   ui.rerender(<App />);
-  act(() => void vi.advanceTimersByTime(2500));
+  expect(screen.getByText('shop_bought')).toBeTruthy();
+  act(() => void vi.advanceTimersByTime(1000));
+  await act(async () => void (await send({ type: 'sync' })));
+  ui.rerender(<App />);
+  act(() => void vi.advanceTimersByTime(1500));
+  expect(screen.queryByText('shop_bought')).toBeNull();
+  act(() => void vi.advanceTimersByTime(60_000));
+  expect(screen.queryByText('shop_bought')).toBeNull();
+  vi.useRealTimers();
+});
+
+test('buying an accessory sends buyAccessory and says where to put it on', async () => {
+  vi.useFakeTimers();
+  const send = liveGame(BOUGHT);
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  fireEvent.click(screen.getByRole('tab', { name: 'shop_tab_acc' }));
+  await buyIn('shop_buy_aria:acc_ribbon');
+  ui.rerender(<App />);
+  expect(send).toHaveBeenCalledWith({ type: 'buyAccessory', acc: 'ribbon' });
+  expect(screen.getByText('shop_bought_acc')).toBeTruthy();
   expect(screen.queryByText('shop_bought')).toBeNull();
   vi.useRealTimers();
 });

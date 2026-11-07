@@ -11,12 +11,14 @@ interface Props<Id extends string> {
   tabs: readonly TabDef<Id>[];
   active: Id;
   onTab(next: Id): void;
+  /** the accessible name of the tab strip */
+  label?: string;
 }
 
 /** The small pixel tab strip shared by the food panel and the zukan. */
-export function TabBar<Id extends string>({ tabs, active, onTab }: Props<Id>) {
+export function TabBar<Id extends string>({ tabs, active, onTab, label }: Props<Id>) {
   return (
-    <div class="panel__tabs" role="tablist">
+    <div class="panel__tabs" role="tablist" aria-label={label}>
       {tabs.map(({ id, label, badge = false }) => (
         <button
           key={id}

@@ -1,9 +1,10 @@
 import { useState } from 'preact/hooks';
-import type { DecorId, IngredientId, Pantry } from '@/core/types';
+import type { AccessoryId, DecorId, IngredientId, Pantry } from '@/core/types';
 import { SELL_PRICE } from '@/data/economy';
 import { INGREDIENT_IDS } from '@/data/foods';
 import { t } from '@/i18n/t';
 import { iconUrl } from '@/ui/assets';
+import { AccessoryShop } from '@/ui/components/AccessoryShop';
 import { BoughtNote, useBoughtNote } from '@/ui/components/BoughtNote';
 import { CoinAmount } from '@/ui/components/CoinAmount';
 import { DecorShop } from '@/ui/components/DecorShop';
@@ -15,12 +16,15 @@ interface Props {
   pantry: Pantry;
   coins: number;
   ownedDecor: readonly DecorId[];
+  ownedAcc: readonly AccessoryId[];
   onSell(food: IngredientId, amount: number): void;
   /** Resolves to true when the buy went through. */
   onBuy(decor: DecorId): Promise<boolean>;
+  /** Resolves to true when the accessory buy went through. */
+  onBuyAcc(acc: AccessoryId): Promise<boolean>;
 }
 
-type Tab = 'decor' | 'sell';
+type Tab = 'decor' | 'acc' | 'sell';
 
 interface RowProps {
   food: IngredientId;
@@ -61,22 +65,27 @@ function Row({ food, stock, onSell }: RowProps) {
   );
 }
 
-/** The shop: furniture to buy, and the ingredients to sell. A refused sell changes nothing. */
-export function ShopView({ pantry, coins, ownedDecor, onSell, onBuy }: Props) {
+/** The shop: furniture and accessories to buy, and the ingredients to sell. A refused sell changes nothing. */
+export function ShopView({ pantry, coins, ownedDecor, ownedAcc, onSell, onBuy, onBuyAcc }: Props) {
   const [tab, setTab] = useState<Tab>('decor');
   const [bought, flashBought] = useBoughtNote();
   const buy = async (decor: DecorId) => {
-    if (await onBuy(decor)) flashBought();
+    if (await onBuy(decor)) flashBought('shop_bought');
+  };
+  const buyAcc = async (acc: AccessoryId) => {
+    if (await onBuyAcc(acc)) flashBought('shop_bought_acc');
   };
   const tabs: readonly TabDef<Tab>[] = [
     { id: 'decor', label: t('shop_tab_decor') },
+    { id: 'acc', label: t('shop_tab_acc') },
     { id: 'sell', label: t('shop_tab_sell') },
   ];
   return (
     <div class="shop">
       <p class="shop__coins">{t('shop_coins', String(coins))}</p>
-      <TabBar<Tab> tabs={tabs} active={tab} onTab={setTab} />
+      <TabBar<Tab> tabs={tabs} active={tab} onTab={setTab} label={t('shop_title')} />
       {tab === 'decor' ? <DecorShop owned={ownedDecor} coins={coins} onBuy={(decor) => void buy(decor)} /> : null}
+      {tab === 'acc' ? <AccessoryShop owned={ownedAcc} coins={coins} onBuy={(acc) => void buyAcc(acc)} /> : null}
       <BoughtNote shown={bought} />
       {tab === 'sell' ? (
         <ScrollList class="shop__list">
