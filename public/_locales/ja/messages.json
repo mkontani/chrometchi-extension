@@ -26,6 +26,21 @@
   "form_child_mochi": {
     "message": "モチ"
   },
+  "form_child_pico": {
+    "message": "ピコ"
+  },
+  "form_child_awa": {
+    "message": "アワ"
+  },
+  "form_child_tane": {
+    "message": "タネ"
+  },
+  "form_child_ame": {
+    "message": "アメ"
+  },
+  "form_child_yuki": {
+    "message": "ユキ"
+  },
   "form_young_kirari": {
     "message": "キラリ"
   },
@@ -34,6 +49,30 @@
   },
   "form_young_poyo": {
     "message": "ポヨ"
+  },
+  "form_young_tomoshi": {
+    "message": "トモシ"
+  },
+  "form_young_kingyo": {
+    "message": "ヒラリ"
+  },
+  "form_young_kogane": {
+    "message": "コガネ"
+  },
+  "form_young_kumo": {
+    "message": "ポツリ"
+  },
+  "form_young_kaminari": {
+    "message": "ピリリ"
+  },
+  "form_young_obake": {
+    "message": "ソロリ"
+  },
+  "form_young_tsurara": {
+    "message": "ツララ"
+  },
+  "form_young_koishi": {
+    "message": "コロン"
   },
   "form_young_hinoko": {
     "message": "ヒノコ"
@@ -62,6 +101,15 @@
   "form_adult_phoenix": {
     "message": "フェニア"
   },
+  "form_adult_hedgehog": {
+    "message": "ハリビ"
+  },
+  "form_adult_ferret": {
+    "message": "フェレン"
+  },
+  "form_adult_rooster": {
+    "message": "トサカ"
+  },
   "form_adult_serpent": {
     "message": "ミズチ"
   },
@@ -70,6 +118,18 @@
   },
   "form_adult_kraken": {
     "message": "クラーケル"
+  },
+  "form_adult_seal": {
+    "message": "アザリー"
+  },
+  "form_adult_otter": {
+    "message": "ラッコロ"
+  },
+  "form_adult_dolphin": {
+    "message": "イルカン"
+  },
+  "form_adult_whale": {
+    "message": "ゲイオウ"
   },
   "form_adult_golem": {
     "message": "ガンゴ"
@@ -80,6 +140,18 @@
   "form_adult_tree": {
     "message": "ジュモク"
   },
+  "form_adult_mushroom": {
+    "message": "ポコタケ"
+  },
+  "form_adult_bunny": {
+    "message": "ウサミ"
+  },
+  "form_adult_sunflower": {
+    "message": "ヒマワ"
+  },
+  "form_adult_stag": {
+    "message": "ハナジカ"
+  },
   "form_adult_griffin": {
     "message": "グリフォ"
   },
@@ -89,6 +161,18 @@
   "form_adult_pegasus": {
     "message": "ペガロ"
   },
+  "form_adult_butterfly": {
+    "message": "パピヨ"
+  },
+  "form_adult_dandelion": {
+    "message": "タンポ"
+  },
+  "form_adult_swallow": {
+    "message": "ツバクロ"
+  },
+  "form_adult_stormbird": {
+    "message": "イカヅチ"
+  },
   "form_adult_robot": {
     "message": "ロボッタ"
   },
@@ -97,6 +181,18 @@
   },
   "form_adult_cyborg": {
     "message": "サイボロ"
+  },
+  "form_adult_clock": {
+    "message": "チクタ"
+  },
+  "form_adult_drone": {
+    "message": "プロペ"
+  },
+  "form_adult_toaster": {
+    "message": "トースタ"
+  },
+  "form_adult_mecha": {
+    "message": "キシマル"
   },
   "form_adult_ghost": {
     "message": "ユーレ"
@@ -110,6 +206,15 @@
   "form_adult_vampire": {
     "message": "ヴァミル"
   },
+  "form_adult_pumpkin": {
+    "message": "ジャッコ"
+  },
+  "form_adult_blackcat": {
+    "message": "クロニャ"
+  },
+  "form_adult_koala": {
+    "message": "ネムラ"
+  },
   "form_adult_unicorn": {
     "message": "ユニア"
   },
@@ -122,6 +227,15 @@
   "form_adult_astra": {
     "message": "アストラ"
   },
+  "form_adult_jellyfish": {
+    "message": "ホシクラ"
+  },
+  "form_adult_fairy": {
+    "message": "ルミナ"
+  },
+  "form_adult_rainbow": {
+    "message": "ニジモ"
+  },
   "form_adult_bear": {
     "message": "クマロ"
   },
@@ -133,6 +247,15 @@
   },
   "form_adult_grandpudding": {
     "message": "グランカスタ"
+  },
+  "form_adult_elephant": {
+    "message": "パオン"
+  },
+  "form_adult_balloon": {
+    "message": "プカリ"
+  },
+  "form_adult_pancake": {
+    "message": "ホットン"
   },
   "food_rice": {
     "message": "ごはん"
@@ -500,6 +623,21 @@
   "hint_child_mochi": {
     "message": "ふつうに育てると…？"
   },
+  "hint_child_pico": {
+    "message": "はなのにわで育つと…？"
+  },
+  "hint_child_awa": {
+    "message": "うみべで育つと…？"
+  },
+  "hint_child_tane": {
+    "message": "もりで育つと…？"
+  },
+  "hint_child_ame": {
+    "message": "おかしやさんで育つと…？"
+  },
+  "hint_child_yuki": {
+    "message": "ゆきのはらで育つと…？"
+  },
   "hint_young_kirari": {
     "message": "きらめく子が、さらに頑張ると…？ ときどき…"
   },
@@ -508,6 +646,30 @@
   },
   "hint_young_poyo": {
     "message": "ぽっちゃりな子が、そのまま育つと…？"
+  },
+  "hint_young_tomoshi": {
+    "message": "あかりの家具が多い部屋で育つと…？"
+  },
+  "hint_young_kingyo": {
+    "message": "水の家具が多い部屋で育つと…？"
+  },
+  "hint_young_kogane": {
+    "message": "草木の家具が多い部屋で育つと…？"
+  },
+  "hint_young_kumo": {
+    "message": "そらの家具が多い部屋で育つと…？"
+  },
+  "hint_young_kaminari": {
+    "message": "からくりの家具が多い部屋で育つと…？"
+  },
+  "hint_young_obake": {
+    "message": "夜の家具が多い部屋で育つと…？"
+  },
+  "hint_young_tsurara": {
+    "message": "きらきらの家具が多い部屋で育つと…？"
+  },
+  "hint_young_koishi": {
+    "message": "くつろぎの家具が多い部屋で育つと…？"
   },
   "hint_young_hinoko": {
     "message": "おにくが大好きな子は…？"
@@ -536,6 +698,15 @@
   "hint_adult_phoenix": {
     "message": "炎の子を完ぺきに育てたら…？ ときどき…"
   },
+  "hint_adult_hedgehog": {
+    "message": "炎の子がストップ遊びを好むと…？"
+  },
+  "hint_adult_ferret": {
+    "message": "炎の子が、ほっそり育つと…？"
+  },
+  "hint_adult_rooster": {
+    "message": "炎の子を、朝にたくさんお世話すると…？"
+  },
   "hint_adult_serpent": {
     "message": "水の子がキャッチ遊びを好むと…？"
   },
@@ -544,6 +715,18 @@
   },
   "hint_adult_kraken": {
     "message": "水の子を、ふつうに育てると…？"
+  },
+  "hint_adult_seal": {
+    "message": "水の子がストップ遊びを好むと…？"
+  },
+  "hint_adult_otter": {
+    "message": "水の子が、ほっそり育つと…？"
+  },
+  "hint_adult_dolphin": {
+    "message": "水の子を、朝にたくさんお世話すると…？"
+  },
+  "hint_adult_whale": {
+    "message": "ネックレスをつけた水の子は…？ ときどき…"
   },
   "hint_adult_golem": {
     "message": "大地の子がキャッチ遊びを好むと…？"
@@ -554,6 +737,18 @@
   "hint_adult_tree": {
     "message": "大地の子を、ふつうに育てると…？"
   },
+  "hint_adult_mushroom": {
+    "message": "大地の子がストップ遊びを好むと…？"
+  },
+  "hint_adult_bunny": {
+    "message": "大地の子が、ほっそり育つと…？"
+  },
+  "hint_adult_sunflower": {
+    "message": "大地の子を、朝にたくさんお世話すると…？"
+  },
+  "hint_adult_stag": {
+    "message": "はなかんむりをつけた大地の子は…？ ときどき…"
+  },
   "hint_adult_griffin": {
     "message": "風の子がキャッチ遊びを好むと…？"
   },
@@ -563,6 +758,18 @@
   "hint_adult_pegasus": {
     "message": "風の子を、ふつうに育てると…？"
   },
+  "hint_adult_butterfly": {
+    "message": "風の子がストップ遊びを好むと…？"
+  },
+  "hint_adult_dandelion": {
+    "message": "風の子が、ほっそり育つと…？"
+  },
+  "hint_adult_swallow": {
+    "message": "風の子を、朝にたくさんお世話すると…？"
+  },
+  "hint_adult_stormbird": {
+    "message": "マフラーをつけた風の子は…？ ときどき…"
+  },
   "hint_adult_robot": {
     "message": "はがねの子がキャッチ遊びを好むと…？"
   },
@@ -571,6 +778,18 @@
   },
   "hint_adult_cyborg": {
     "message": "はがねの子を、ふつうに育てると…？"
+  },
+  "hint_adult_clock": {
+    "message": "はがねの子がストップ遊びを好むと…？"
+  },
+  "hint_adult_drone": {
+    "message": "はがねの子が、ほっそり育つと…？"
+  },
+  "hint_adult_toaster": {
+    "message": "はがねの子を、朝にたくさんお世話すると…？"
+  },
+  "hint_adult_mecha": {
+    "message": "メダルをつけたはがねの子は…？ ときどき…"
   },
   "hint_adult_ghost": {
     "message": "影の子がキャッチ遊びを好むと…？"
@@ -584,6 +803,15 @@
   "hint_adult_vampire": {
     "message": "影の子がとことんサボると…？ 夜になると…"
   },
+  "hint_adult_pumpkin": {
+    "message": "影の子がストップ遊びを好むと…？"
+  },
+  "hint_adult_blackcat": {
+    "message": "影の子が、ほっそり育つと…？"
+  },
+  "hint_adult_koala": {
+    "message": "影の子を、朝にたくさんお世話すると…？"
+  },
   "hint_adult_unicorn": {
     "message": "きらめく子がキャッチ遊びを好むと…？"
   },
@@ -596,6 +824,15 @@
   "hint_adult_astra": {
     "message": "一度もミスせず育てると…？ ときどき…"
   },
+  "hint_adult_jellyfish": {
+    "message": "きらめく子がストップ遊びを好むと…？"
+  },
+  "hint_adult_fairy": {
+    "message": "きらめく子が、ほっそり育つと…？"
+  },
+  "hint_adult_rainbow": {
+    "message": "きらめく子を、朝にたくさんお世話すると…？"
+  },
   "hint_adult_bear": {
     "message": "ぽっちゃりな子がキャッチ遊びを好むと…？"
   },
@@ -607,6 +844,15 @@
   },
   "hint_adult_grandpudding": {
     "message": "ぽっちゃりな子が、もっとぽっちゃりすると…？ ごくまれに…"
+  },
+  "hint_adult_elephant": {
+    "message": "ぽっちゃりな子がストップ遊びを好むと…？"
+  },
+  "hint_adult_balloon": {
+    "message": "ぽっちゃりな子が、ほっそり育つと…？"
+  },
+  "hint_adult_pancake": {
+    "message": "ぽっちゃりな子を、朝にたくさんお世話すると…？"
   },
   "roam_say_egg": {
     "message": "…(ごろごろ)"

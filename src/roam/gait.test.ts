@@ -18,6 +18,23 @@ describe('gaits', () => {
     Object.entries(expected).forEach(([id, gait]) => expect(gaitOf(id)).toBe(gait));
   });
 
+  test('the 41 new forms move as spec appendix A lists', () => {
+    const byGait: Record<Gait, string[]> = {
+      walk: ['young_kogane', 'adult_rooster', 'adult_otter', 'adult_mushroom', 'adult_sunflower', 'adult_clock',
+        'adult_toaster', 'adult_mecha', 'adult_koala'],
+      trot: ['adult_hedgehog', 'adult_ferret', 'adult_stag', 'adult_blackcat', 'adult_elephant'],
+      hop: ['child_pico', 'child_tane', 'child_ame', 'child_yuki', 'young_tomoshi', 'young_koishi', 'adult_bunny',
+        'adult_pumpkin', 'adult_pancake'],
+      crawl: ['adult_seal'],
+      float: ['child_awa', 'young_kingyo', 'young_kumo', 'young_kaminari', 'young_obake', 'young_tsurara',
+        'adult_dolphin', 'adult_whale', 'adult_butterfly', 'adult_dandelion', 'adult_swallow', 'adult_stormbird',
+        'adult_drone', 'adult_jellyfish', 'adult_fairy', 'adult_rainbow', 'adult_balloon'],
+    };
+    const listed = Object.entries(byGait).flatMap(([gait, ids]) => ids.map((id) => [id, gait] as const));
+    expect(listed).toHaveLength(41);
+    for (const [id, gait] of listed) expect(FORM_GAITS[id], id).toBe(gait);
+  });
+
   test('the egg and unknown forms walk', () => {
     expect(gaitOf('egg')).toBe('walk');
     expect(gaitOf('nope')).toBe('walk');

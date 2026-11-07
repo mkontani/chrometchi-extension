@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { makeGame, makePet } from '@/core/__fixtures__/pet';
 import { createRng } from '@/core/rng';
-import type { GameEvent, WarningLevel } from '@/core/types';
+import { BASE_WEIGHT, STAGE_MINUTES } from '@/core/constants';
+import type { GameEvent, PetState, Rng, Stage, WarningLevel } from '@/core/types';
 import { createFreshSave, createSaveRepository } from '@/storage/repository';
 import { createMemoryArea } from '@/storage/__fixtures__/memory-area';
 import { SAVE_KEY, type SaveV1 } from '@/storage/schema';
@@ -13,6 +14,7 @@ const MIN = 60_000;
 interface Overrides {
   notifier?: Notifier;
   badge?: Badge;
+  rng?: Rng;
 }
 
 function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0, over: Overrides = {}) {
@@ -32,7 +34,7 @@ function setup(seed: Partial<SaveV1['game']> = {}, startAt = T0, over: Overrides
   const engine = createEngine({
     repo: createSaveRepository(area, () => clock.now),
     now: () => clock.now,
-    rng: createRng(1),
+    rng: over.rng ?? createRng(1),
     queryIdle: async () => 'active',
     notifier,
     badge: over.badge ?? { update: async (l) => void badgeLevels.push(l) },
@@ -667,5 +669,46 @@ describe('care counts', () => {
     area.data.set(SAVE_KEY, { ...seeded, settings: { ...seeded.settings, sleepEndMin: 23 * 60 } });
     await engine.handle(feed);
     expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 1 });
+  });
+});
+
+describe('evolution and the home', () => {
+  /** A pet one minute short of the end of its stage, at the weight that is normal for it. */
+  const due = (formId: string, stage: Stage): PetState =>
+    makePet({
+      formId,
+      stage,
+      stageMinutes: STAGE_MINUTES[stage] - 1,
+      awakeMinutes: STAGE_MINUTES[stage] - 1,
+      stats: { weight: BASE_WEIGHT[stage] },
+    });
+  const lucky = { rng: () => 0 };
+
+  test('evolution reads the home at the moment of evolution', async () => {
+    const placed = setup({ pet: due('child_mochi', 'child') });
+    const home = { ...placed.stored().home, ownedDecor: ['lamp' as const] };
+    placed.area.data.set(SAVE_KEY, { ...placed.stored(), home });
+    await placed.engine.handle({ type: 'placeDecor', room: 'home', slot: 'floorL', decor: 'lamp' });
+    placed.clock.now = T0 + 2 * MIN;
+    await placed.engine.tick();
+    expect(placed.stored().game.pet.formId).toBe('young_tomoshi');
+
+    const worn = setup({ pet: due('young_shizuku', 'young') }, T0, lucky);
+    const owned = { ...worn.stored().home, ownedAcc: ['necklace' as const] };
+    worn.area.data.set(SAVE_KEY, { ...worn.stored(), home: owned });
+    await worn.engine.handle({ type: 'wear', place: 'neck', acc: 'necklace' });
+    worn.clock.now = T0 + 2 * MIN;
+    await worn.engine.tick();
+    expect(worn.stored().game.pet.formId).toBe('adult_whale');
+  });
+
+  test('evolution reads the home as it was before the operation, so an item worn in it counts from the next one', async () => {
+    const { engine, clock, stored, area } = setup({ pet: due('young_shizuku', 'young') }, T0, lucky);
+    area.data.set(SAVE_KEY, { ...stored(), home: { ...stored().home, ownedAcc: ['necklace'] } });
+    clock.now = T0 + 2 * MIN;
+    const res = await engine.handle({ type: 'wear', place: 'neck', acc: 'necklace' });
+    expect(res).toMatchObject({ ok: true, outcome: { action: 'wear', result: 'ok' } });
+    expect(stored().game.pet.formId).toBe('adult_kraken');
+    expect(stored().home.worn).toEqual({ neck: 'necklace' });
   });
 });

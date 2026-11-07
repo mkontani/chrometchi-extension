@@ -30,6 +30,7 @@ const MAX_GENERATIONS = 30;
 // The zukan milestones for 50 to 80 forms are counted below, but they can only be reached once
 // stage 5 adds forms. Stage 4 alone (milestones up to 40) works out to about 24.7 generations,
 // which is still in range.
+// With 83 forms, zukan milestones 50 to 80 become reachable in stage 5.
 const sum = (xs: readonly number[]): number => xs.reduce((a, b) => a + b, 0);
 
 function generationsToBuyAll(): number {

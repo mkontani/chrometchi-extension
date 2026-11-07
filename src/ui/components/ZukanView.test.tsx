@@ -18,19 +18,19 @@ test('shows discovered name and a silhouette with hint for a child of a discover
     <ZukanView zukan={{ discovered: ['egg', 'baby_puni', 'child_hoshi'], memories: [] }} />,
   );
   expect(screen.getByText('form_child_hoshi')).toBeTruthy();
-  expect(container.querySelectorAll('li').length).toBe(42);
+  expect(container.querySelectorAll('li').length).toBe(83);
   // young_kirari's parent child_hoshi is discovered -> hint shown, name hidden
   expect(screen.getByText('hint_young_kirari')).toBeTruthy();
   expect(screen.queryByText('form_young_kirari')).toBeNull();
   // adult_dragon's parent (young_hinoko) is not discovered -> no hint
   expect(screen.queryByText('hint_adult_dragon')).toBeNull();
-  expect(container.querySelectorAll('img.silhouette').length).toBe(42 - 3);
-  expect(screen.getAllByText('zukan_unknown').length).toBe(39);
+  expect(container.querySelectorAll('img.silhouette').length).toBe(83 - 3);
+  expect(screen.getAllByText('zukan_unknown').length).toBe(80);
 });
 
 test('shows the discovered count', () => {
   render(<ZukanView zukan={{ discovered: ['egg', 'baby_puni'], memories: [] }} />);
-  expect(screen.getByText('zukan_count|2,42')).toBeTruthy();
+  expect(screen.getByText('zukan_count|2,83')).toBeTruthy();
 });
 
 test('lists memories newest first', () => {

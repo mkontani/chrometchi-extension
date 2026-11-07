@@ -33,13 +33,14 @@ const en = load('en');
 
 const ORDER: Stage[] = ['egg', 'baby', 'child', 'young', 'adult'];
 const isFallback = (when: object) => Object.keys(when).length === 0;
+const NEW_CHILDREN = ['child_pico', 'child_awa', 'child_tane', 'child_ame', 'child_yuki'];
 /** Spec 7.3: a new player can afford one item of every kind. */
 const AFFORDABLE = 100;
 
 describe('form data', () => {
-  test('form ids are unique and there are 42 forms', () => {
-    expect(new Set(FORMS.map((f) => f.id)).size).toBe(42);
-    expect(FORMS).toHaveLength(42);
+  test('form ids are unique and there are 83 forms', () => {
+    expect(new Set(FORMS.map((f) => f.id)).size).toBe(83);
+    expect(FORMS).toHaveLength(83);
   });
 
   test('every non-adult form has >=2 children and exactly one {} fallback', () => {
@@ -62,8 +63,29 @@ describe('form data', () => {
     }
   });
 
-  test('4 hidden adults have priority 100', () => {
-    expect(FORMS.filter((f) => f.priority === 100 && f.stage === 'adult')).toHaveLength(4);
+  test('8 hidden adults have priority 100', () => {
+    expect(FORMS.filter((f) => f.priority === 100 && f.stage === 'adult')).toHaveLength(8);
+  });
+
+  test('the 5 new children join every young form but kirari, and the room and decor forms come from all 9', () => {
+    const children = FORMS.filter((f) => f.stage === 'child').map((f) => f.id);
+    expect(children).toHaveLength(9);
+    for (const f of FORMS.filter((x) => x.stage === 'young')) {
+      if (f.id === 'young_kirari') expect(f.from, f.id).toEqual(['child_hoshi']);
+      else expect(f.from, f.id).toEqual(expect.arrayContaining(NEW_CHILDREN));
+      if (f.when.decorKind !== undefined) expect([...f.from].sort(), f.id).toEqual([...children].sort());
+    }
+    for (const f of FORMS.filter((x) => x.when.room !== undefined)) {
+      expect([f.stage, f.family, f.priority, f.from], f.id).toEqual(['child', 'none', 75, ['baby_puni']]);
+    }
+  });
+
+  test('every adult comes from both young forms of its family', () => {
+    for (const f of FORMS.filter((x) => x.stage === 'adult')) {
+      const young = FORMS.filter((y) => y.stage === 'young' && y.family === f.family).map((y) => y.id);
+      expect(young, f.family).toHaveLength(2);
+      expect([...f.from].sort(), f.id).toEqual([...young].sort());
+    }
   });
 
   test('the heavy line uses original pudding forms, not slimes', () => {
@@ -200,7 +222,7 @@ describe('i18n', () => {
       ...FOODS.map((f) => `food_${f.id}`),
       ...GAMES.map((g) => `game_${g}`),
     ];
-    expect(keys).toHaveLength(42 + 23 + 3);
+    expect(keys).toHaveLength(83 + 23 + 3);
     for (const key of keys) {
       expect(ja[key]?.message, `ja ${key}`).toBeTruthy();
       expect(en[key]?.message, `en ${key}`).toBeTruthy();
@@ -229,10 +251,24 @@ describe('i18n', () => {
 
   test('every form except egg and baby has a hint in both locales', () => {
     const hinted = FORMS.filter((f) => f.stage !== 'egg' && f.stage !== 'baby');
-    expect(hinted).toHaveLength(40);
+    expect(hinted).toHaveLength(81);
     for (const f of hinted) {
       expect(ja[`hint_${f.id}`]?.message, `ja ${f.id}`).toBeTruthy();
       expect(en[`hint_${f.id}`]?.message, `en ${f.id}`).toBeTruthy();
+    }
+  });
+
+  test("a room child's hint names its room, and a wearing rare's hint names its item and ends with sometimes", () => {
+    const named = FORMS.filter((f) => f.when.room !== undefined || f.when.wearing !== undefined);
+    expect(named).toHaveLength(9);
+    for (const f of named) {
+      const { room, wearing } = f.when;
+      const key = room ? `room_${room}` : `acc_${wearing}`;
+      expect(ja[`hint_${f.id}`]?.message, f.id).toContain(ja[key]?.message);
+      expect(en[`hint_${f.id}`]?.message.toLowerCase(), f.id).toContain(en[key]?.message.toLowerCase());
+      if (!wearing) continue;
+      expect(ja[`hint_${f.id}`]?.message, f.id).toMatch(/ときどき…$/);
+      expect(en[`hint_${f.id}`]?.message, f.id).toMatch(/Sometimes\.\.\.$/);
     }
   });
 
@@ -465,7 +501,7 @@ describe('form anchors', () => {
   };
 
   test('every form but the egg has anchors', () => {
-    expect(wearers).toHaveLength(41);
+    expect(wearers).toHaveLength(82);
     expect(Object.keys(FORM_ANCHORS).sort()).toEqual([...wearers].sort());
     expect(FORM_ANCHORS.egg).toBeUndefined();
   });

@@ -7,7 +7,7 @@ import type { PetOverrides } from './__fixtures__/pet';
 import { createRng } from './rng';
 import { FORMS } from '@/data/forms';
 import type { EvolutionContext } from './evolution';
-import type { CareHistory, DecorId, FoodTag, GameId, PetState, RoomId, Stage } from './types';
+import type { CareHistory, DecorId, EvolutionEnv, FoodTag, GameId, PetState, RoomId, Stage } from './types';
 
 const ctx = { rng: () => 0.99, hour: 12, env: makeEnv() };
 
@@ -268,6 +268,97 @@ describe('the environment conditions', () => {
       ['kage at noon', pet('young_kage', 'young', { history: history({ stageMistakes: 6 }) }), hour(12, 0.5), 'adult_bat'],
       ['kirari, lucky', pet('young_kirari', 'young'), hour(12, 0.4), 'adult_astra'],
       ['kirari, unlucky', pet('young_kirari', 'young'), hour(12, 0.6), 'adult_nexus'],
+    ];
+    for (const [label, p, c, expected] of table) expect(next(p, c), label).toBe(expected);
+  });
+});
+
+describe('the new forms', () => {
+  const stop: Record<GameId, number> = { catch: 1, cups: 1, stop: 4 };
+  const lucky = { rng: () => 0, hour: 12, env: makeEnv() };
+  const grew = (roomMinutes: CareHistory['roomMinutes']) => ({ history: history({ roomMinutes }) });
+  const decor = (room: RoomId, items: DecorId[], shown: RoomId = 'home'): EvolutionContext => ({
+    ...ctx,
+    env: makeEnv({ room: shown, decorIn: (r) => (r === room ? items : ['ball']) }),
+  });
+  const wearing = (worn: EvolutionEnv['worn']): EvolutionContext => ({ ...lucky, env: makeEnv({ worn }) });
+  const young = (formId: string, over: PetOverrides = {}) => pet(formId, 'young', over);
+  const styled = {
+    stop: { history: history({ gameCounts: stop }) },
+    light: { stats: { weight: BASE_WEIGHT.young * 0.8 } },
+    morning: { history: history({ care: 12, morningCare: 7 }) },
+  };
+
+  test('each new form is reached by its care style', () => {
+    const table: [string, PetState, EvolutionContext, string][] = [
+      ['garden minutes', pet('baby_puni', 'baby', grew({ garden: 40, home: 10 })), ctx, 'child_pico'],
+      ['beach minutes', pet('baby_puni', 'baby', grew({ beach: 40 })), ctx, 'child_awa'],
+      ['forest minutes', pet('baby_puni', 'baby', grew({ forest: 40, beach: 39 })), ctx, 'child_tane'],
+      ['sweets minutes', pet('baby_puni', 'baby', grew({ sweets: 40 })), ctx, 'child_ame'],
+      ['shown in the snowfield', pet('baby_puni', 'baby'), { ...ctx, env: makeEnv({ room: 'snowfield' }) }, 'child_yuki'],
+      ['light items lead', pet('child_mochi', 'child'), decor('home', ['candle', 'lamp', 'fishbowl']), 'young_tomoshi'],
+      ['water items', pet('child_awa', 'child', grew({ beach: 9 })), decor('beach', ['fishbowl', 'vase']), 'young_kingyo'],
+      ['plants', pet('child_tane', 'child', grew({ forest: 9 })), decor('forest', ['plant', 'cactus', 'bonsai']), 'young_kogane'],
+      ['sky items', pet('child_pico', 'child', grew({ garden: 9 })), decor('garden', ['bunting', 'telescope'], 'beach'), 'young_kumo'],
+      ['gadgets', pet('child_hoshi', 'child', { history: history({ stageMistakes: 1 }) }), decor('home', ['clock', 'musicbox']), 'young_kaminari'],
+      ['night items', pet('child_kemu', 'child'), decor('home', ['lantern', 'petbed', 'drum']), 'young_obake'],
+      ['sparkles', pet('child_yuki', 'child', grew({ snowfield: 9 })), decor('snowfield', ['trophy', 'globe']), 'young_tsurara'],
+      ['cozy items', pet('child_dango', 'child'), decor('home', ['armchair', 'cushion', 'lamp']), 'young_koishi'],
+      ['hinoko stop', young('young_hinoko', styled.stop), ctx, 'adult_hedgehog'],
+      ['tomoshi light', young('young_tomoshi', styled.light), ctx, 'adult_ferret'],
+      ['hinoko morning', young('young_hinoko', styled.morning), ctx, 'adult_rooster'],
+      ['kingyo stop', young('young_kingyo', styled.stop), ctx, 'adult_seal'],
+      ['kingyo light', young('young_kingyo', styled.light), ctx, 'adult_otter'],
+      ['shizuku morning', young('young_shizuku', styled.morning), ctx, 'adult_dolphin'],
+      ['shizuku with a necklace', young('young_shizuku'), wearing({ neck: 'necklace' }), 'adult_whale'],
+      ['mebuki stop', young('young_mebuki', styled.stop), ctx, 'adult_mushroom'],
+      ['kogane light', young('young_kogane', styled.light), ctx, 'adult_bunny'],
+      ['kogane morning', young('young_kogane', styled.morning), ctx, 'adult_sunflower'],
+      ['kogane with a flower crown', young('young_kogane'), wearing({ head: 'flowercrown' }), 'adult_stag'],
+      ['kumo stop', young('young_kumo', styled.stop), ctx, 'adult_butterfly'],
+      ['fuwari light', young('young_fuwari', styled.light), ctx, 'adult_dandelion'],
+      ['kumo morning', young('young_kumo', styled.morning), ctx, 'adult_swallow'],
+      ['fuwari with a scarf', young('young_fuwari'), wearing({ neck: 'scarf' }), 'adult_stormbird'],
+      ['gear stop', young('young_gear', styled.stop), ctx, 'adult_clock'],
+      ['kaminari light', young('young_kaminari', styled.light), ctx, 'adult_drone'],
+      ['gear morning', young('young_gear', styled.morning), ctx, 'adult_toaster'],
+      ['kaminari with a medal', young('young_kaminari'), wearing({ neck: 'medal' }), 'adult_mecha'],
+      ['obake stop', young('young_obake', styled.stop), ctx, 'adult_pumpkin'],
+      ['kage light', young('young_kage', styled.light), ctx, 'adult_blackcat'],
+      ['obake morning', young('young_obake', styled.morning), ctx, 'adult_koala'],
+      ['tsurara stop', young('young_tsurara', styled.stop), ctx, 'adult_jellyfish'],
+      ['kirari light', young('young_kirari', styled.light), ctx, 'adult_fairy'],
+      ['tsurara morning', young('young_tsurara', styled.morning), ctx, 'adult_rainbow'],
+      ['poyo stop', young('young_poyo', styled.stop), ctx, 'adult_elephant'],
+      ['koishi light', young('young_koishi', styled.light), ctx, 'adult_balloon'],
+      ['koishi morning', young('young_koishi', styled.morning), ctx, 'adult_pancake'],
+    ];
+    const reached = new Set(table.map((row) => row[3]));
+    expect(reached.size).toBe(41);
+    for (const [label, p, c, expected] of table) expect(next(p, c), label).toBe(expected);
+  });
+
+  test('the rares need their item worn and luck', () => {
+    expect(next(young('young_kingyo'), wearing({ neck: 'necklace' }))).toBe('adult_whale');
+    expect(next(young('young_kingyo'), { ...wearing({ neck: 'necklace' }), rng: () => 0.5 })).toBe('adult_kraken');
+    expect(next(young('young_shizuku'), wearing({ neck: 'scarf' }))).toBe('adult_kraken');
+    expect(next(young('young_kumo'), wearing({ head: 'flowercrown' }))).toBe('adult_pegasus');
+  });
+
+  test('priorities put mistakes and weight before rooms and furniture', () => {
+    const messy = { stageMistakes: 3, totalMistakes: 3 };
+    const lamps = decor('garden', ['lamp', 'candle']);
+    const table: [string, PetState, EvolutionContext, string][] = [
+      ['3 mistakes in the garden', pet('baby_puni', 'baby', { history: history({ ...messy, roomMinutes: { garden: 40 } }) }), ctx, 'child_kemu'],
+      ['heavy in the garden', pet('baby_puni', 'baby', { ...grew({ garden: 40 }), stats: { weight: BASE_WEIGHT.baby * 1.5 } }), ctx, 'child_dango'],
+      ['perfect in the garden', pet('baby_puni', 'baby', grew({ garden: 40 })), ctx, 'child_pico'],
+      ['3 mistakes among lamps', pet('child_pico', 'child', { history: history({ ...messy, roomMinutes: { garden: 9 } }) }), lamps, 'young_kage'],
+      ['heavy among lamps', pet('child_pico', 'child', { ...grew({ garden: 9 }), stats: { weight: BASE_WEIGHT.child * 1.5 } }), lamps, 'young_poyo'],
+      ['meat among lamps', pet('child_pico', 'child', { history: history({ roomMinutes: { garden: 9 }, foodCounts: { grain: 0, meat: 4, fish: 0, veggie: 0, sweet: 0 } }) }), lamps, 'young_tomoshi'],
+      ['lucky hoshi among lamps', pet('child_hoshi', 'child', grew({ garden: 9 })), { ...lamps, rng: () => 0.4 }, 'young_kirari'],
+      ['light and morning', young('young_kingyo', { ...styled.light, ...styled.morning }), ctx, 'adult_dolphin'],
+      ['light stop player', young('young_kingyo', { ...styled.light, ...styled.stop }), ctx, 'adult_otter'],
+      ['morning with a necklace', young('young_kingyo', styled.morning), wearing({ neck: 'necklace' }), 'adult_whale'],
     ];
     for (const [label, p, c, expected] of table) expect(next(p, c), label).toBe(expected);
   });
