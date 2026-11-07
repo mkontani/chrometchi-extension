@@ -635,6 +635,17 @@ describe('care counts', () => {
     expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 0 });
   });
 
+  test.each([
+    ['play', makePet(), { kind: 'play', game: 'catch', won: true }],
+    ['clean', makePet({ poops: 1 }), { kind: 'clean' }],
+    ['medicine', makePet({ sick: true }), { kind: 'medicine' }],
+  ] as const)('%s in the morning is counted as morning care', async (_kind, pet, action) => {
+    const { engine, stored } = setup({ pet }, morning);
+    const res = await engine.handle({ type: 'care', action });
+    expect(res).toMatchObject({ outcome: { result: 'ok' } });
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 1 });
+  });
+
   test('refused care is not counted', async () => {
     const { engine, stored } = setup({ pet: hungry() }, morning);
     const res = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'fish' } });
