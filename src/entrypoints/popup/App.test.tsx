@@ -7,7 +7,9 @@ import { EMPTY_PROGRESS } from '@/core/progress';
 import type { UseGame } from '@/ui/useGame';
 import { App } from './App';
 
-vi.mock('@/i18n/t', () => ({ t: (k: string) => k }));
+vi.mock('@/i18n/t', () => ({
+  t: (k: string, subs?: string | string[]) => (k.endsWith('_aria') && subs !== undefined ? `${k}:${[subs].flat().join(',')}` : k),
+}));
 vi.mock('@/ui/assets', () => ({
   spriteUrl: (_f: string, pose: string) => `sprite-${pose}.png`,
   effectUrl: () => null,
@@ -675,7 +677,6 @@ test('the shop button opens the shop overlay and selling sends a sell request', 
   const { send } = setup(null, {}, { kitchen });
   fireEvent.click(screen.getByLabelText('action_shop'));
   expect(screen.getByText('shop_title')).toBeTruthy();
-  const sellAll = screen.getAllByRole('button', { name: 'shop_sell_all' }) as HTMLButtonElement[];
-  fireEvent.click(sellAll.find((b) => !b.disabled) as HTMLButtonElement);
+  fireEvent.click(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' }));
   expect(send).toHaveBeenCalledWith({ type: 'sell', food: 'fish', amount: 3 });
 });

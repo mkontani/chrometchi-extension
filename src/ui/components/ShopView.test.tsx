@@ -32,7 +32,7 @@ test('lists the 8 ingredients with their stock and price', () => {
   const fish = rows()[INGREDIENT_IDS.indexOf('fish')] as HTMLElement;
   expect(within(fish).getByText('Fish')).toBeTruthy();
   expect(within(fish).getByText('×4')).toBeTruthy();
-  const price = within(fish).getByLabelText('Coins: 2');
+  const price = within(fish).getByRole('img', { name: 'Coins: 2' });
   expect(price.querySelector('img')?.getAttribute('src')).toBe('coin.png');
 });
 
@@ -40,8 +40,8 @@ test('"Sell 1" sends one and "Sell all" sends the whole stock', () => {
   const onSell = vi.fn();
   render(<ShopView pantry={{ fish: 4 }} coins={0} onSell={onSell} />);
   const fish = rows()[INGREDIENT_IDS.indexOf('fish')] as HTMLElement;
-  fireEvent.click(within(fish).getByRole('button', { name: 'Sell 1' }));
-  fireEvent.click(within(fish).getByRole('button', { name: 'Sell all' }));
+  fireEvent.click(within(fish).getByRole('button', { name: 'Sell 1 Fish' }));
+  fireEvent.click(within(fish).getByRole('button', { name: 'Sell all Fish' }));
   expect(onSell.mock.calls).toEqual([['fish', 1], ['fish', 4]]);
 });
 
@@ -54,4 +54,11 @@ test('an ingredient with no stock cannot be sold', () => {
 test('shows the coins the player has', () => {
   render(<ShopView pantry={{}} coins={123} onSell={() => undefined} />);
   expect(screen.getByText('Coins: 123')).toBeTruthy();
+});
+
+test('each sell button is named after its food', () => {
+  render(<ShopView pantry={{ fish: 4 }} coins={0} onSell={() => undefined} />);
+  expect(screen.getByRole('button', { name: 'Sell 1 Fish' }).textContent).toBe('Sell 1');
+  expect(screen.getByRole('button', { name: 'Sell all Fish' }).textContent).toBe('Sell all');
+  expect(screen.getAllByRole('button')).toHaveLength(16);
 });

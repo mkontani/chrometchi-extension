@@ -14,7 +14,7 @@ interface Props {
 function CoinAmount({ amount }: { amount: number }) {
   const url = iconUrl('coin');
   return (
-    <span class="shop__coin" aria-label={t('coins_aria', String(amount))}>
+    <span class="shop__coin" role="img" aria-label={t('coins_aria', String(amount))}>
       {url ? <img src={url} width={16} height={16} alt="" /> : null}
       <span aria-hidden="true">{amount}</span>
     </span>
@@ -38,10 +38,22 @@ function Row({ food, stock, onSell }: RowProps) {
           {countLabel(stock)} <CoinAmount amount={SELL_PRICE[food]} />
         </small>
       </span>
-      <button type="button" class="shop__btn" disabled={stock < 1} onClick={() => onSell(food, 1)}>
+      <button
+        type="button"
+        class="shop__btn"
+        aria-label={t('shop_sell_one_aria', t(`food_${food}`))}
+        disabled={stock < 1}
+        onClick={() => onSell(food, 1)}
+      >
         {t('shop_sell_one')}
       </button>
-      <button type="button" class="shop__btn" disabled={stock < 1} onClick={() => onSell(food, stock)}>
+      <button
+        type="button"
+        class="shop__btn"
+        aria-label={t('shop_sell_all_aria', t(`food_${food}`))}
+        disabled={stock < 1}
+        onClick={() => onSell(food, stock)}
+      >
         {t('shop_sell_all')}
       </button>
     </li>

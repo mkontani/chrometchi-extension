@@ -810,5 +810,21 @@
         "content": "$1"
       }
     }
+  },
+  "shop_sell_one_aria": {
+    "message": "Sell 1 $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_sell_all_aria": {
+    "message": "Sell all $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
   }
 }
