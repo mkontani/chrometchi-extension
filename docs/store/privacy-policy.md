@@ -14,7 +14,7 @@ Chrometchi(以下「本拡張機能」)は、Chrome のツールバーで遊ぶ�
 
 本拡張機能は、次のデータを Chrome の拡張機能用ストレージ(`chrome.storage.local`)に保存します。このストレージは利用者のパソコンの中にあります。
 
-- ペットの状態(おなか・きげん・成長など)、ずかん、見つけたレシピ、集めた食材
+- ペットの状態(おなか・きげん・成長など)、ずかん、見つけたレシピ、集めた食材、コインとミッションの進み具合
 - 設定(通知、サウンド、ねる時刻とおきる時刻、おさんぽのオン・オフ)
 - 「このサイトでは隠れる」を選んだサイトのホスト名(例: `example.com`)
 
@@ -57,7 +57,7 @@ Chrometchi ("the extension") is a virtual pet game played from the Chrome toolba
 
 The extension stores the following in Chrome's extension storage (`chrome.storage.local`), which lives on your own computer:
 
-- The pet's state (hunger, mood, growth and so on), your Zukan, the recipes you have found and the ingredients you have gathered
+- The pet's state (hunger, mood, growth and so on), your Zukan, the recipes you have found and the ingredients you have gathered, and your coins and mission progress
 - Settings: notifications, sound, bedtime and wake-up time, and whether walks on web pages are on
 - The hostnames of sites where you chose "Hide on this site" (for example, `example.com`)
 
