@@ -21,6 +21,7 @@ type Row = readonly [AccessoryId, WearPlace, number, 16 | 20 | 24, number, numbe
  * A half pixel rounds up, so the item stays on the pet's 4x pixel grid.
  * Two head items are set by hand so they sit on the head, without covering the eyes (style guide,
  * Anchors): headphones low on its ear cups, and flowercrown 1 px above its bottom so the band rests on the head.
+ * Prices are spec appendix C's ×1.3, rounded to tens, the balance factor that src/core/economy.test.ts checks.
  */
 const ROWS: readonly Row[] = [
   ['ribbon', 'head', 70, 16, 8, 14],

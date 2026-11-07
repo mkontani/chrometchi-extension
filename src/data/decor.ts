@@ -19,12 +19,15 @@ export const DECOR: readonly DecorDef[] = [
   { id: 'bonsai', slot: 'floor', kind: 'plant', price: 200, size: 32 },
   { id: 'bunting', slot: 'ceiling', kind: 'sky', price: 80, size: 32 },
   { id: 'telescope', slot: 'floor', kind: 'sky', price: 330, size: 32 },
+  // Not scaled by 1.3 like the rest: spec 7.3 keeps an item of every kind at 100 coins or less.
   { id: 'clock', slot: 'wall', kind: 'gadget', price: 100, size: 24 },
   { id: 'musicbox', slot: 'floor', kind: 'gadget', price: 200, size: 24 },
   { id: 'toypiano', slot: 'floor', kind: 'gadget', price: 260, size: 32 },
+  // Not scaled by 1.3 like the rest: spec 7.3 keeps an item of every kind at 100 coins or less.
   { id: 'lantern', slot: 'ceiling', kind: 'night', price: 100, size: 24 },
   { id: 'petbed', slot: 'floor', kind: 'night', price: 130, size: 32 },
   { id: 'trophy', slot: 'floor', kind: 'sparkle', price: 330, size: 24 },
+  // Not scaled by 1.3 like the rest: spec 7.3 keeps an item of every kind at 100 coins or less.
   { id: 'globe', slot: 'floor', kind: 'sparkle', price: 100, size: 24 },
   { id: 'xmastree', slot: 'floor', kind: 'sparkle', price: 390, size: 32 },
   { id: 'armchair', slot: 'floor', kind: 'cozy', price: 260, size: 32 },
