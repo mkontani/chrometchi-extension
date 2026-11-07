@@ -9,7 +9,10 @@ import { buyAccessory, takeOffAll, wear } from '@/core/dressup';
 import { markSeen } from '@/core/progress';
 import { sellFood } from '@/core/shop';
 import { forage } from '@/core/outings';
-import { roomRefusal, shownRoom } from '@/core/rooms';
+import { roomRefusal } from '@/core/rooms';
+import { evolutionEnv } from '@/core/home-env';
+import { countCare } from '@/core/care-count';
+import { minuteOfDay } from '@/core/clock';
 import { lightsNeedTurningOff } from '@/core/sleep';
 import { acknowledgeCritical, deriveWarning } from '@/core/warnings';
 import type {
@@ -17,6 +20,7 @@ import type {
   CareOutcome,
   GameEvent,
   Gained,
+  PetState as Pet,
   IdleState,
   MissionKind,
   Rng,
@@ -104,12 +108,21 @@ function farmMutator(req: Extract<EngineRequest, { type: 'farm' }>): Mutator {
   };
 }
 
+const COUNTED_CARE: readonly CareAction['kind'][] = ['feed', 'play', 'clean', 'medicine'];
+
+/** The pet with this care counted toward its stage history, when it was a counted kind and went through. */
+function withCareCounted(pet: Pet, kind: CareAction['kind'], outcome: CareOutcome, save: SaveV1, now: number): Pet {
+  if (outcome.result !== 'ok' || !COUNTED_CARE.includes(kind)) return pet;
+  return { ...pet, history: countCare(pet.history, minuteOfDay(now), save.settings.sleepEndMin) };
+}
+
 function careMutator(action: CareAction): Mutator {
-  return (save) => {
+  return (save, now) => {
     const r = applyCare(save.game.pet, action);
     const kind = action.kind === 'clean' || action.kind === 'play' ? action.kind : null;
     const mission = kind === null ? {} : missionIfOk(r.outcome, kind);
-    return { save: withPet(save, r.pet), events: r.events, outcome: r.outcome, ...mission };
+    const pet = withCareCounted(r.pet, action.kind, r.outcome, save, now);
+    return { save: withPet(save, pet), events: r.events, outcome: r.outcome, ...mission };
   };
 }
 
@@ -122,9 +135,10 @@ function cookMutator(req: Extract<EngineRequest, { type: 'cook' }>): Mutator {
 }
 
 function feedMutator(food: Extract<CareAction, { kind: 'feed' }>): Mutator {
-  return (save) => {
+  return (save, now) => {
     const fed = feedFromPantry(save.game.pet, save.kitchen.pantry, food);
-    const next = { ...withPet(save, fed.result.pet), kitchen: { ...save.kitchen, pantry: fed.pantry } };
+    const pet = withCareCounted(fed.result.pet, 'feed', fed.result.outcome, save, now);
+    const next = { ...withPet(save, pet), kitchen: { ...save.kitchen, pantry: fed.pantry } };
     return { save: next, events: fed.result.events, outcome: fed.result.outcome, ...missionIfOk(fed.result.outcome, 'feed') };
   };
 }
@@ -291,7 +305,7 @@ export function createEngine(deps: EngineDeps): Engine {
       settings: loaded.settings,
       idle,
       rng: deps.rng,
-      room: shownRoom(loaded.home.room, loaded.progress.claimed),
+      env: evolutionEnv(loaded.home, loaded.progress.claimed),
     });
     const grown = { ...loaded.kitchen, farm: growFarm(loaded.kitchen.farm, advanced.minutes) };
     const afterAdvance = bookkeepZukan(

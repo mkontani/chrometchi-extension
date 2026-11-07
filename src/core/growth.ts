@@ -42,7 +42,7 @@ export function stepGrowth(pet: PetState, ctx: EvolutionContext): StepResult {
     ...pet,
     awakeMinutes: pet.awakeMinutes + 1,
     stageMinutes: pet.stageMinutes + 1,
-    history: addRoomMinute(pet, ctx.room),
+    history: addRoomMinute(pet, ctx.env.room),
   };
   if (aged.stageMinutes < STAGE_MINUTES[aged.stage]) return { pet: aged, events: [] };
   if (aged.stage === 'adult') {

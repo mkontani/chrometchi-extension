@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
+import { makeEnv } from './__fixtures__/env';
 import { BASE_WEIGHT } from './constants';
 import { dominant, matches, selectNextForm, weightClass } from './evolution';
 import { makePet } from './__fixtures__/pet';
@@ -6,9 +7,9 @@ import type { PetOverrides } from './__fixtures__/pet';
 import { createRng } from './rng';
 import { FORMS } from '@/data/forms';
 import type { EvolutionContext } from './evolution';
-import type { CareHistory, FoodTag, GameId, PetState, Stage } from './types';
+import type { CareHistory, DecorId, FoodTag, GameId, PetState, RoomId, Stage } from './types';
 
-const ctx = { rng: () => 0.99, hour: 12, room: 'home' as const };
+const ctx = { rng: () => 0.99, hour: 12, env: makeEnv() };
 
 function history(over: Partial<CareHistory> = {}): CareHistory {
   return {
@@ -65,12 +66,12 @@ describe('matches', () => {
   });
   test('rng is not consumed when a non-chance field fails', () => {
     const rng = vi.fn(() => 0.1);
-    expect(matches({ minStageMistakes: 1, chance: 0.5 }, makePet(), { rng, hour: 0, room: 'home' })).toBe(false);
+    expect(matches({ minStageMistakes: 1, chance: 0.5 }, makePet(), { rng, hour: 0, env: makeEnv() })).toBe(false);
     expect(rng).not.toHaveBeenCalled();
   });
   test('rng is consumed once when all other fields match', () => {
     const rng = vi.fn(() => 0.1);
-    expect(matches({ chance: 0.5 }, makePet(), { rng, hour: 0, room: 'home' })).toBe(true);
+    expect(matches({ chance: 0.5 }, makePet(), { rng, hour: 0, env: makeEnv() })).toBe(true);
     expect(rng).toHaveBeenCalledTimes(1);
   });
   test('hours is [start, end)', () => {
@@ -119,35 +120,35 @@ describe('selectNextForm', () => {
   test('phoenix needs 0 stage mistakes AND rng < 0.3', () => {
     const gameCounts: Record<GameId, number> = { catch: 4, cups: 1, stop: 0 };
     const clean = pet('young_hinoko', 'young', { history: history({ gameCounts }) });
-    expect(next(clean, { rng: () => 0.1, hour: 12, room: 'home' })).toBe('adult_phoenix');
-    expect(next(clean, { rng: () => 0.5, hour: 12, room: 'home' })).toBe('adult_dragon');
+    expect(next(clean, { rng: () => 0.1, hour: 12, env: makeEnv() })).toBe('adult_phoenix');
+    expect(next(clean, { rng: () => 0.5, hour: 12, env: makeEnv() })).toBe('adult_dragon');
     const messy = pet('young_hinoko', 'young', { history: history({ gameCounts, stageMistakes: 1 }) });
-    expect(next(messy, { rng: () => 0.1, hour: 12, room: 'home' })).toBe('adult_dragon');
+    expect(next(messy, { rng: () => 0.1, hour: 12, env: makeEnv() })).toBe('adult_dragon');
   });
   test('grandpudding needs heavy weight AND rng < 0.3', () => {
     const p = pet('young_poyo', 'young', { stats: { weight: BASE_WEIGHT.young * 1.5 } });
-    expect(next(p, { rng: () => 0.1, hour: 12, room: 'home' })).toBe('adult_grandpudding');
-    expect(next(p, { rng: () => 0.5, hour: 12, room: 'home' })).toBe('adult_pudding');
+    expect(next(p, { rng: () => 0.1, hour: 12, env: makeEnv() })).toBe('adult_grandpudding');
+    expect(next(p, { rng: () => 0.5, hour: 12, env: makeEnv() })).toBe('adult_pudding');
   });
   test('vampire only between 18:00 and 22:00', () => {
     const p = pet('young_kage', 'young', { history: history({ stageMistakes: 6, totalMistakes: 6 }) });
-    expect(next(p, { rng: () => 0.5, hour: 19, room: 'home' })).toBe('adult_vampire');
-    expect(next(p, { rng: () => 0.5, hour: 12, room: 'home' })).not.toBe('adult_vampire');
-    expect(next(p, { rng: () => 0.5, hour: 22, room: 'home' })).not.toBe('adult_vampire');
+    expect(next(p, { rng: () => 0.5, hour: 19, env: makeEnv() })).toBe('adult_vampire');
+    expect(next(p, { rng: () => 0.5, hour: 12, env: makeEnv() })).not.toBe('adult_vampire');
+    expect(next(p, { rng: () => 0.5, hour: 22, env: makeEnv() })).not.toBe('adult_vampire');
   });
   test('astra needs 0 total mistakes over the whole life AND rng < 0.5', () => {
     const clean = pet('young_kirari', 'young');
-    expect(next(clean, { rng: () => 0.4, hour: 12, room: 'home' })).toBe('adult_astra');
-    expect(next(clean, { rng: () => 0.6, hour: 12, room: 'home' })).toBe('adult_nexus');
+    expect(next(clean, { rng: () => 0.4, hour: 12, env: makeEnv() })).toBe('adult_astra');
+    expect(next(clean, { rng: () => 0.6, hour: 12, env: makeEnv() })).toBe('adult_nexus');
     const past = pet('young_kirari', 'young', { history: history({ totalMistakes: 1 }) });
-    expect(next(past, { rng: () => 0.1, hour: 12, room: 'home' })).not.toBe('adult_astra');
+    expect(next(past, { rng: () => 0.1, hour: 12, env: makeEnv() })).not.toBe('adult_astra');
   });
   test('kirari needs 0 stage mistakes AND rng < 0.5', () => {
     const perfect = pet('child_hoshi', 'child');
-    expect(next(perfect, { rng: () => 0.4, hour: 12, room: 'home' })).toBe('young_kirari');
-    expect(next(perfect, { rng: () => 0.6, hour: 12, room: 'home' })).toBe('young_gear');
+    expect(next(perfect, { rng: () => 0.4, hour: 12, env: makeEnv() })).toBe('young_kirari');
+    expect(next(perfect, { rng: () => 0.6, hour: 12, env: makeEnv() })).toBe('young_gear');
     const messy = pet('child_hoshi', 'child', { history: history({ stageMistakes: 1 }) });
-    expect(next(messy, { rng: () => 0.1, hour: 12, room: 'home' })).not.toBe('young_kirari');
+    expect(next(messy, { rng: () => 0.1, hour: 12, env: makeEnv() })).not.toBe('young_kirari');
   });
   test('throws when no form matches', () => {
     expect(() => selectNextForm(pet('adult_dragon', 'adult'), FORMS, ctx)).toThrow(
@@ -185,8 +186,75 @@ describe('property: every reachable form always resolves', () => {
           morningCare: 0,
         },
       });
-      const result = selectNextForm(p, FORMS, { rng, hour: int(23), room: 'home' });
+      const result = selectNextForm(p, FORMS, { rng, hour: int(23), env: makeEnv() });
       expect(result.stage).toBe(expectedStage);
     }
+  });
+});
+
+describe('the environment conditions', () => {
+  const at = (cond: Parameters<typeof matches>[0], p: PetState, env = makeEnv()) =>
+    matches(cond, p, { ...ctx, env });
+  const grown = (roomMinutes: CareHistory['roomMinutes']) => makePet({ history: history({ roomMinutes }) });
+
+  test('room matches the room the pet grew up in', () => {
+    const p = grown({ garden: 30, beach: 10 });
+    expect(at({ room: 'garden' }, p)).toBe(true);
+    expect(at({ room: 'beach' }, p)).toBe(false);
+  });
+  test('room falls back to the shown room on a tie or with no minutes', () => {
+    const env = makeEnv({ room: 'beach' });
+    expect(at({ room: 'beach' }, grown({ garden: 5, forest: 5 }), env)).toBe(true);
+    expect(at({ room: 'beach' }, grown({}), env)).toBe(true);
+    expect(at({ room: 'garden' }, grown({}), env)).toBe(false);
+  });
+  test('decorKind matches the most common kind in the room grown in', () => {
+    const decorIn = (r: RoomId): DecorId[] => (r === 'garden' ? ['lamp', 'candle', 'fishbowl'] : ['fishbowl']);
+    const env = makeEnv({ room: 'beach', decorIn });
+    const p = grown({ garden: 9 });
+    expect(at({ decorKind: 'light' }, p, env)).toBe(true);
+    expect(at({ decorKind: 'water' }, p, env)).toBe(false);
+  });
+  test('a decor tie gives no kind', () => {
+    const env = makeEnv({ decorIn: () => ['lamp', 'fishbowl'] });
+    expect(at({ decorKind: 'light' }, makePet(), env)).toBe(false);
+    expect(at({ decorKind: 'water' }, makePet(), env)).toBe(false);
+  });
+  test('items with no kind do not count', () => {
+    const env = makeEnv({ decorIn: () => ['drum', 'picture', 'lamp'] });
+    expect(at({ decorKind: 'light' }, makePet(), env)).toBe(true);
+    expect(at({ decorKind: 'water' }, makePet(), makeEnv({ decorIn: () => ['drum'] }))).toBe(false);
+  });
+  test('wearing matches the item worn in its place', () => {
+    const env = makeEnv({ worn: { neck: 'necklace' } });
+    expect(at({ wearing: 'necklace' }, makePet(), env)).toBe(true);
+    expect(at({ wearing: 'scarf' }, makePet(), env)).toBe(false);
+    expect(at({ wearing: 'necklace' }, makePet())).toBe(false);
+  });
+  test('morningCare needs 10 care and at least half of it in the morning', () => {
+    const cared = (care: number, morningCare: number) => makePet({ history: history({ care, morningCare }) });
+    expect(at({ morningCare: true }, cared(10, 5))).toBe(true);
+    expect(at({ morningCare: true }, cared(10, 4))).toBe(false);
+    expect(at({ morningCare: true }, cared(9, 9))).toBe(false);
+  });
+  test('chance is still evaluated last', () => {
+    const rng = vi.fn(() => 0.1);
+    const p = makePet();
+    expect(matches({ wearing: 'necklace', chance: 0.5 }, p, { rng, hour: 0, env: makeEnv() })).toBe(false);
+    expect(rng).not.toHaveBeenCalled();
+    const env = makeEnv({ worn: { neck: 'necklace' } });
+    expect(matches({ wearing: 'necklace', chance: 0.5 }, p, { rng, hour: 0, env })).toBe(true);
+    expect(rng).toHaveBeenCalledTimes(1);
+  });
+  test('the old outcomes are unchanged without the new inputs', () => {
+    const meat = { grain: 0, meat: 4, fish: 1, veggie: 0, sweet: 0 };
+    const table: [string, PetState, string][] = [
+      ['messy baby', pet('baby_puni', 'baby', { history: history({ stageMistakes: 3 }) }), 'child_kemu'],
+      ['perfect baby', pet('baby_puni', 'baby'), 'child_hoshi'],
+      ['plain baby', pet('baby_puni', 'baby', { history: history({ stageMistakes: 1 }) }), 'child_mochi'],
+      ['meat child', pet('child_mochi', 'child', { history: history({ foodCounts: meat }) }), 'young_hinoko'],
+      ['messy child', pet('child_mochi', 'child', { history: history({ stageMistakes: 1 }) }), 'young_gear'],
+    ];
+    for (const [, p, expected] of table) expect(next(p)).toBe(expected);
   });
 });

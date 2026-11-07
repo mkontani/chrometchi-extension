@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vitest';
+import { makeEnv } from './__fixtures__/env';
 import { makePet } from './__fixtures__/pet';
 import { createEgg } from './factory';
 import { stepGrowth } from './growth';
 import { createRng } from './rng';
 
-const ctx = () => ({ rng: createRng(1), hour: 12, room: 'home' as const });
+const ctx = () => ({ rng: createRng(1), hour: 12, env: makeEnv() });
 
 describe('stepGrowth', () => {
   test('ages one awake minute', () => {
@@ -70,14 +71,14 @@ describe('stepGrowth', () => {
 
 describe('stepGrowth room minutes and care counts', () => {
   test('each awake minute counts toward the current room', () => {
-    const first = stepGrowth(makePet(), { ...ctx(), room: 'beach' });
-    const second = stepGrowth(first.pet, { ...ctx(), room: 'beach' });
-    const third = stepGrowth(second.pet, { ...ctx(), room: 'garden' });
+    const first = stepGrowth(makePet(), { ...ctx(), env: makeEnv({ room: 'beach' }) });
+    const second = stepGrowth(first.pet, { ...ctx(), env: makeEnv({ room: 'beach' }) });
+    const third = stepGrowth(second.pet, { ...ctx(), env: makeEnv({ room: 'garden' }) });
     expect(third.pet.history.roomMinutes).toEqual({ beach: 2, garden: 1 });
   });
 
   test('the egg counts no room minutes', () => {
-    const r = stepGrowth(createEgg(), { ...ctx(), room: 'beach' });
+    const r = stepGrowth(createEgg(), { ...ctx(), env: makeEnv({ room: 'beach' }) });
     expect(r.pet.history.roomMinutes).toEqual({});
   });
 
@@ -87,7 +88,7 @@ describe('stepGrowth room minutes and care counts', () => {
       stageMinutes: 119,
       history: { ...base.history, roomMinutes: { garden: 50 }, care: 12, morningCare: 7 },
     });
-    const r = stepGrowth(pet, { ...ctx(), room: 'garden' });
+    const r = stepGrowth(pet, { ...ctx(), env: makeEnv({ room: 'garden' }) });
     expect(r.pet.stage).toBe('child');
     expect(r.pet.history.roomMinutes).toEqual({});
     expect(r.pet.history).toMatchObject({ care: 0, morningCare: 0 });

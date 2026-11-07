@@ -614,3 +614,43 @@ describe('engine', () => {
     });
   });
 });
+
+describe('care counts', () => {
+  const morning = new Date(2026, 0, 1, 8, 0, 0).getTime();
+  const afternoon = new Date(2026, 0, 1, 15, 0, 0).getTime();
+  const hungry = () => makePet({ stats: { hunger: 40 } });
+  const feed = { type: 'care', action: { kind: 'feed', food: 'rice' } } as const;
+
+  test('care in the morning is counted as morning care', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, morning);
+    await engine.handle(feed);
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 1 });
+  });
+
+  test('care outside the morning is counted as care only', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, afternoon);
+    await engine.handle(feed);
+    expect(stored().game.pet.history).toMatchObject({ care: 1, morningCare: 0 });
+  });
+
+  test('refused care is not counted', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, morning);
+    const res = await engine.handle({ type: 'care', action: { kind: 'feed', food: 'fish' } });
+    expect(res).toMatchObject({ outcome: { result: 'refused' } });
+    expect(stored().game.pet.history).toMatchObject({ care: 0, morningCare: 0 });
+  });
+
+  test('petting and lights are not counted', async () => {
+    const { engine, stored } = setup({ pet: hungry() }, morning);
+    await engine.handle({ type: 'care', action: { kind: 'pet' } });
+    await engine.handle({ type: 'care', action: { kind: 'lights', on: false } });
+    expect(stored().game.pet.history).toMatchObject({ care: 0, morningCare: 0 });
+  });
+
+  test('awake minutes are counted in the room that is shown', async () => {
+    const { engine, clock, stored } = setup({ pet: makePet({ stage: 'baby', formId: 'baby_puni' }) }, morning);
+    clock.now = morning + 3 * MIN;
+    await engine.tick();
+    expect(stored().game.pet.history.roomMinutes).toEqual({ home: 3 });
+  });
+});
