@@ -901,6 +901,17 @@
       }
     }
   },
+  "reward_first": {
+    "message": "Your first farewell"
+  },
+  "reward_room": {
+    "message": "Got the $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
   "action_decorate": {
     "message": "Decorate"
   },

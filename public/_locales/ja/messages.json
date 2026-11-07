@@ -901,6 +901,17 @@
       }
     }
   },
+  "reward_first": {
+    "message": "はじめての おわかれ"
+  },
+  "reward_room": {
+    "message": "$P1$を もらった",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
   "action_decorate": {
     "message": "もようがえ"
   },

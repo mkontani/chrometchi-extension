@@ -1,4 +1,5 @@
 import { missionStatus } from '@/core/progress';
+import { roomUnlockedBy } from '@/core/rooms';
 import type { MissionKind, Progress, RecentReason } from '@/core/types';
 import { MISSION_KINDS, MISSIONS } from '@/data/economy';
 import { t } from '@/i18n/t';
@@ -8,11 +9,19 @@ import { CoinAmount } from '@/ui/components/CoinAmount';
 export function rewardReasonText(reason: RecentReason): string {
   if (reason === 'ending:departed') return t('reward_departed');
   if (reason === 'ending:dead') return t('reward_dead');
+  if (reason === 'ending:first') return t('reward_first');
   const [kind, a, b] = reason.split(':');
   if (kind === 'zukan') return t('reward_zukan', a ?? '');
   const mission = a as MissionKind;
   const target = MISSIONS[mission]?.[Number(b) - 1]?.target ?? 0;
   return t('reward_mission', [t(`mission_${mission}`), String(target)]);
+}
+
+/** The room a reward gave, as a phrase, or null when it gave none. */
+function roomGiftText(reason: RecentReason): string | null {
+  if (reason === 'ending:departed' || reason === 'ending:dead') return null;
+  const room = roomUnlockedBy(reason);
+  return room === null ? null : t('reward_room', [t(`room_${room}`)]);
 }
 
 function Row({ progress, kind }: { progress: Progress; kind: MissionKind }) {
@@ -37,12 +46,18 @@ function Recent({ recent }: { recent: Progress['recent'] }) {
     <section class="missions__recent">
       <h3 class="missions__heading">{t('rewards_recent')}</h3>
       <ul class="missions__list">
-        {recent.map((r, i) => (
-          <li key={`${r.at}-${i}`} class="missions__row">
-            <span class="missions__text">{rewardReasonText(r.reason)}</span>
-            <CoinAmount amount={r.coins} />
-          </li>
-        ))}
+        {recent.map((r, i) => {
+          const gift = roomGiftText(r.reason);
+          return (
+            <li key={`${r.at}-${i}`} class="missions__row">
+              <span class="missions__text">
+                {rewardReasonText(r.reason)}
+                {gift === null ? null : <small class="missions__detail">{gift}</small>}
+              </span>
+              {r.coins > 0 ? <CoinAmount amount={r.coins} /> : null}
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

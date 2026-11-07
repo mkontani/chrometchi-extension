@@ -79,3 +79,24 @@ test('each unfinished mission shows its step', () => {
   expect(within(rows[0] as HTMLElement).getByText('Step 2/3')).toBeTruthy();
   expect(within(rows[1] as HTMLElement).getByText('Step 1/3')).toBeTruthy();
 });
+
+test('a reward that unlocked a room names it', () => {
+  render(
+    <MissionList
+      progress={progress({
+        recent: [
+          { reason: 'ending:first', coins: 0, at: 2 },
+          { reason: 'zukan:20', coins: 80, at: 1 },
+        ],
+      })}
+    />,
+  );
+  const items = document.querySelectorAll('.missions__recent li');
+  expect(items[0]?.textContent).toContain('Your first farewell');
+  expect(items[0]?.textContent).toContain('Got the Flower garden');
+  expect(within(items[0] as HTMLElement).queryByRole('img')).toBeNull();
+  expect(items[1]?.textContent).toContain('20 in the zukan');
+  expect(items[1]?.textContent).toContain('Got the Forest');
+  expect(within(items[1] as HTMLElement).getByRole('img', { name: 'Coins: 80' })).toBeTruthy();
+  expect(rewardReasonText('ending:first')).toBe('Your first farewell');
+});
