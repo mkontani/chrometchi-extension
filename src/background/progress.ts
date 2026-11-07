@@ -16,6 +16,6 @@ export function bookkeepProgress(save: SaveV1, { events, mission, now }: Progres
     if (e.type === 'departed') progress = rewardEnding(progress, 'departed', now);
   }
   if (mission !== undefined) progress = countMission(progress, mission);
-  progress = settleRewards(progress, save.zukan.discovered.length, now);
+  progress = settleRewards(progress, save.zukan.discovered.length, save.zukan.memories.length, now);
   return progress === save.progress ? save : { ...save, progress };
 }

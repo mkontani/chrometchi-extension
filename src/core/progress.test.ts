@@ -28,33 +28,43 @@ describe('progress', () => {
   });
 
   test('settleRewards pays each reward once', () => {
-    const paid = settleRewards(EMPTY_PROGRESS, 23, 1000);
+    const paid = settleRewards(EMPTY_PROGRESS, 23, 0, 1000);
     expect(paid.coins).toBe(100);
     expect(paid.recent).toHaveLength(2);
     expect(paid.claimed).toEqual(['zukan:10', 'zukan:20']);
     expect(paid.unseen).toBe(true);
-    expect(settleRewards(paid, 23, 2000)).toBe(paid);
+    expect(settleRewards(paid, 23, 0, 2000)).toBe(paid);
+  });
+
+  test('ending:first is claimed once when there is a memory', () => {
+    expect(settleRewards(EMPTY_PROGRESS, 0, 0, 5)).toBe(EMPTY_PROGRESS);
+    const p = settleRewards(EMPTY_PROGRESS, 0, 2, 5);
+    expect(p.coins).toBe(0);
+    expect(p.claimed).toEqual(['ending:first']);
+    expect(p.recent).toEqual([{ reason: 'ending:first', coins: 0, at: 5 }]);
+    expect(p.unseen).toBe(true);
+    expect(settleRewards(p, 0, 2, 6)).toBe(p);
   });
 
   test('a mission tier is paid when the count reaches its target', () => {
     let p = withCounts({ clean: 9 });
-    expect(settleRewards(p, 0, 1)).toBe(p);
-    p = settleRewards(withCounts({ clean: 10 }), 0, 1);
+    expect(settleRewards(p, 0, 0, 1)).toBe(p);
+    p = settleRewards(withCounts({ clean: 10 }), 0, 0, 1);
     expect(p.coins).toBe(30);
     expect(p.claimed).toEqual(['mission:clean:1']);
-    p = settleRewards({ ...p, counts: { ...p.counts, clean: 30 } }, 0, 2);
+    p = settleRewards({ ...p, counts: { ...p.counts, clean: 30 } }, 0, 0, 2);
     expect(p.coins).toBe(110);
   });
 
   test('a count past two targets pays both tiers in one settle', () => {
-    const p = settleRewards(withCounts({ clean: 30 }), 0, 5);
+    const p = settleRewards(withCounts({ clean: 30 }), 0, 0, 5);
     expect(p.coins).toBe(110);
     expect(p.claimed).toEqual(['mission:clean:1', 'mission:clean:2']);
     expect(p.recent).toHaveLength(2);
   });
 
   test('recent keeps the 5 newest, newest first', () => {
-    const p = settleRewards(withCounts({ clean: 100, play: 100 }), 0, 9);
+    const p = settleRewards(withCounts({ clean: 100, play: 100 }), 0, 0, 9);
     expect(p.recent).toHaveLength(5);
     expect(p.claimed).toHaveLength(6);
     expect(p.recent[0]?.reason).toBe('mission:play:3');

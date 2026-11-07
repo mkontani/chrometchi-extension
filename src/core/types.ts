@@ -235,9 +235,13 @@ export interface CareResult {
   events: GameEvent[];
 }
 
+export type RoomId =
+  | 'home' | 'garden' | 'beach' | 'forest' | 'sweets' | 'snowfield'
+  | 'castle' | 'washitsu' | 'space' | 'cabin' | 'library';
+
 export type MissionKind = 'clean' | 'play' | 'feed' | 'outing' | 'harvest' | 'cook';
 export type MissionTierNo = 1 | 2 | 3;
-export type RewardId = `zukan:${number}` | `mission:${MissionKind}:${MissionTierNo}`;
+export type RewardId = 'ending:first' | `zukan:${number}` | `mission:${MissionKind}:${MissionTierNo}`;
 export type RecentReason = RewardId | 'ending:departed' | 'ending:dead';
 
 export interface RecentReward {

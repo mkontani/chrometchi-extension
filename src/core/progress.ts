@@ -28,9 +28,10 @@ function pay(p: Progress, reason: RecentReason, coins: number, at: number, id?: 
 }
 
 /** Pays every reward that is due and not yet claimed; returns `p` itself when none is. */
-export function settleRewards(p: Progress, discovered: number, now: number): Progress {
+export function settleRewards(p: Progress, discovered: number, endings: number, now: number): Progress {
   let next = p;
   const due = (id: RewardId) => !next.claimed.includes(id);
+  if (endings >= 1 && due('ending:first')) next = pay(next, 'ending:first', 0, now, 'ending:first');
   for (const m of ZUKAN_MILESTONES) {
     const id = zukanRewardId(m.count);
     if (discovered >= m.count && due(id)) next = pay(next, id, m.coins, now, id);

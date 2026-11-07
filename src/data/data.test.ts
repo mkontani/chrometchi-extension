@@ -6,6 +6,7 @@ import { DISH_IDS, FOODS, INGREDIENT_IDS, isDish } from './foods';
 import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
+import { ROOMS, ROOM_IDS } from './rooms';
 import {
   COINS_MAX,
   ENDING_COINS,
@@ -285,12 +286,34 @@ describe('economy data', () => {
     });
   });
 
-  test('REWARD_IDS lists 8 zukan and 18 mission rewards, without repeats', () => {
-    expect(REWARD_IDS).toHaveLength(26);
-    expect(new Set(REWARD_IDS).size).toBe(26);
+  test('REWARD_IDS lists ending:first, 8 zukan and 18 mission rewards, without repeats', () => {
+    expect(REWARD_IDS).toHaveLength(27);
+    expect(new Set(REWARD_IDS).size).toBe(27);
     expect(REWARD_IDS.filter((r) => r.startsWith('zukan:'))).toHaveLength(8);
     expect(REWARD_IDS.filter((r) => r.startsWith('mission:'))).toHaveLength(18);
-    expect(REWARD_IDS[0]).toBe('zukan:10');
-    expect(REWARD_IDS[8]).toBe('mission:clean:1');
+    expect(REWARD_IDS[0]).toBe('ending:first');
+    expect(REWARD_IDS[1]).toBe('zukan:10');
+    expect(REWARD_IDS[9]).toBe('mission:clean:1');
+  });
+
+  test('the rooms match the spec table', () => {
+    expect(ROOMS.map((r) => [r.id, r.outdoor, r.unlock])).toEqual([
+      ['home', false, null],
+      ['garden', true, 'ending:first'],
+      ['beach', true, 'zukan:10'],
+      ['forest', true, 'zukan:20'],
+      ['sweets', false, 'zukan:30'],
+      ['snowfield', true, 'zukan:40'],
+      ['castle', false, 'zukan:50'],
+      ['washitsu', false, 'mission:clean:2'],
+      ['space', false, 'mission:play:2'],
+      ['cabin', false, 'mission:cook:2'],
+      ['library', false, 'mission:outing:2'],
+    ]);
+    expect(ROOM_IDS).toEqual(ROOMS.map((r) => r.id));
+  });
+
+  test('every room unlock is a known reward id', () => {
+    for (const r of ROOMS) if (r.unlock) expect(REWARD_IDS, r.id).toContain(r.unlock);
   });
 });
