@@ -329,6 +329,21 @@
   "refuse_locked": {
     "message": "Not unlocked yet"
   },
+  "refuse_owned": {
+    "message": "You already have it"
+  },
+  "refuse_noCoins": {
+    "message": "Not enough coins"
+  },
+  "refuse_noSlot": {
+    "message": "It can't go there"
+  },
+  "refuse_notOwned": {
+    "message": "You don't have it yet"
+  },
+  "refuse_wrongSlot": {
+    "message": "It can't go there"
+  },
   "refuse_farmNotReady": {
     "message": "Not now."
   },
@@ -789,9 +804,6 @@
   "shop_title": {
     "message": "Shop"
   },
-  "shop_sell": {
-    "message": "Sell"
-  },
   "shop_coins": {
     "message": "Coins: $P1$",
     "placeholders": {
@@ -959,5 +971,164 @@
   },
   "room_unlock_first": {
     "message": "After your first farewell"
+  },
+  "shop_tab_decor": {
+    "message": "Furniture"
+  },
+  "shop_tab_sell": {
+    "message": "Sell"
+  },
+  "shop_buy": {
+    "message": "Buy"
+  },
+  "shop_buy_aria": {
+    "message": "Buy $P1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_owned": {
+    "message": "Owned"
+  },
+  "shop_buy_confirm": {
+    "message": "Buy $P1$ for $P2$ coins?",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "shop_bought": {
+    "message": "Place it from Decorate"
+  },
+  "decor_candle": {
+    "message": "Candle"
+  },
+  "decor_lamp": {
+    "message": "Lamp"
+  },
+  "decor_fishbowl": {
+    "message": "Fishbowl"
+  },
+  "decor_vase": {
+    "message": "Vase"
+  },
+  "decor_plant": {
+    "message": "Potted plant"
+  },
+  "decor_cactus": {
+    "message": "Cactus"
+  },
+  "decor_bonsai": {
+    "message": "Bonsai"
+  },
+  "decor_bunting": {
+    "message": "Bunting"
+  },
+  "decor_telescope": {
+    "message": "Telescope"
+  },
+  "decor_clock": {
+    "message": "Wall clock"
+  },
+  "decor_musicbox": {
+    "message": "Music box"
+  },
+  "decor_toypiano": {
+    "message": "Toy piano"
+  },
+  "decor_lantern": {
+    "message": "Paper lantern"
+  },
+  "decor_petbed": {
+    "message": "Pet bed"
+  },
+  "decor_trophy": {
+    "message": "Trophy"
+  },
+  "decor_globe": {
+    "message": "Globe"
+  },
+  "decor_xmastree": {
+    "message": "Tree"
+  },
+  "decor_armchair": {
+    "message": "Armchair"
+  },
+  "decor_cushion": {
+    "message": "Cushion"
+  },
+  "decor_table": {
+    "message": "Table"
+  },
+  "decor_stool": {
+    "message": "Stool"
+  },
+  "decor_rug": {
+    "message": "Rug"
+  },
+  "decor_ball": {
+    "message": "Ball"
+  },
+  "decor_blocks": {
+    "message": "Blocks"
+  },
+  "decor_drum": {
+    "message": "Drum"
+  },
+  "decor_shelf": {
+    "message": "Bookshelf"
+  },
+  "decor_picture": {
+    "message": "Picture"
+  },
+  "decor_chest": {
+    "message": "Treasure chest"
+  },
+  "decorate_tab_room": {
+    "message": "Room"
+  },
+  "decorate_tab_decor": {
+    "message": "Furniture"
+  },
+  "slot_wallL": {
+    "message": "Left wall"
+  },
+  "slot_wallR": {
+    "message": "Right wall"
+  },
+  "slot_ceiling": {
+    "message": "Ceiling"
+  },
+  "slot_rug": {
+    "message": "Rug"
+  },
+  "slot_floorL": {
+    "message": "Left floor"
+  },
+  "slot_floorR": {
+    "message": "Right floor"
+  },
+  "decor_remove": {
+    "message": "Remove"
+  },
+  "decor_empty": {
+    "message": "Buy some in the shop"
+  },
+  "slot_filled": {
+    "message": "$P1$: $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   }
 }

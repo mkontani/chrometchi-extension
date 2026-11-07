@@ -7,6 +7,8 @@ import { POT_ITEMS, RECIPES } from './recipes';
 import { FORMS } from './forms';
 import { GAMES } from './games';
 import { ROOMS, ROOM_IDS } from './rooms';
+import { DECOR, DECOR_IDS } from './decor';
+import { ROOM_SLOTS, SLOT_IDS, SLOT_KIND } from './slots';
 import {
   COINS_MAX,
   ENDING_COINS,
@@ -200,6 +202,13 @@ describe('i18n', () => {
     }
   });
 
+  test('every furniture item has a name in both locales', () => {
+    for (const id of DECOR_IDS) {
+      expect(ja[`decor_${id}`]?.message, `ja ${id}`).toBeTruthy();
+      expect(en[`decor_${id}`]?.message, `en ${id}`).toBeTruthy();
+    }
+  });
+
   test('every form except egg and baby has a hint in both locales', () => {
     const hinted = FORMS.filter((f) => f.stage !== 'egg' && f.stage !== 'baby');
     expect(hinted).toHaveLength(40);
@@ -214,6 +223,7 @@ describe('i18n', () => {
       full: true, notSick: true, asleep: true, awake: true,
       notAlive: true, egg: true, cooldown: true, noPoop: true, noStock: true, outingLimit: true,
       farmNotReady: true, pantryFull: true, locked: true,
+      owned: true, noCoins: true, noSlot: true, notOwned: true, wrongSlot: true,
     };
     for (const reason of Object.keys(reasons)) {
       expect(ja[`refuse_${reason}`]?.message, `ja ${reason}`).toBeTruthy();
@@ -315,5 +325,75 @@ describe('economy data', () => {
 
   test('every room unlock is a known reward id', () => {
     for (const r of ROOMS) if (r.unlock) expect(REWARD_IDS, r.id).toContain(r.unlock);
+  });
+});
+
+describe('furniture data', () => {
+  test('the furniture matches the spec table', () => {
+    const row = (d: (typeof DECOR)[number]) => [d.id, d.slot, String(d.kind), d.price, d.size].join(' ');
+    expect(DECOR.map(row)).toEqual([
+      'candle floor light 50 24', 'lamp floor light 100 32',
+      'fishbowl floor water 120 32', 'vase floor water 60 32',
+      'plant floor plant 60 32', 'cactus floor plant 60 24', 'bonsai floor plant 150 32',
+      'bunting ceiling sky 60 32', 'telescope floor sky 250 32',
+      'clock wall gadget 100 24', 'musicbox floor gadget 150 24', 'toypiano floor gadget 200 32',
+      'lantern ceiling night 100 24', 'petbed floor night 100 32',
+      'trophy floor sparkle 250 24', 'globe floor sparkle 100 24', 'xmastree floor sparkle 300 32',
+      'armchair floor cozy 200 32', 'cushion rug cozy 50 32', 'table floor cozy 120 32',
+      'stool floor cozy 60 24', 'rug rug cozy 80 32',
+      'ball floor null 50 24', 'blocks floor null 50 24', 'drum floor null 120 24',
+      'shelf floor null 150 32', 'picture wall null 100 24', 'chest floor null 200 32',
+    ]);
+  });
+
+  test('every kind has an item for 100 coins or less', () => {
+    const kinds = new Set(DECOR.flatMap((d) => (d.kind ? [d.kind] : [])));
+    expect(kinds.size).toBe(8);
+    for (const kind of kinds) {
+      expect(DECOR.some((d) => d.kind === kind && d.price <= 100), kind).toBe(true);
+    }
+  });
+
+  test('outdoor rooms have only the floor and rug slots', () => {
+    for (const room of ROOMS) {
+      const slots = Object.keys(ROOM_SLOTS[room.id]).sort();
+      expect(slots, room.id).toEqual(room.outdoor ? ['floorL', 'floorR', 'rug'] : [...SLOT_IDS].sort());
+    }
+  });
+
+  test('every slot sits on the stage and the room-pixel grid, fits its items and keeps clear of the others', () => {
+    const STAGE = { w: 352, h: 272 };
+    /** Items are drawn at 2x, so the widest item of a slot kind is twice its largest art size. */
+    const widest = (kind: string) => 2 * Math.max(...DECOR.filter((d) => d.slot === kind).map((d) => d.size));
+    for (const room of ROOM_IDS) {
+      const rects = Object.entries(ROOM_SLOTS[room]).flatMap(([slot, r]) => (r ? [{ slot, r }] : []));
+      for (const { slot, r } of rects) {
+        const kind = SLOT_KIND[slot as keyof typeof SLOT_KIND];
+        const at = `${room} ${slot}`;
+        expect([r.x, r.y, r.w, r.h].every((v) => v % 4 === 0), at).toBe(true);
+        expect(r.x >= 0 && r.y >= 0 && r.x + r.w <= STAGE.w && r.y + r.h <= STAGE.h, at).toBe(true);
+        expect(r.w, at).toBeGreaterThanOrEqual(widest(kind));
+        // Ceiling and rug items may overflow the rect's height (style guide), so only floor and wall are checked.
+        if (kind === 'floor' || kind === 'wall') expect(r.h, at).toBeGreaterThanOrEqual(widest(kind));
+      }
+      for (const [i, a] of rects.entries()) {
+        for (const b of rects.slice(i + 1)) {
+          const apart =
+            a.r.x + a.r.w <= b.r.x || b.r.x + b.r.w <= a.r.x || a.r.y + a.r.h <= b.r.y || b.r.y + b.r.h <= a.r.y;
+          expect(apart, `${room} ${a.slot} and ${b.slot}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  test("no floor slot overlaps the pet's box", () => {
+    const box = { x: 112, y: 100, w: 128, h: 128 };
+    for (const room of ROOM_IDS) {
+      for (const [slot, r] of Object.entries(ROOM_SLOTS[room])) {
+        if (SLOT_KIND[slot as keyof typeof SLOT_KIND] !== 'floor' || !r) continue;
+        const apart = r.x + r.w <= box.x || r.x >= box.x + box.w || r.y + r.h <= box.y || r.y >= box.y + box.h;
+        expect(apart, `${room} ${slot}`).toBe(true);
+      }
+    }
   });
 });

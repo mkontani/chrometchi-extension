@@ -117,6 +117,22 @@ describe('farm request', () => {
     expect(parseEngineRequest({ type: 'setRoom' })).toBeNull();
   });
 
+  test('placeDecor requests that are not known ids are rejected', () => {
+    const ok = { type: 'placeDecor', room: 'home', slot: 'floorL', decor: 'candle' };
+    expect(parseEngineRequest(ok)).toEqual(ok);
+    expect(parseEngineRequest({ ...ok, decor: null })).toEqual({ ...ok, decor: null });
+    expect(parseEngineRequest({ ...ok, room: 'moon' })).toBeNull();
+    expect(parseEngineRequest({ ...ok, slot: 'roof' })).toBeNull();
+    expect(parseEngineRequest({ ...ok, decor: 'ghost' })).toBeNull();
+    expect(parseEngineRequest({ type: 'placeDecor', room: 'home', slot: 'floorL' })).toBeNull();
+  });
+
+  test('buyDecor requests that are not a known item are rejected', () => {
+    expect(parseEngineRequest({ type: 'buyDecor', decor: 'lamp' })).toEqual({ type: 'buyDecor', decor: 'lamp' });
+    expect(parseEngineRequest({ type: 'buyDecor', decor: 'ghost' })).toBeNull();
+    expect(parseEngineRequest({ type: 'buyDecor' })).toBeNull();
+  });
+
   test('sell requests that are not a positive whole amount of an ingredient are rejected', () => {
     for (const amount of [0, -1, 1.5, 100]) {
       expect(parseEngineRequest({ type: 'sell', food: 'fish', amount })).toBeNull();

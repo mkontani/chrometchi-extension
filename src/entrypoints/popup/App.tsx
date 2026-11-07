@@ -16,12 +16,13 @@ import { NoticeDialog } from '@/ui/components/NoticeDialog';
 import { OutingHost } from '@/ui/components/OutingHost';
 import { OutingPanel } from '@/ui/components/OutingPanel';
 import { OutcomeToast } from '@/ui/components/OutcomeToast';
+import { DecorateOverlay } from '@/ui/components/DecorateOverlay';
 import { Overlay } from '@/ui/components/Overlay';
 import { RecipeBook } from '@/ui/components/RecipeBook';
 import { TabBar, type TabDef } from '@/ui/components/TabBar';
-import { ownedRooms, shownRoom } from '@/core/rooms';
+import { placedIn } from '@/core/decor';
+import { shownRoom } from '@/core/rooms';
 import { PetStage } from '@/ui/components/PetStage';
-import { RoomPicker } from '@/ui/components/RoomPicker';
 import { PlayPanel } from '@/ui/components/PlayPanel';
 import { ShopView } from '@/ui/components/ShopView';
 import { SettingsView } from '@/ui/components/SettingsView';
@@ -40,9 +41,11 @@ import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
-/** Selling and room switches are answered inside their own overlay, so they never sound or show on the home screen. */
+const OVERLAY_ACTIONS: readonly CareOutcome['action'][] = ['sell', 'setRoom', 'buy', 'place'];
+
+/** Selling, room switches, buying and placing are answered inside their own overlay, so they never sound or show on the home screen. */
 const isHomeOutcome = (outcome: CareOutcome | null): outcome is CareOutcome =>
-  outcome !== null && outcome.action !== 'sell' && outcome.action !== 'setRoom';
+  outcome !== null && !OVERLAY_ACTIONS.includes(outcome.action);
 
 /** The sound for an outcome; null for care whose effect plays its own sounds as it goes. */
 function sfxFor(outcome: CareOutcome): SfxName | null {
@@ -140,6 +143,7 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
   const choice = (
     <PanelChoice {...{ save, panel, onPlay, onGo, onFarm }} onCook={cooking.cook} care={care} close={() => setPanel(null)} />
   );
+  const stageRoom = shownRoom(save.home.room, save.progress.claimed);
   return (
     <>
       <StatusBar pet={pet} coins={save.progress.coins} />
@@ -148,7 +152,8 @@ function MainScreen({ save, outcome, error, send, panel, setPanel, onPlay, onGo,
         <PetStage
           pet={stagePet}
           generation={save.game.generation}
-          room={shownRoom(save.home.room, save.progress.claimed)}
+          room={stageRoom}
+          decor={placedIn(save.home, stageRoom)}
           reaction={reaction}
           fromPlay={fromPlay}
           effect={effects.frame}
@@ -198,34 +203,16 @@ function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
   );
 }
 
-/** The live stage with the room list below it; the list scrolls and the stage never shrinks. */
-interface DecorateProps {
+interface InfoProps {
+  kind: 'zukan' | 'shop' | 'settings';
   save: SaveV1;
   outcome: CareOutcome | null;
   send: UseGame['send'];
   onClose(): void;
 }
 
-function DecorateOverlay({ save, outcome, send, onClose }: DecorateProps) {
-  const { claimed } = save.progress;
-  const room = shownRoom(save.home.room, claimed);
-  return (
-    <Overlay title={t('decorate_title')} onClose={onClose}>
-      <div class="decorate">
-        <PetStage pet={save.game.pet} generation={save.game.generation} room={room} reaction={null} />
-        <RoomPicker
-          owned={ownedRooms(claimed)}
-          current={room}
-          onPick={(next) => void send({ type: 'setRoom', room: next })}
-        />
-      </div>
-      <OutcomeToast outcome={outcome?.action === 'setRoom' ? outcome : null} />
-    </Overlay>
-  );
-}
-
-function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1; send: UseGame['send']; onClose(): void }) {
-  const { kind, save, send, onClose } = props;
+function InfoOverlay(props: InfoProps) {
+  const { kind, save, outcome, send, onClose } = props;
   if (kind === 'zukan') {
     return (
       <Overlay title={t('zukan_title')} onClose={onClose}>
@@ -239,8 +226,14 @@ function InfoOverlay(props: { kind: 'zukan' | 'shop' | 'settings'; save: SaveV1;
         <ShopView
           pantry={save.kitchen.pantry}
           coins={save.progress.coins}
+          ownedDecor={save.home.ownedDecor}
           onSell={(food, amount) => void send({ type: 'sell', food, amount })}
+          onBuy={async (decor) => {
+            const r = await send({ type: 'buyDecor', decor });
+            return r.ok && r.outcome?.action === 'buy' && r.outcome.result === 'ok';
+          }}
         />
+        <OutcomeToast outcome={outcome?.action === 'buy' ? outcome : null} />
       </Overlay>
     );
   }
@@ -350,7 +343,7 @@ export function App() {
   } else if (panel === 'decorate') {
     layer = <DecorateOverlay save={save} outcome={lastOutcome} send={send} onClose={close} />;
   } else if (panel === 'zukan' || panel === 'shop' || panel === 'settings') {
-    layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
+    layer = <InfoOverlay kind={panel} save={save} outcome={lastOutcome} send={send} onClose={close} />;
   } else {
     layer = (
       <MainScreen

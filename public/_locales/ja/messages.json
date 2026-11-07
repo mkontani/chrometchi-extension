@@ -329,6 +329,21 @@
   "refuse_locked": {
     "message": "まだ つかえないよ"
   },
+  "refuse_owned": {
+    "message": "もう もっているよ"
+  },
+  "refuse_noCoins": {
+    "message": "コインが たりないよ"
+  },
+  "refuse_noSlot": {
+    "message": "そこには おけないよ"
+  },
+  "refuse_notOwned": {
+    "message": "まだ もっていないよ"
+  },
+  "refuse_wrongSlot": {
+    "message": "そこには おけないよ"
+  },
   "refuse_farmNotReady": {
     "message": "いまはできないよ"
   },
@@ -789,9 +804,6 @@
   "shop_title": {
     "message": "おみせ"
   },
-  "shop_sell": {
-    "message": "うる"
-  },
   "shop_coins": {
     "message": "もっているコイン $P1$",
     "placeholders": {
@@ -959,5 +971,164 @@
   },
   "room_unlock_first": {
     "message": "はじめての おわかれで"
+  },
+  "shop_tab_decor": {
+    "message": "かぐ"
+  },
+  "shop_tab_sell": {
+    "message": "うる"
+  },
+  "shop_buy": {
+    "message": "かう"
+  },
+  "shop_buy_aria": {
+    "message": "$P1$を かう",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "shop_owned": {
+    "message": "もっている"
+  },
+  "shop_buy_confirm": {
+    "message": "$P1$を $P2$コインで かう？",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "shop_bought": {
+    "message": "もようがえで おけるよ"
+  },
+  "decor_candle": {
+    "message": "ろうそく"
+  },
+  "decor_lamp": {
+    "message": "ランプ"
+  },
+  "decor_fishbowl": {
+    "message": "すいそう"
+  },
+  "decor_vase": {
+    "message": "はなびん"
+  },
+  "decor_plant": {
+    "message": "うえきばち"
+  },
+  "decor_cactus": {
+    "message": "サボテン"
+  },
+  "decor_bonsai": {
+    "message": "ぼんさい"
+  },
+  "decor_bunting": {
+    "message": "ガーランド"
+  },
+  "decor_telescope": {
+    "message": "ぼうえんきょう"
+  },
+  "decor_clock": {
+    "message": "かけどけい"
+  },
+  "decor_musicbox": {
+    "message": "オルゴール"
+  },
+  "decor_toypiano": {
+    "message": "トイピアノ"
+  },
+  "decor_lantern": {
+    "message": "ちょうちん"
+  },
+  "decor_petbed": {
+    "message": "ペットベッド"
+  },
+  "decor_trophy": {
+    "message": "トロフィー"
+  },
+  "decor_globe": {
+    "message": "ちきゅうぎ"
+  },
+  "decor_xmastree": {
+    "message": "ツリー"
+  },
+  "decor_armchair": {
+    "message": "ひじかけいす"
+  },
+  "decor_cushion": {
+    "message": "クッション"
+  },
+  "decor_table": {
+    "message": "テーブル"
+  },
+  "decor_stool": {
+    "message": "スツール"
+  },
+  "decor_rug": {
+    "message": "ラグ"
+  },
+  "decor_ball": {
+    "message": "ボール"
+  },
+  "decor_blocks": {
+    "message": "つみき"
+  },
+  "decor_drum": {
+    "message": "たいこ"
+  },
+  "decor_shelf": {
+    "message": "ほんだな"
+  },
+  "decor_picture": {
+    "message": "え"
+  },
+  "decor_chest": {
+    "message": "たからばこ"
+  },
+  "decorate_tab_room": {
+    "message": "へや"
+  },
+  "decorate_tab_decor": {
+    "message": "かぐ"
+  },
+  "slot_wallL": {
+    "message": "かべ・ひだり"
+  },
+  "slot_wallR": {
+    "message": "かべ・みぎ"
+  },
+  "slot_ceiling": {
+    "message": "てんじょう"
+  },
+  "slot_rug": {
+    "message": "しきもの"
+  },
+  "slot_floorL": {
+    "message": "ゆか・ひだり"
+  },
+  "slot_floorR": {
+    "message": "ゆか・みぎ"
+  },
+  "decor_remove": {
+    "message": "はずす"
+  },
+  "decor_empty": {
+    "message": "おみせで かえるよ"
+  },
+  "slot_filled": {
+    "message": "$P1$: $P2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
   }
 }

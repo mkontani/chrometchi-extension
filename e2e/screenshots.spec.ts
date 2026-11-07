@@ -45,6 +45,15 @@ const STATIC: Record<string, string> = {
   icon: 'public/icon',
 };
 
+/** A cozy set, owned and placed in the home, so the store images never show a bare room. */
+const COZY_HOME: SaveV1['home'] = {
+  room: 'home',
+  ownedDecor: ['rug', 'plant', 'armchair', 'picture', 'clock', 'bunting'],
+  decor: {
+    home: { rug: 'rug', floorL: 'plant', floorR: 'armchair', wallL: 'picture', wallR: 'clock', ceiling: 'bunting' },
+  },
+};
+
 function scene(pet: PetOverrides, sleep = NEVER_ASLEEP, discovered: FormId[] = ['egg']): SaveV1 {
   const now = Date.now();
   const base = createFreshSave(now);
@@ -53,6 +62,7 @@ function scene(pet: PetOverrides, sleep = NEVER_ASLEEP, discovered: FormId[] = [
     meta: { ...base.meta, showRenewal: false, showDataReset: false },
     settings: { ...base.settings, sleepStartMin: sleep[0], sleepEndMin: sleep[1] },
     zukan: { ...base.zukan, discovered },
+    home: COZY_HOME,
     game: { ...base.game, pet: makePet(pet), lastTickAt: now },
   };
 }

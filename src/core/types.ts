@@ -222,10 +222,15 @@ export type RefuseReason =
   | 'outingLimit'
   | 'farmNotReady'
   | 'pantryFull'
-  | 'locked';
+  | 'locked'
+  | 'owned'
+  | 'noCoins'
+  | 'noSlot'
+  | 'notOwned'
+  | 'wrongSlot';
 
 export interface CareOutcome {
-  action: CareAction['kind'] | 'forage' | 'farm' | 'cook' | 'sell' | 'setRoom';
+  action: CareAction['kind'] | 'forage' | 'farm' | 'cook' | 'sell' | 'setRoom' | 'buy' | 'place';
   result: 'ok' | 'refused';
   reason?: RefuseReason;
 }
@@ -240,9 +245,28 @@ export type RoomId =
   | 'home' | 'garden' | 'beach' | 'forest' | 'sweets' | 'snowfield'
   | 'castle' | 'washitsu' | 'space' | 'cabin' | 'library';
 
-/** Where the pet lives: the room the player chose. */
+export type DecorId =
+  | 'candle' | 'lamp' | 'fishbowl' | 'vase' | 'plant' | 'cactus' | 'bonsai'
+  | 'bunting' | 'telescope' | 'clock' | 'musicbox' | 'toypiano' | 'lantern' | 'petbed'
+  | 'trophy' | 'globe' | 'xmastree' | 'armchair' | 'cushion' | 'table' | 'stool' | 'rug'
+  | 'ball' | 'blocks' | 'drum' | 'shelf' | 'picture' | 'chest';
+export type DecorKind = 'light' | 'water' | 'plant' | 'sky' | 'gadget' | 'night' | 'sparkle' | 'cozy';
+export type SlotId = 'wallL' | 'wallR' | 'ceiling' | 'rug' | 'floorL' | 'floorR';
+export type SlotKind = 'wall' | 'ceiling' | 'rug' | 'floor';
+
+/** A box in stage pixels. */
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** Where the pet lives: the room the player chose, and the furniture bought and placed. */
 export interface Home {
   room: RoomId;
+  ownedDecor: DecorId[];
+  decor: Partial<Record<RoomId, Partial<Record<SlotId, DecorId>>>>;
 }
 
 export type MissionKind = 'clean' | 'play' | 'feed' | 'outing' | 'harvest' | 'cook';

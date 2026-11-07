@@ -14,6 +14,7 @@ vi.mock('@/ui/assets', () => ({
   backgroundUrl: (id: string) => (urls.on ? `bg-${id}.png` : null),
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
   iconUrl: (id: string) => `icon-${id}.png`,
+  decorUrl: (id: string) => `decor-${id}.png`,
 }));
 
 beforeEach(() => {
@@ -226,4 +227,72 @@ test('the pet is not a button when it cannot be petted', () => {
   expect(img.getAttribute('aria-label')).toBeNull();
   rerender(<PetStage generation={1} room="home" pet={makePet()} reaction={null} onPetClick={vi.fn()} />);
   expect(screen.getByRole('button', { name: 'action_pet: form_child_kemu' }).getAttribute('tabindex')).toBe('0');
+});
+
+const PLACED = [
+  { slot: 'wallL', decor: 'clock' },
+  { slot: 'floorR', decor: 'plant' },
+] as const;
+const item = (c: Element, id: string) => c.querySelector(`img.decor[src="decor-${id}.png"]`) as HTMLImageElement;
+
+test('placed items are drawn in their slots at 2x', () => {
+  const { container } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} decor={PLACED} />);
+  // clock: 24 px art -> 48 px, centred in wallL {48,48,56,56}
+  const clock = item(container, 'clock');
+  expect([clock.style.left, clock.style.top, clock.style.width, clock.style.height]).toEqual(['52px', '52px', '48px', '48px']);
+  expect(clock.getAttribute('alt')).toBe('');
+  // plant: 32 px art -> 64 px, bottom-centred in floorR {268,156,72,76}
+  const plant = item(container, 'plant');
+  expect([plant.style.left, plant.style.top, plant.style.width, plant.style.height]).toEqual(['272px', '168px', '64px', '64px']);
+});
+
+test('ceiling items are top-centred and rug items centred', () => {
+  const decor = [
+    { slot: 'ceiling', decor: 'lantern' },
+    { slot: 'rug', decor: 'rug' },
+  ] as const;
+  const { container } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} decor={decor} />);
+  const lamp = item(container, 'lantern');
+  const rug = item(container, 'rug');
+  const w = (el: HTMLImageElement) => Number.parseInt(el.style.width, 10);
+  expect(lamp.style.top).toBe('0px');
+  expect(Number.parseInt(lamp.style.left, 10)).toBe(112 + (128 - w(lamp)) / 2);
+  expect(Number.parseInt(rug.style.left, 10)).toBe(128 + (96 - w(rug)) / 2);
+  expect(Number.parseInt(rug.style.top, 10)).toBe(204 + (48 - w(rug)) / 2);
+});
+
+test('wall, ceiling and rug items sit behind the pet and floor items in front', () => {
+  const decor = [...PLACED, { slot: 'rug', decor: 'rug' }] as const;
+  const { container } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} decor={decor} />);
+  const order = [...container.querySelectorAll('img')];
+  const at = (el: Element) => order.indexOf(el as HTMLImageElement);
+  const pet = at(petImg());
+  expect(at(item(container, 'clock'))).toBeLessThan(at(item(container, 'rug')));
+  expect(at(item(container, 'rug'))).toBeLessThan(pet);
+  expect(at(item(container, 'plant'))).toBeGreaterThan(pet);
+});
+
+test('placed items are dimmed while the pet sleeps', () => {
+  const day = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} decor={PLACED} />);
+  expect(day.container.querySelectorAll('.decor--night')).toHaveLength(0);
+  cleanup();
+  const night = render(<PetStage generation={1} room="home" pet={makePet({ asleep: true })} reaction={null} decor={PLACED} />);
+  expect(night.container.querySelectorAll('img.decor.decor--night')).toHaveLength(2);
+});
+
+test('the lights-off darkness covers placed items', () => {
+  const pet = makePet({ asleep: true, lightsOn: false });
+  const { container } = render(
+    <PetStage generation={1} room="home" pet={pet} reaction={null} decor={PLACED} effect={withFrame({ dim: 1 })} />,
+  );
+  const all = [...container.querySelectorAll('*')];
+  const dim = container.querySelector('.stage__dim') as Element;
+  const lastItem = Math.max(...[...container.querySelectorAll('img.decor')].map((el) => all.indexOf(el)));
+  expect(container.querySelectorAll('img.decor')).toHaveLength(2);
+  expect(all.indexOf(dim)).toBeGreaterThan(lastItem);
+});
+
+test('no items are drawn by default', () => {
+  const { container } = render(<PetStage generation={1} room="home" pet={makePet()} reaction={null} />);
+  expect(container.querySelectorAll('img.decor')).toHaveLength(0);
 });

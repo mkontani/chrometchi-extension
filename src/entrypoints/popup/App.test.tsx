@@ -8,7 +8,7 @@ import type { UseGame } from '@/ui/useGame';
 import { App } from './App';
 
 vi.mock('@/i18n/t', () => ({
-  t: (k: string, subs?: string | string[]) => (k.endsWith('_aria') && subs !== undefined ? `${k}:${[subs].flat().join(',')}` : k),
+  t: (k: string, subs?: string | string[]) => ((k.endsWith('_aria') || k === 'slot_filled') && subs !== undefined ? `${k}:${[subs].flat().join(',')}` : k),
 }));
 vi.mock('@/ui/assets', () => ({
   spriteUrl: (_f: string, pose: string) => `sprite-${pose}.png`,
@@ -16,6 +16,7 @@ vi.mock('@/ui/assets', () => ({
   cookUrl: () => 'pot.png',
   backgroundUrl: (id: string) => backgroundUrl(id),
   iconUrl: () => null,
+  decorUrl: () => null,
   assetUrl: () => null,
   gameArtUrl: () => null,
   foodUrl: (food: string, bites: number) => `food-${food}-${bites}.png`,
@@ -33,7 +34,7 @@ const fullSave = (petPatch: object = {}, extra: object = {}) =>
     zukan: { discovered: ['egg', 'baby_puni'], memories: [] },
     kitchen: EMPTY_KITCHEN,
     progress: EMPTY_PROGRESS,
-    home: { room: 'home' },
+    home: { room: 'home', ownedDecor: [], decor: {} },
     settings: { notifications: true, sound: true, sleepStartMin: 1320, sleepEndMin: 420, roam: false, roamHiddenSites: [] },
     meta: { lastNotified: {}, showRenewal: false, showDataReset: false },
     ...extra,
@@ -61,7 +62,7 @@ test('shows only the localized generic error; the raw detail goes to the console
 
 test('a current room that is not owned shows home', () => {
   backgroundUrl.mockClear();
-  useGame.mockReturnValue({ save: fullSave({}, { home: { room: 'castle' } }), outcome: null, error: null, send: vi.fn() });
+  useGame.mockReturnValue({ save: fullSave({}, { home: { room: 'castle', ownedDecor: [], decor: {} } }), outcome: null, error: null, send: vi.fn() });
   render(<App />);
   expect(backgroundUrl).toHaveBeenCalledWith('home_day');
   expect(backgroundUrl).not.toHaveBeenCalledWith('castle_day');
@@ -687,6 +688,7 @@ test('the shop button opens the shop overlay and selling sends a sell request', 
   const { send } = setup(null, {}, { kitchen });
   fireEvent.click(screen.getByLabelText('action_shop'));
   expect(screen.getByText('shop_title')).toBeTruthy();
+  fireEvent.click(screen.getByRole('tab', { name: 'shop_tab_sell' }));
   fireEvent.click(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' }));
   expect(send).toHaveBeenCalledWith({ type: 'sell', food: 'fish', amount: 3 });
 });
@@ -805,4 +807,113 @@ test('a refused room switch shows its reason inside the decorate overlay and not
   fireEvent.click(screen.getByLabelText('close'));
   expect(screen.queryByText('decorate_title')).toBeNull();
   expect(screen.queryByText('refuse_locked')).toBeNull();
+});
+
+test('the shop opens on the furniture tab and the sell list is one tab away', () => {
+  const progress = { ...EMPTY_PROGRESS, coins: 500 };
+  const { send } = setup(null, {}, { progress });
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  expect(screen.getByRole('tab', { name: 'shop_tab_decor' }).getAttribute('aria-selected')).toBe('true');
+  expect(screen.queryByRole('button', { name: 'shop_sell_all_aria:food_fish' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy_aria:decor_candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy' }));
+  expect(send).toHaveBeenCalledWith({ type: 'buyDecor', decor: 'candle' });
+  fireEvent.click(screen.getByRole('tab', { name: 'shop_tab_sell' }));
+  expect(screen.getByRole('button', { name: 'shop_sell_all_aria:food_fish' })).toBeTruthy();
+});
+
+const BOUGHT = { ok: true, save, outcome: { action: 'buy', result: 'ok' } } as const;
+
+test('a bought item shows its hint even if a sync clears the outcome, and hides it on its own', async () => {
+  vi.useFakeTimers();
+  const send = vi.fn().mockResolvedValue(BOUGHT);
+  const progress = { ...EMPTY_PROGRESS, coins: 500 };
+  const rich = fullSave({}, { progress });
+  useGame.mockReturnValue({ save: rich, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy_aria:decor_candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'shop_buy' }));
+  await act(async () => undefined);
+  await act(async () => undefined);
+  expect(send).toHaveBeenCalled();
+  expect(screen.getByText('shop_bought')).toBeTruthy();
+  ui.rerender(<App />);
+  act(() => void vi.advanceTimersByTime(2500));
+  expect(screen.queryByText('shop_bought')).toBeNull();
+  vi.useRealTimers();
+});
+
+test('a refused buy shows its reason inside the shop only', () => {
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save, outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_shop'));
+  useGame.mockReturnValue({ save, outcome: { action: 'buy', result: 'refused', reason: 'noCoins' }, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.getByText('refuse_noCoins')).toBeTruthy();
+  expect(screen.queryByText('shop_bought')).toBeNull();
+  fireEvent.click(screen.getByLabelText('close'));
+  expect(screen.queryByText('refuse_noCoins')).toBeNull();
+});
+
+const withDecor = (room: string) =>
+  fullSave(
+    {},
+    {
+      progress: { ...EMPTY_PROGRESS, claimed: ['ending:first'] },
+      home: { room, ownedDecor: ['candle', 'clock'], decor: { [room]: { floorL: 'candle' } } },
+    },
+  );
+
+test('choosing a slot and an item sends placeDecor for the shown room', () => {
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save: withDecor('home'), outcome: null, error: null, send });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByRole('tab', { name: 'decorate_tab_room' }).getAttribute('aria-selected')).toBe('true');
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
+  expect(screen.getByRole('button', { name: 'slot_wallL' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('button', { name: 'slot_filled:slot_floorL,decor_candle' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'decor_clock' }));
+  expect(send).toHaveBeenCalledWith({ type: 'placeDecor', room: 'home', slot: 'wallL', decor: 'clock' });
+  fireEvent.click(screen.getByRole('button', { name: 'slot_filled:slot_floorL,decor_candle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'decor_remove' }));
+  expect(send).toHaveBeenCalledWith({ type: 'placeDecor', room: 'home', slot: 'floorL', decor: null });
+});
+
+test('an outdoor room offers only floor and rug slots', () => {
+  useGame.mockReturnValue({ save: withDecor('garden'), outcome: null, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
+  const slots = screen.getAllByRole('button', { name: /^slot_/ }).map((b) => b.getAttribute('aria-label'));
+  expect(slots).toEqual(['slot_rug', 'slot_filled:slot_floorL,decor_candle', 'slot_floorR']);
+});
+
+test('a refused placement shows its reason inside the decorate overlay', () => {
+  const refused: CareOutcome = { action: 'place', result: 'refused', reason: 'wrongSlot' };
+  useGame.mockReturnValue({ save: withDecor('home'), outcome: refused, error: null, send: vi.fn() });
+  render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  expect(screen.getByText('refuse_wrongSlot')).toBeTruthy();
+});
+
+test("a slot chosen in one room falls back to that room's first slot after switching to the beach", () => {
+  const withBeach = (room: string) =>
+    fullSave({}, {
+      progress: { ...EMPTY_PROGRESS, claimed: ['zukan:10'] },
+      home: { room, ownedDecor: ['candle'], decor: {} },
+    });
+  const send = vi.fn().mockResolvedValue(NOT_APPLIED);
+  useGame.mockReturnValue({ save: withBeach('home'), outcome: null, error: null, send });
+  const ui = render(<App />);
+  fireEvent.click(screen.getByLabelText('action_decorate'));
+  fireEvent.click(screen.getByRole('tab', { name: 'decorate_tab_decor' }));
+  fireEvent.click(screen.getByRole('button', { name: 'slot_wallL' }));
+  expect(screen.getByRole('button', { name: 'slot_wallL' }).getAttribute('aria-pressed')).toBe('true');
+  useGame.mockReturnValue({ save: withBeach('beach'), outcome: null, error: null, send });
+  ui.rerender(<App />);
+  expect(screen.queryByRole('button', { name: 'slot_wallL' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'slot_rug' }).getAttribute('aria-pressed')).toBe('true');
 });

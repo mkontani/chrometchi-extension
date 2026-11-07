@@ -63,6 +63,9 @@ body {
 .stage--night { background-color: var(--navy); background-image: linear-gradient(#0e1033, var(--navy)); }
 .stage[style] { background-color: transparent; }
 .pet { position: absolute; left: 112px; top: 100px; image-rendering: pixelated; }
+.decor { position: absolute; image-rendering: pixelated; pointer-events: none; }
+/* Close to the night pictures' tone (docs/art/style-guide.md, "Furniture"). */
+.decor--night { filter: invert(1) sepia(0.6) invert(1) brightness(0.6); }
 .pet--bounce { animation: bounce 1s steps(2) infinite; }
 @keyframes bounce { 50% { transform: translateY(-2px); } }
 .poops { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 4px; }
@@ -295,7 +298,6 @@ body {
 .recipes__text { display: flex; flex-direction: column; min-width: 0; font-size: 11px; }
 .recipes__detail { font-size: 9px; color: #6b5d78; }
 .shop__coins { margin: 0 0 4px; font-size: 12px; text-align: right; }
-.shop__heading { margin: 0 0 4px; font-size: 12px; }
 .shop__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 3px; }
 .shop__row { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border: 2px solid var(--ink); background: var(--cream); min-width: 0; }
 .shop__row img { flex: none; image-rendering: pixelated; }
@@ -304,9 +306,40 @@ body {
 .shop__coin { display: inline-flex; align-items: center; gap: 2px; }
 .shop__btn { font-family: inherit; font-size: 10px; border: 2px solid var(--ink); background: #fff; padding: 2px 4px; cursor: pointer; }
 .shop__btn:disabled { opacity: 0.4; cursor: default; }
+.shop__owned { font-size: 10px; color: #6b5d78; padding: 2px 4px; }
+/* The shop lists scroll inside the overlay, with the ▼ cue at the bottom. */
+.overlay:has(.shop) .overlay__body { overflow: hidden; display: flex; flex-direction: column; }
+.shop { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 4px; }
+.scroll-list { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.scroll-list > .shop__list { flex: 1; min-height: 0; overflow-y: auto; align-content: start; }
 
 .missions__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 3px; }
 .missions__row { display: flex; align-items: center; gap: 6px; padding: 2px 4px; border: 2px solid var(--ink); background: var(--cream); min-width: 0; }
 .missions__text { flex: 1; display: flex; flex-direction: column; min-width: 0; font-size: 11px; }
 .missions__detail { font-size: 10px; color: #6b5d78; }
 .missions__heading { margin: 6px 0 4px; font-size: 12px; }
+
+/* Decorate screen: the slot buttons over the stage, and the furniture picker below it. */
+.slot {
+  position: absolute; box-sizing: border-box; padding: 0; background: transparent; cursor: pointer;
+  border: 2px dashed var(--ink); z-index: 6;
+}
+.slot[aria-pressed='true'] { background: rgba(255, 143, 177, 0.45); border-style: solid; }
+.overlay:has(.decorate) .panel__header { padding: 0 8px; }
+.picker { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4px; padding: 0 8px; }
+.picker__empty { margin: 0; font-size: 12px; text-align: center; }
+.picker .scroll-list { flex: 1; min-height: 0; }
+.picker__list {
+  list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; align-content: start;
+  flex: 1; min-height: 0; overflow-y: auto;
+}
+.picker__btn {
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 2px;
+  border: 3px solid var(--ink); background: #fff; font-family: inherit; font-size: 10px; color: var(--ink); cursor: pointer;
+}
+.picker__btn img { image-rendering: pixelated; }
+.picker__btn[aria-pressed='true'] { background: var(--pink); }
+.picker__remove {
+  border: 3px solid var(--ink); background: var(--pink); font-family: inherit; font-size: 11px; color: var(--ink);
+  padding: 2px 8px; cursor: pointer;
+}
