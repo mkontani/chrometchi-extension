@@ -445,10 +445,14 @@ function withHome(save: SaveV1, home: Partial<SaveV1['home']>): SaveV1 {
   return { ...save, home: { ...save.home, ...home } };
 }
 
+/** A shop row by its item's exact name: "Crown" must not also match "Flower crown". */
+const shopRow = (page: Page, name: string) =>
+  page.locator('.shop__row').filter({ has: page.locator('.shop__name').getByText(name, { exact: true }) });
+
 test('buying a plant takes its coins and shows it as owned', async ({ context, extensionId, msg }) => {
   const page = await seedAndOpen(context, extensionId, withProgress(seed({}), { coins: 100 }));
   await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
-  const row = page.locator('.shop__row').filter({ hasText: msg('decor_plant') });
+  const row = shopRow(page, msg('decor_plant'));
   await row.locator('.shop__btn').click(); // named by shop_buy_aria, which the fixture cannot fill in
   await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
   await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
@@ -505,7 +509,7 @@ test('buying a crown and wearing it draws it on the pet', async ({ context, exte
   const page = await seedAndOpen(context, extensionId, withProgress(seed({}), { coins: 300 }));
   await page.getByRole('button', { name: msg('action_shop'), exact: true }).click();
   await page.getByRole('tab', { name: msg('shop_tab_acc') }).click();
-  const row = page.locator('.shop__row').filter({ hasText: msg('acc_crown') });
+  const row = shopRow(page, msg('acc_crown'));
   await row.locator('.shop__btn').click(); // named by shop_buy_aria, which the fixture cannot fill in
   await page.getByRole('alertdialog').getByRole('button', { name: msg('shop_buy'), exact: true }).click();
   await expect(row.locator('.shop__owned')).toHaveText(msg('shop_owned'));
