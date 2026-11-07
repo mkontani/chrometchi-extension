@@ -167,6 +167,39 @@ describe('saveSchema furniture', () => {
   });
 });
 
+describe('saveSchema accessories', () => {
+  const parseHomeOf = (home: unknown) => {
+    const parsed = saveSchema.safeParse({ ...createFreshSave(NOW), home });
+    if (!parsed.success) throw new Error('save must never fail on accessories');
+    return parsed.data.home;
+  };
+
+  test('a stage-3 home without accessories loads with none', () => {
+    const home = parseHomeOf({ room: 'home', ownedDecor: ['lamp'], decor: {} });
+    expect(home).toMatchObject({ ownedDecor: ['lamp'], ownedAcc: [], worn: {} });
+  });
+
+  test('the accessory parser drops unknown, unowned and misplaced items', () => {
+    const home = parseHomeOf({
+      room: 'home',
+      ownedAcc: ['ribbon', 'ghost', 'glasses', 'ribbon', 'bell', 7],
+      worn: { head: 'ribbon', face: 'ribbon', neck: 'crown', hat: 'bell' },
+    });
+    expect(home.ownedAcc).toEqual(['ribbon', 'glasses', 'bell']);
+    expect(home.worn).toEqual({ head: 'ribbon' });
+    const unowned = parseHomeOf({ ownedAcc: ['bell'], worn: { head: 'crown', face: 'ghost', neck: 'bell' } });
+    expect(unowned.worn).toEqual({ neck: 'bell' });
+  });
+
+  test('a malformed accessory section never resets the save', () => {
+    for (const bad of [5, null, 'x', [], { a: 1 }]) {
+      const home = parseHomeOf({ room: 'beach', ownedAcc: bad, worn: bad });
+      expect(home).toEqual({ room: 'beach', ownedDecor: [], decor: {}, ownedAcc: [], worn: {} });
+    }
+    expect(parseHomeOf({ room: 'beach', ownedAcc: ['bell'], worn: 5 })).toMatchObject({ ownedAcc: ['bell'], worn: {} });
+  });
+});
+
 describe('saveSchema progress', () => {
   test('a save without progress loads with empty progress and keeps everything else', () => {
     const fresh = createFreshSave(NOW);

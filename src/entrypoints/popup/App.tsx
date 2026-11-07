@@ -41,7 +41,7 @@ import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
-const OVERLAY_ACTIONS: readonly CareOutcome['action'][] = ['sell', 'setRoom', 'buy', 'place'];
+const OVERLAY_ACTIONS: readonly CareOutcome['action'][] = ['sell', 'setRoom', 'buy', 'place', 'wear'];
 
 /** Selling, room switches, buying and placing are answered inside their own overlay, so they never sound or show on the home screen. */
 const isHomeOutcome = (outcome: CareOutcome | null): outcome is CareOutcome =>
