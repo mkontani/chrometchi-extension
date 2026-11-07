@@ -5,7 +5,7 @@ import type { PotItem } from '@/data/recipes';
 import type { SaveV1 } from '@/storage/schema';
 import { t } from '@/i18n/t';
 import { spriteUrl } from '@/ui/assets';
-import { ActionBar, type ActionKind } from '@/ui/components/ActionBar';
+import { ActionBar, isActionDisabled, type ActionKind } from '@/ui/components/ActionBar';
 import { CriticalBanner } from '@/ui/components/CriticalBanner';
 import { EndingView } from '@/ui/components/EndingView';
 import { FoodPanel } from '@/ui/components/FoodPanel';
@@ -40,9 +40,9 @@ import { useCareEffect } from '@/ui/useCareEffect';
 import { useOutings } from '@/ui/useOutings';
 import { useReducedMotion } from '@/ui/useReducedMotion';
 
-/** Selling is answered inside the shop, so it never sounds or shows on the home screen. */
+/** Selling and room switches are answered inside their own overlay, so they never sound or show on the home screen. */
 const isHomeOutcome = (outcome: CareOutcome | null): outcome is CareOutcome =>
-  outcome !== null && outcome.action !== 'sell';
+  outcome !== null && outcome.action !== 'sell' && outcome.action !== 'setRoom';
 
 /** The sound for an outcome; null for care whose effect plays its own sounds as it goes. */
 function sfxFor(outcome: CareOutcome): SfxName | null {
@@ -199,7 +199,14 @@ function ZukanTabs({ save, send }: { save: SaveV1; send: UseGame['send'] }) {
 }
 
 /** The live stage with the room list below it; the list scrolls and the stage never shrinks. */
-function DecorateOverlay({ save, send, onClose }: { save: SaveV1; send: UseGame['send']; onClose(): void }) {
+interface DecorateProps {
+  save: SaveV1;
+  outcome: CareOutcome | null;
+  send: UseGame['send'];
+  onClose(): void;
+}
+
+function DecorateOverlay({ save, outcome, send, onClose }: DecorateProps) {
   const { claimed } = save.progress;
   const room = shownRoom(save.home.room, claimed);
   return (
@@ -212,6 +219,7 @@ function DecorateOverlay({ save, send, onClose }: { save: SaveV1; send: UseGame[
           onPick={(next) => void send({ type: 'setRoom', room: next })}
         />
       </div>
+      <OutcomeToast outcome={outcome?.action === 'setRoom' ? outcome : null} />
     </Overlay>
   );
 }
@@ -279,6 +287,11 @@ export function App() {
     }
   }, [save, alive, cancelOuting]);
 
+  const petIdle = save ? isActionDisabled('decorate', save.game.pet) : false;
+  useEffect(() => {
+    if (panel === 'decorate' && petIdle) setPanel(null);
+  }, [panel, petIdle]);
+
   if (!save) {
     return (
       <main class="app">
@@ -335,7 +348,7 @@ export function App() {
       />
     );
   } else if (panel === 'decorate') {
-    layer = <DecorateOverlay save={save} send={send} onClose={close} />;
+    layer = <DecorateOverlay save={save} outcome={lastOutcome} send={send} onClose={close} />;
   } else if (panel === 'zukan' || panel === 'shop' || panel === 'settings') {
     layer = <InfoOverlay kind={panel} save={save} send={send} onClose={close} />;
   } else {
