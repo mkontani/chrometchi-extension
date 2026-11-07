@@ -66,10 +66,10 @@ Every form except the egg has `side.png` (right-facing profile) and `walk0`–`w
 
 ## Stage 5 art fixes (Gate R1)
 
-The 41 forms made on 2026-11-06 had weak frames. They were fixed before stage 5 copied them in. Most fixes are hand edits on the palette, made by scripts in `.superpowers/sdd/2026-11-07-new-forms/art/`. `fix.sh` rebuilds every fixed frame from the originals, which are kept as `<frame>_old.png`.
+The 41 forms made on 2026-11-06 had weak frames. They were fixed before stage 5 copied them in. Most fixes are hand edits on the palette, made by scripts in `.superpowers/art-work/2026-11-06/fixes/`. That folder is git-ignored scratch on the owner's machine, beside the forms. `fix.sh` rebuilds every fixed frame from the originals, which are kept as `<frame>_old.png`.
 
 - **Swirly sick eyes are hand-drawn.** 23 `sick` frames had only a pale face and tears.
-  - `edit_image_pixen` can't draw swirls at 32 px. Three edits from `idle0` gave plain eyes: the sick prompt plus "draw both eyes as clear black spiral swirls … keep the same body colors only a little paler, same shape, no tears". Three eyes-only edits on the old `sick` frame changed nothing.
+  - `edit_image_pixen` can't draw swirls at 32 px. Three edits from `idle0` gave no spirals (pumpkin's came out as square beige eyes): the sick prompt plus "draw both eyes as clear black spiral swirls … keep the same body colors only a little paler, same shape, no tears". Three eyes-only edits on the old `sick` frame changed nothing.
   - So `eyes.cjs` paints each eye over with a stamp: a black clockwise spiral, 6x6, 6x5 or 5x5 to fit the old eye, white inside and mirrored on the right eye. The pale tint and the tears stay.
 - **Happy poses.**
   - `idle0` edits, seed 1, the happy prompt plus the fix:
@@ -91,6 +91,17 @@ The 41 forms made on 2026-11-06 had weak frames. They were fixed before stage 5 
 - **tane** (side and walk): the snap had made the whole body the cap's dark brown. The 9 rows under the cap band are back to the front's light brown `#b4794d`, with a 1 px dark rim.
 - **kaminari floats** (side and walk): `nolegs.cjs` cuts the legs off below the body's closed bottom edge.
 - **Check the snap against `idle0`.** When the source sits between two palette colours, the snap can turn a whole frame grey or salmon. Compare each frame's mean colour with `idle0`'s before approving (`meancol.cjs`).
+- **Copying into the game.**
+  - Copy only the 16 frame names from each form folder: `idle0`, `idle1`, `eat`, `happy`, `sick`, `sleep`, `sad`, `side` and `walk0`–`walk7`.
+  - Skip every `*_old.png`.
+  - Read the `squashRow` of dandelion, drone and awa from their remade `idle1`, not from the old one.
+- **Left weak on purpose** (accepted at Gate R1):
+  - hedgehog `walk5` clumps;
+  - yuki's side-view legs are stubby;
+  - the stamped spirals all look alike;
+  - balloon `sick` reads as sick only through its eyes and the lavender;
+  - drone's body is the lighter lavender;
+  - seal `sad` has a speckle.
 
 ## Effects (care)
 
